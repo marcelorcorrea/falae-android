@@ -28,7 +28,7 @@ android {
             shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField 'String', "BASE_URL", '"https://187.86.153.89:3000"'
+            buildConfigField 'String', "BASE_URL", '"https://www.falaeapp.org"'
         }
     }
 }

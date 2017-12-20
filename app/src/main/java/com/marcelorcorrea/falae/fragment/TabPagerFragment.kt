@@ -1,7 +1,6 @@
 package com.marcelorcorrea.falae.fragment
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -11,23 +10,20 @@ import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.marcelorcorrea.falae.R
 import com.marcelorcorrea.falae.model.SpreadSheet
 import com.marcelorcorrea.falae.model.User
 
-class TabPagerFragment : Fragment(), SpreadSheetFragment.OnFragmentInteractionListener, UserInfoFragment.OnFragmentInteractionListener {
+class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentListener {
 
     private var user: User? = null
 
-    private lateinit var mListener: OnFragmentInteractionListener
+    private lateinit var mListener: TabPagerFragmentListener
     private lateinit var viewPager: ViewPager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            user = arguments.getParcelable(USER_PARAM)
-        }
+        arguments?.let { user = arguments.getParcelable(USER_PARAM) }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -45,10 +41,10 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.OnFragmentInteractionLi
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
+        if (context is TabPagerFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(context!!.toString() + " must implement TabPagerFragment")
         }
     }
 
@@ -64,11 +60,7 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.OnFragmentInteractionLi
         mListener.removeUser(user)
     }
 
-    override fun onFragmentInteraction(uri: Uri) {
-
-    }
-
-    interface OnFragmentInteractionListener {
+    interface TabPagerFragmentListener {
         fun displayActivity(spreadSheet: SpreadSheet)
         fun removeUser(user: User)
     }

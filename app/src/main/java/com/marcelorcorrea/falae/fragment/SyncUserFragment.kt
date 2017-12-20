@@ -17,9 +17,9 @@ import android.widget.Toast
 import com.android.volley.AuthFailureError
 import com.android.volley.Response
 import com.android.volley.VolleyError
+import com.android.volley.toolbox.Volley
 import com.marcelorcorrea.falae.BuildConfig
 import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.VolleyRequest
 import com.marcelorcorrea.falae.model.User
 import com.marcelorcorrea.falae.task.GsonRequest
 import org.json.JSONException
@@ -27,7 +27,7 @@ import org.json.JSONObject
 import java.util.regex.Pattern
 
 class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorListener {
-    private lateinit var mListener: OnFragmentInteractionListener
+    private lateinit var mListener: SyncUserFragmentListener
 
     private lateinit var mEmailView: EditText
     private lateinit var mPasswordView: EditText
@@ -60,10 +60,10 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
+        if (context is SyncUserFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(context!!.toString() + " must implement SyncUserFragmentListener")
         }
     }
 
@@ -79,25 +79,21 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
     }
 
     private fun attemptLogin() {
-        // Reset errors.
         mEmailView.error = null
         mPasswordView.error = null
 
-        // Store values at the time of the login attempt.
         val email = mEmailView.text.toString()
         val password = mPasswordView.text.toString()
 
         var cancel = false
         var focusView: View? = null
 
-        // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.error = getString(R.string.error_invalid_password)
             focusView = mPasswordView
             cancel = true
         }
 
-        // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.error = getString(R.string.error_field_required)
             focusView = mEmailView
@@ -132,8 +128,13 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
             jsonRequest.put(USER_CREDENTIAL_FIELD, credentials)
 
             val url = BuildConfig.BASE_URL + LOGIN_ENDPOINT
-            val jsObjRequest = GsonRequest(url, User::class.java, null, jsonRequest, this, this)
-            VolleyRequest.getInstance(context).addToRequestQueue(jsObjRequest)
+            val gsonRequest = GsonRequest(url = url,
+                    clazz = User::class.java,
+                    jsonRequest = jsonRequest,
+                    listener = this,
+                    errorListener = this)
+
+            Volley.newRequestQueue(context).add(gsonRequest)
             pDialog.show()
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -141,7 +142,7 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
     }
 
     override fun onResponse(response: User) {
-        mListener.onFragmentInteraction(response)
+        mListener.onUserAuthenticated(response)
         if (pDialog.isShowing) {
             pDialog.dismiss()
         }
@@ -160,9 +161,8 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
         }
     }
 
-
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(user: User?)
+    interface SyncUserFragmentListener {
+        fun onUserAuthenticated(user: User?)
     }
 
     companion object {
@@ -172,8 +172,6 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
         private val PASSWORD_CREDENTIAL_FIELD = "password"
         private val USER_CREDENTIAL_FIELD = "user"
         private val VALID_EMAIL_REGEX = Pattern.compile("\\A[\\w+\\-.]+@[a-z\\d\\-.]+\\.[a-z]+\\z", Pattern.CASE_INSENSITIVE)
-
-        private val DUMMY_CREDENTIALS = arrayOf("mlongaray@hp.com:123456", "marcelorcorrea@hp.com:123456", "amostra@falae.com:")
 
         fun newInstance(): SyncUserFragment = SyncUserFragment()
     }

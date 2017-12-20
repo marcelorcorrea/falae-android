@@ -15,15 +15,14 @@ import com.marcelorcorrea.falae.model.User
 class SpreadSheetFragment : Fragment() {
 
     private val EMAIL_SAMPLE = "@falae.com"
-    private lateinit var mListener: OnFragmentInteractionListener
+    private lateinit var mListener: SpreadSheetFragmentListener
     private lateinit var spreadSheetAdapter: SpreadSheetAdapter
     private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            user = arguments.getParcelable(USER_PARAM)
-        }
+        arguments?.let { user = arguments.getParcelable(USER_PARAM) }
+
         onAttachFragment(parentFragment)
         setHasOptionsMenu(true)
     }
@@ -39,17 +38,18 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onAttachFragment(fragment: Fragment?) {
-        if (fragment is OnFragmentInteractionListener) {
+        if (fragment is SpreadSheetFragmentListener) {
             mListener = fragment
         } else {
-            throw RuntimeException(fragment!!.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(fragment!!.toString() + " must implement SpreadSheetFragmentListener")
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        val u = user
-        if (u != null && u.email.contains(EMAIL_SAMPLE).not()){
-            inflater?.inflate(R.menu.board_menu, menu)
+        user?.let {
+            if (it.email.contains(EMAIL_SAMPLE).not()) {
+                inflater?.inflate(R.menu.board_menu, menu)
+            }
         }
     }
 
@@ -59,7 +59,7 @@ class SpreadSheetFragment : Fragment() {
                 val confirmBuilder = AlertDialog.Builder(activity)
                 val confirmDialog = confirmBuilder.setTitle(getString(R.string.removeUser))
                         .setMessage(getString(R.string.questionRemoveUser))
-                        .setPositiveButton(getString(R.string.yes_option), { _, id ->
+                        .setPositiveButton(getString(R.string.yes_option), { _, _ ->
                             mListener.removeUser(user!!)
                         })
                         .setNegativeButton(getString(R.string.no_option), { _, _ -> })
@@ -77,7 +77,7 @@ class SpreadSheetFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    interface OnFragmentInteractionListener {
+    interface SpreadSheetFragmentListener {
         fun displayActivity(spreadSheet: SpreadSheet)
         fun removeUser(user: User)
     }

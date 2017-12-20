@@ -20,7 +20,7 @@ import com.marcelorcorrea.falae.model.Page
 class PageFragment : Fragment() {
 
     private var page: Page? = null
-    private lateinit var mListener: OnFragmentInteractionListener
+    private lateinit var mPageFragmentListener: PageFragmentListener
     private lateinit var mPager: ViewPager
     private lateinit var mPagerAdapter: ItemPagerAdapter
     private lateinit var leftNav: ImageView
@@ -30,9 +30,7 @@ class PageFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            page = arguments.getParcelable(PAGE_PARAM)
-        }
+        arguments?.let { page = arguments.getParcelable(PAGE_PARAM) }
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -116,28 +114,24 @@ class PageFragment : Fragment() {
 
     private fun shouldEnableNavButtons(): Boolean = mPagerAdapter.count > 1
 
-    private fun shouldDisableLeftNavButton(): Boolean = mPager!!.currentItem == 0
+    private fun shouldDisableLeftNavButton(): Boolean = mPager.currentItem == 0
 
     private fun shouldDisableRightButton(): Boolean = mPager.currentItem >= mPagerAdapter.count - 1
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
+        if (context is PageFragmentListener) {
+            mPageFragmentListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(context!!.toString() + " must implement PageFragmentListener")
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-    }
-
     fun speak(msg: String) {
-        mListener.speak(msg)
+        mPageFragmentListener.speak(msg)
     }
 
-    interface OnFragmentInteractionListener {
+    interface PageFragmentListener {
         fun speak(msg: String)
     }
 

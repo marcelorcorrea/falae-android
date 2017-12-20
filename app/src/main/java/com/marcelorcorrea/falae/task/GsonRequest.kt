@@ -2,6 +2,7 @@ package com.marcelorcorrea.falae.task
 
 import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
+import com.android.volley.toolbox.StringRequest
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.json.JSONObject
@@ -13,7 +14,7 @@ import java.io.UnsupportedEncodingException
 
 class GsonRequest<T>(url: String,
                      private val clazz: Class<T>,
-                     private val headers: Map<String, String>?,
+                     private val headers: Map<String, String>? = null,
                      private val jsonRequest: JSONObject,
                      private val listener: Response.Listener<T>,
                      errorListener: Response.ErrorListener) : Request<T>(Request.Method.POST, url, errorListener) {

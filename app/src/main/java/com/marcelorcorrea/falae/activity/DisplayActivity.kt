@@ -11,7 +11,7 @@ import com.marcelorcorrea.falae.model.Page
 import com.marcelorcorrea.falae.model.SpreadSheet
 import com.marcelorcorrea.falae.service.TextToSpeechService
 
-class DisplayActivity : AppCompatActivity(), PageFragment.OnFragmentInteractionListener, ViewPagerItemFragment.OnFragmentInteractionListener {
+class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, ViewPagerItemFragment.ViewPagerItemFragmentListener {
 
     private var currentSpreadSheet: SpreadSheet? = null
 
@@ -20,9 +20,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.OnFragmentInteractionL
         setContentView(R.layout.activity_display)
 
         currentSpreadSheet = intent.getParcelableExtra(SPREADSHEET)
-        if (currentSpreadSheet != null) {
-            openPage(currentSpreadSheet!!.initialPage)
-        }
+        currentSpreadSheet?.let { openPage(it.initialPage) }
     }
 
     override fun openPage(linkTo: String) {

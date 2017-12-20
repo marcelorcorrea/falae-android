@@ -17,13 +17,8 @@ class SettingsFragment : Fragment() {
     private lateinit var seekBar: SeekBar
     private lateinit var seekBarValue: TextView
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         val view = inflater!!.inflate(R.layout.fragment_settings, container, false)
         val scanMode = view.findViewById(R.id.scan_mode) as Switch
         scanMode.isChecked = SharedPreferencesUtils.getBoolean(SCAN_MODE, context)

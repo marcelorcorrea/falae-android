@@ -29,9 +29,9 @@ import java.util.*
 
 class ViewPagerItemFragment : Fragment() {
 
-    private var mItems: List<Item>? = null
-    private var mItemsLayout: List<FrameLayout>? = null
-    private lateinit var mListener: OnFragmentInteractionListener
+    private var mItems: List<Item> = emptyList()
+    private var mItemsLayout: List<FrameLayout> = emptyList()
+    private lateinit var mListener: ViewPagerItemFragmentListener
     private var mColumns: Int = 0
     private var mRows: Int = 0
     private var mMarginWidth: Int = 0
@@ -41,7 +41,7 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
+        arguments?.let {
             mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
             mColumns = arguments.getInt(COLUMNS_PARAM)
             mRows = arguments.getInt(ROWS_PARAM)
@@ -59,7 +59,7 @@ class ViewPagerItemFragment : Fragment() {
 
         val layoutDimensions = calculateLayoutDimensions()
 
-        mItemsLayout = mItems?.map { item ->
+        mItemsLayout = mItems.map { item ->
             val layout = generateLayout(inflater, item, layoutDimensions)
             mGridLayout.addView(layout)
             layout
@@ -101,7 +101,7 @@ class ViewPagerItemFragment : Fragment() {
         frameLayout.setOnClickListener {
             var itemSelected = item
             if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-                itemSelected = mItems!![currentItemSelectedFromScan]
+                itemSelected = mItems[currentItemSelectedFromScan]
             }
             onItemClicked(itemSelected)
         }
@@ -154,14 +154,14 @@ class ViewPagerItemFragment : Fragment() {
         val nameTopMargin = (name.layoutParams as ConstraintLayout.LayoutParams).topMargin
         val nameBoxHeight = nameTopMargin + name.lineHeight * name.lineCount
         val availableHeight = layoutHeight - nameBoxHeight
-        if (availableHeight > layoutWidth) {
+        return if (availableHeight > layoutWidth) {
             val imageLeftMargin = (imageView.layoutParams as ConstraintLayout.LayoutParams).leftMargin
             val imageRightMargin = (imageView.layoutParams as ConstraintLayout.LayoutParams).rightMargin
-            return layoutWidth - (imageLeftMargin + imageRightMargin)
+            layoutWidth - (imageLeftMargin + imageRightMargin)
         } else {
             val imageTopMargin = (imageView.layoutParams as ConstraintLayout.LayoutParams).topMargin
             val imageBottomMargin = (imageView.layoutParams as ConstraintLayout.LayoutParams).bottomMargin
-            return availableHeight - (imageTopMargin + imageBottomMargin)
+            availableHeight - (imageTopMargin + imageBottomMargin)
         }
     }
 
@@ -194,23 +194,23 @@ class ViewPagerItemFragment : Fragment() {
             override fun run() {
                 try {
                     currentItemSelectedFromScan++
-                    if (currentItemSelectedFromScan > mItemsLayout!!.size - 1) {
+                    if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
                         currentItemSelectedFromScan = 0
                     }
                     activity.runOnUiThread {
                         //Highlight current selected item
-                        if (context != null && mItemsLayout != null && currentItemSelectedFromScan < mItemsLayout!!.size) {
+                        if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
                             Log.d("Test", "hightlight current item: " + currentItemSelectedFromScan)
-                            mItemsLayout!![currentItemSelectedFromScan].foreground = context.resources.getDrawable(R.drawable.pressed_color)
+                            mItemsLayout[currentItemSelectedFromScan].foreground = context.resources.getDrawable(R.drawable.pressed_color)
                         }
                         var previousItem = currentItemSelectedFromScan - 1
                         if (previousItem < 0) {
-                            previousItem = mItemsLayout!!.size - 1
+                            previousItem = mItemsLayout.size - 1
                         }
                         //remove highlight from previus item
-                        if (context != null && mItemsLayout != null && previousItem < mItemsLayout!!.size) {
+                        if (context != null && previousItem < mItemsLayout.size) {
                             Log.d("Test", "remove hightlight current item: " + previousItem)
-                            mItemsLayout!![previousItem].foreground = context.resources.getDrawable(R.drawable.normal_color)
+                            mItemsLayout[previousItem].foreground = context.resources.getDrawable(R.drawable.normal_color)
                         }
                     }
                 } catch (e: Exception) {
@@ -223,18 +223,14 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
+        if (context is ViewPagerItemFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(context!!.toString() + " must implement ViewPagerItemFragmentListener")
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-    }
-
-    interface OnFragmentInteractionListener {
+    interface ViewPagerItemFragmentListener {
         fun openPage(linkTo: String)
 
         fun speak(msg: String)

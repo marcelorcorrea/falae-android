@@ -9,8 +9,8 @@ import java.io.File
  */
 object FileHandler {
 
-    fun createUserFolder(context: Context, folderName: String): File {
-        val folder = File(context.filesDir, folderName)
+    fun createUserFolder(context: Context?, folderName: String): File {
+        val folder = File(context?.filesDir, folderName)
         if (!folder.exists()) {
             folder.mkdirs()
         }

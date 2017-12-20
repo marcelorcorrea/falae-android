@@ -11,24 +11,23 @@ import android.util.Log
 import android.widget.Toast
 import com.marcelorcorrea.falae.BuildConfig
 import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.getSSLContext
 import com.marcelorcorrea.falae.model.User
 import com.marcelorcorrea.falae.storage.FileHandler
 import com.marcelorcorrea.falae.toFile
 import java.io.File
 import java.io.IOException
+import java.lang.ref.WeakReference
 import java.net.URL
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.HttpsURLConnection
 
 
 /**
  * Created by corream on 15/05/2017.
  */
 
-class DownloadTask(val context: Context, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
+class DownloadTask(val context: WeakReference<Context>, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
     private val NUMBER_OF_CORES: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
     private var pDialog: ProgressDialog? = null
@@ -48,11 +47,13 @@ class DownloadTask(val context: Context, private val onSyncComplete: (user: User
             if (pDialog != null) {
                 pDialog = null
             }
-            pDialog = ProgressDialog(context)
-            pDialog!!.setMessage(context.getString(R.string.synchronize_message))
-            pDialog!!.isIndeterminate = false
-            pDialog!!.setCancelable(false)
-            pDialog!!.show()
+            context.get()?.let {
+                pDialog = ProgressDialog(it)
+                pDialog!!.setMessage(it.getString(R.string.synchronize_message))
+                pDialog!!.isIndeterminate = false
+                pDialog!!.setCancelable(false)
+                pDialog!!.show()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -63,7 +64,7 @@ class DownloadTask(val context: Context, private val onSyncComplete: (user: User
             return null
         }
         val user = params[0]
-        val folder = FileHandler.createUserFolder(context, user.email)
+        val folder = FileHandler.createUserFolder(context.get(), user.email)
         val photo = user.photo
         if (photo != null && photo.isNotEmpty()) {
             val userUri = download(folder, user.authToken, user.name,
@@ -76,7 +77,7 @@ class DownloadTask(val context: Context, private val onSyncComplete: (user: User
                 .forEach {
                     executor.execute {
                         val imgSrc = "${BuildConfig.BASE_URL}${it.imgSrc}"
-                        Log.d("DEBUG", "Downloading item: " + it.name)
+                        Log.d("DEBUG", "Downloading item: ${it.name} - $imgSrc")
                         val uri = download(folder, user.authToken, it.name, imgSrc)
                         it.imgSrc = uri
                     }
@@ -95,9 +96,6 @@ class DownloadTask(val context: Context, private val onSyncComplete: (user: User
         val url = URL(imgSrc)
         try {
             with(url.openConnection()) {
-                if (this is HttpsURLConnection) {
-                    sslSocketFactory = getSSLContext(context).socketFactory
-                }
                 connectTimeout = TIME_OUT
                 readTimeout = TIME_OUT
                 setRequestProperty("Authorization", "Token $token")
@@ -111,10 +109,10 @@ class DownloadTask(val context: Context, private val onSyncComplete: (user: User
     }
 
     override fun onPostExecute(user: User?) {
-        if (user != null) {
-            onSyncComplete(user)
-        } else {
-            Toast.makeText(context, context.getString(R.string.download_failed), Toast.LENGTH_LONG).show()
+        user?.let { onSyncComplete(it) } ?: run {
+            context.get()?.let {
+                Toast.makeText(it, it.getString(R.string.download_failed), Toast.LENGTH_LONG).show()
+            }
         }
         if (pDialog != null && pDialog!!.isShowing) {
             pDialog!!.dismiss()
@@ -122,13 +120,11 @@ class DownloadTask(val context: Context, private val onSyncComplete: (user: User
     }
 
     private fun hasNetworkConnection(): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm = context.get()?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cm.allNetworks
-                    .map { cm.getNetworkInfo(it) }
-                    .firstOrNull { isConnected(it) } != null
+            cm.allNetworks.any { isConnected(cm.getNetworkInfo(it)) }
         } else {
-            cm.allNetworkInfo.firstOrNull { isConnected(it) } != null
+            cm.allNetworkInfo.any { isConnected(it) }
         }
     }
 

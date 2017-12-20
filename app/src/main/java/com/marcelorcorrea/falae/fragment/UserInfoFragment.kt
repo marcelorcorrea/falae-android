@@ -1,7 +1,6 @@
 package com.marcelorcorrea.falae.fragment
 
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,23 +9,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-
 import com.marcelorcorrea.falae.R
 import com.marcelorcorrea.falae.model.User
 import com.squareup.picasso.Picasso
-
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 
 class UserInfoFragment : Fragment() {
 
-    private lateinit var mListener: OnFragmentInteractionListener
     private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            user = arguments.getParcelable(USER_PARAM)
-        }
+        arguments?.let { user = arguments.getParcelable(USER_PARAM) }
         onAttachFragment(parentFragment)
     }
 
@@ -60,22 +54,6 @@ class UserInfoFragment : Fragment() {
         userInfo.text = user?.profile
 
         return view
-    }
-
-    override fun onAttachFragment(fragment: Fragment?) {
-        if (fragment is OnFragmentInteractionListener) {
-            mListener = fragment
-        } else {
-            throw RuntimeException(fragment!!.toString() + " must implement OnFragmentInteractionListener")
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-    }
-
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
     }
 
     companion object {

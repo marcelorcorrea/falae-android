@@ -26,8 +26,9 @@ import com.marcelorcorrea.falae.model.User
 import com.marcelorcorrea.falae.storage.FileHandler
 import com.marcelorcorrea.falae.storage.SharedPreferencesUtils
 import com.marcelorcorrea.falae.task.DownloadTask
+import java.lang.ref.WeakReference
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, TabPagerFragment.OnFragmentInteractionListener, SyncUserFragment.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, TabPagerFragment.TabPagerFragmentListener, SyncUserFragment.SyncUserFragmentListener {
 
     private lateinit var mDrawer: DrawerLayout
     private lateinit var mNavigationView: NavigationView
@@ -75,9 +76,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun openUserMenuItem(email: String) {
         mCurrentUser = dbHelper.findByEmail(email)
         val item = mCurrentUser?.id?.let { mNavigationView.menu.findItem(it) }
-        if (item != null) {
-            onNavigationItemSelected(item)
-        }
+        item?.let { onNavigationItemSelected(it) }
     }
 
     private fun loadDemoUser() {
@@ -147,14 +146,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onDestroy() {
         dbHelper.close()
-        if (mCurrentUser != null) {
+        mCurrentUser?.let {
             SharedPreferencesUtils.storeString(USER_EMAIL, mCurrentUser!!.email, this)
         }
         super.onDestroy()
     }
 
-    override fun onFragmentInteraction(user: User?) {
-        DownloadTask(this, { u ->
+    override fun onUserAuthenticated(user: User?) {
+        DownloadTask(WeakReference(this), { u ->
             if (!dbHelper.doesUserExist(u)) {
                 val id = dbHelper.insert(u)
                 addUserToMenu(u.copy(id = id.toInt()))
