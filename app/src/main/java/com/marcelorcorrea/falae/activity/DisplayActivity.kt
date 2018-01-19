@@ -3,17 +3,21 @@ package com.marcelorcorrea.falae.activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.KeyEvent
 import android.widget.Toast
 import com.marcelorcorrea.falae.R
 import com.marcelorcorrea.falae.fragment.PageFragment
+import com.marcelorcorrea.falae.fragment.SettingsFragment
 import com.marcelorcorrea.falae.fragment.ViewPagerItemFragment
 import com.marcelorcorrea.falae.model.Page
 import com.marcelorcorrea.falae.model.SpreadSheet
 import com.marcelorcorrea.falae.service.TextToSpeechService
+import com.marcelorcorrea.falae.storage.SharedPreferencesUtils
 
 class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, ViewPagerItemFragment.ViewPagerItemFragmentListener {
 
     private var currentSpreadSheet: SpreadSheet? = null
+    private var scanMode: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +25,8 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
 
         currentSpreadSheet = intent.getParcelableExtra(SPREADSHEET)
         currentSpreadSheet?.let { openPage(it.initialPage) }
+
+        scanMode = SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, this)
     }
 
     override fun openPage(linkTo: String) {
@@ -56,6 +62,16 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
     override fun onBackPressed() {
         super.onBackPressed()
         overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (scanMode) {
+            if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+                val pageFragment = supportFragmentManager.fragments.lastOrNull() as PageFragment?
+                pageFragment?.selectScannedItem()
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     companion object {
