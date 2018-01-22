@@ -60,6 +60,6 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
 
     companion object {
 
-        val SPREADSHEET = "SpreadSheet"
+        const val SPREADSHEET = "SpreadSheet"
     }
 }

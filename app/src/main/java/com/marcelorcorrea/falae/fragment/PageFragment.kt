@@ -12,7 +12,6 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.R.id.pager
 import com.marcelorcorrea.falae.adapter.ItemPagerAdapter
 import com.marcelorcorrea.falae.model.Page
 
@@ -49,7 +48,7 @@ class PageFragment : Fragment() {
                 } else {
                     view.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
-                mPager = view.findViewById(pager) as ViewPager
+                mPager = view.findViewById(R.id.pager) as ViewPager
                 val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065)!!.toInt()
                 leftNav.layoutParams.width = navHoldersSize
                 leftNav.layoutParams.height = navHoldersSize
@@ -57,10 +56,10 @@ class PageFragment : Fragment() {
                 rightNav.layoutParams.height = navHoldersSize
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
-
-                mPagerAdapter = ItemPagerAdapter(childFragmentManager, page!!, navHoldersSize * 2)
-                mPager.adapter = mPagerAdapter
-
+                page?.let {
+                    mPagerAdapter = ItemPagerAdapter(childFragmentManager, it, navHoldersSize * 2)
+                    mPager.adapter = mPagerAdapter
+                }
                 val pagerLayoutParams = mPager.layoutParams as ViewGroup.MarginLayoutParams
                 pagerLayoutParams.leftMargin += navHoldersSize
                 pagerLayoutParams.rightMargin += navHoldersSize
@@ -85,7 +84,8 @@ class PageFragment : Fragment() {
                 }
                 rightNavHolder.setOnClickListener {
                     var tab = mPager.currentItem
-                    if (mPagerAdapter.count > 1 && tab != mPagerAdapter.count - 1) {
+                    if (isPagerAdapterInitialized() &&
+                            mPagerAdapter.count > 1 && tab != mPagerAdapter.count - 1) {
                         speak(getString(R.string.next))
                     }
                     tab++
@@ -112,11 +112,16 @@ class PageFragment : Fragment() {
         rightNav.visibility = View.VISIBLE
     }
 
-    private fun shouldEnableNavButtons(): Boolean = mPagerAdapter.count > 1
+    private fun isPagerAdapterInitialized(): Boolean = this::mPagerAdapter.isInitialized
 
-    private fun shouldDisableLeftNavButton(): Boolean = mPager.currentItem == 0
+    private fun shouldEnableNavButtons(): Boolean = isPagerAdapterInitialized() &&
+            mPagerAdapter.count > 1
 
-    private fun shouldDisableRightButton(): Boolean = mPager.currentItem >= mPagerAdapter.count - 1
+    private fun shouldDisableLeftNavButton(): Boolean = isPagerAdapterInitialized() &&
+            mPager.currentItem == 0
+
+    private fun shouldDisableRightButton(): Boolean = isPagerAdapterInitialized() &&
+            mPager.currentItem >= mPagerAdapter.count - 1
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -136,7 +141,7 @@ class PageFragment : Fragment() {
     }
 
     companion object {
-        private val PAGE_PARAM = "pageParam"
+        private const val PAGE_PARAM = "pageParam"
 
         fun newInstance(page: Page): PageFragment {
             val fragment = PageFragment()
