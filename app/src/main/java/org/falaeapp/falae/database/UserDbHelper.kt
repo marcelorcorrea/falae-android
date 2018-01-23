@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.database
+package org.falaeapp.falae.database
 
 import android.content.ContentValues
 import android.content.Context
@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.marcelorcorrea.falae.model.SpreadSheet
-import com.marcelorcorrea.falae.model.User
+import org.falaeapp.falae.model.SpreadSheet
+import org.falaeapp.falae.model.User
 import java.util.*
 
 
@@ -22,14 +22,14 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     class UserEntry {
         companion object {
 
-            val TABLE_NAME = "user"
-            val COLUMN_SPREADSHEETS = "spreadsheets"
-            val _ID = "_id"
-            val COLUMN_NAME = "name"
-            val COLUMN_EMAIL = "email"
-            val COLUMN_PROFILE = "profile"
-            val COLUMN_PHOTO = "photo"
-            val _COUNT = "_count"
+            const val TABLE_NAME = "user"
+            const val COLUMN_SPREADSHEETS = "spreadsheets"
+            const val _ID = "_id"
+            const val COLUMN_NAME = "name"
+            const val COLUMN_EMAIL = "email"
+            const val COLUMN_PROFILE = "profile"
+            const val COLUMN_PHOTO = "photo"
+            const val _COUNT = "_count"
         }
     }
 

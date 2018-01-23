@@ -1,10 +1,10 @@
-package com.marcelorcorrea.falae.adapter
+package org.falaeapp.falae.adapter
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
-import com.marcelorcorrea.falae.fragment.ViewPagerItemFragment
-import com.marcelorcorrea.falae.model.Page
+import org.falaeapp.falae.fragment.ViewPagerItemFragment
+import org.falaeapp.falae.model.Page
 import java.util.*
 
 class ItemPagerAdapter(fm: FragmentManager, private val page: Page, private val marginWidth: Int) : FragmentStatePagerAdapter(fm) {

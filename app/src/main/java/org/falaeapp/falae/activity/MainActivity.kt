@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.activity
+package org.falaeapp.falae.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,17 +15,17 @@ import android.view.MenuItem
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.database.UserDbHelper
-import com.marcelorcorrea.falae.fragment.SettingsFragment
-import com.marcelorcorrea.falae.fragment.SyncUserFragment
-import com.marcelorcorrea.falae.fragment.TabPagerFragment
-import com.marcelorcorrea.falae.loadUser
-import com.marcelorcorrea.falae.model.SpreadSheet
-import com.marcelorcorrea.falae.model.User
-import com.marcelorcorrea.falae.storage.FileHandler
-import com.marcelorcorrea.falae.storage.SharedPreferencesUtils
-import com.marcelorcorrea.falae.task.DownloadTask
+import org.falaeapp.falae.R
+import org.falaeapp.falae.database.UserDbHelper
+import org.falaeapp.falae.fragment.SettingsFragment
+import org.falaeapp.falae.fragment.SyncUserFragment
+import org.falaeapp.falae.fragment.TabPagerFragment
+import org.falaeapp.falae.loadUser
+import org.falaeapp.falae.model.SpreadSheet
+import org.falaeapp.falae.model.User
+import org.falaeapp.falae.storage.FileHandler
+import org.falaeapp.falae.storage.SharedPreferencesUtils
+import org.falaeapp.falae.task.DownloadTask
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, TabPagerFragment.TabPagerFragmentListener, SyncUserFragment.SyncUserFragmentListener {
@@ -188,6 +188,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     companion object {
 
-        private val USER_EMAIL = "email"
+        private const val USER_EMAIL = "email"
     }
 }

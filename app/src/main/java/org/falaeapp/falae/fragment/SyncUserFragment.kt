@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.fragment
+package org.falaeapp.falae.fragment
 
 import android.app.ProgressDialog
 import android.content.Context
@@ -18,10 +18,10 @@ import com.android.volley.AuthFailureError
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley
-import com.marcelorcorrea.falae.BuildConfig
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.model.User
-import com.marcelorcorrea.falae.task.GsonRequest
+import org.falaeapp.falae.BuildConfig
+import org.falaeapp.falae.R
+import org.falaeapp.falae.model.User
+import org.falaeapp.falae.task.GsonRequest
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.regex.Pattern
@@ -167,10 +167,10 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
 
     companion object {
 
-        private val LOGIN_ENDPOINT = "/login.json"
-        private val EMAIL_CREDENTIAL_FIELD = "email"
-        private val PASSWORD_CREDENTIAL_FIELD = "password"
-        private val USER_CREDENTIAL_FIELD = "user"
+        private const val LOGIN_ENDPOINT = "/login.json"
+        private const val EMAIL_CREDENTIAL_FIELD = "email"
+        private const val PASSWORD_CREDENTIAL_FIELD = "password"
+        private const val USER_CREDENTIAL_FIELD = "user"
         private val VALID_EMAIL_REGEX = Pattern.compile("\\A[\\w+\\-.]+@[a-z\\d\\-.]+\\.[a-z]+\\z", Pattern.CASE_INSENSITIVE)
 
         fun newInstance(): SyncUserFragment = SyncUserFragment()

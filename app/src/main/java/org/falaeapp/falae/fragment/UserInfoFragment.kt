@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.fragment
+package org.falaeapp.falae.fragment
 
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -9,8 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.model.User
+import org.falaeapp.falae.R
+import org.falaeapp.falae.model.User
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 
@@ -58,7 +58,7 @@ class UserInfoFragment : Fragment() {
 
     companion object {
 
-        private val USER_PARAM = "userParam"
+        private const val USER_PARAM = "userParam"
 
         fun newInstance(user: User): UserInfoFragment {
             val fragment = UserInfoFragment()

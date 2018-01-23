@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.task
+package org.falaeapp.falae.task
 
 import android.app.ProgressDialog
 import android.content.Context
@@ -9,11 +9,11 @@ import android.os.AsyncTask
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import com.marcelorcorrea.falae.BuildConfig
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.model.User
-import com.marcelorcorrea.falae.storage.FileHandler
-import com.marcelorcorrea.falae.toFile
+import org.falaeapp.falae.BuildConfig
+import org.falaeapp.falae.R
+import org.falaeapp.falae.model.User
+import org.falaeapp.falae.storage.FileHandler
+import org.falaeapp.falae.toFile
 import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
@@ -134,6 +134,6 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
 
     companion object {
 
-        private val TIME_OUT = 6000
+        private const val TIME_OUT = 6000
     }
 }

@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.fragment
+package org.falaeapp.falae.fragment
 
 import android.content.Context
 import android.os.Build
@@ -11,9 +11,9 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.adapter.ItemPagerAdapter
-import com.marcelorcorrea.falae.model.Page
+import org.falaeapp.falae.R
+import org.falaeapp.falae.adapter.ItemPagerAdapter
+import org.falaeapp.falae.model.Page
 
 
 class PageFragment : Fragment() {

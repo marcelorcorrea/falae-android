@@ -1,8 +1,8 @@
-package com.marcelorcorrea.falae
+package org.falaeapp.falae
 
 import android.content.res.Resources
 import com.google.gson.Gson
-import com.marcelorcorrea.falae.model.User
+import org.falaeapp.falae.model.User
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset

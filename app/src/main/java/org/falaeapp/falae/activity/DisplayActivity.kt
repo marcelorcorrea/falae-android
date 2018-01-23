@@ -1,15 +1,15 @@
-package com.marcelorcorrea.falae.activity
+package org.falaeapp.falae.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.fragment.PageFragment
-import com.marcelorcorrea.falae.fragment.ViewPagerItemFragment
-import com.marcelorcorrea.falae.model.Page
-import com.marcelorcorrea.falae.model.SpreadSheet
-import com.marcelorcorrea.falae.service.TextToSpeechService
+import org.falaeapp.falae.R
+import org.falaeapp.falae.fragment.PageFragment
+import org.falaeapp.falae.fragment.ViewPagerItemFragment
+import org.falaeapp.falae.model.Page
+import org.falaeapp.falae.model.SpreadSheet
+import org.falaeapp.falae.service.TextToSpeechService
 
 class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, ViewPagerItemFragment.ViewPagerItemFragmentListener {
 

@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.fragment
+package org.falaeapp.falae.fragment
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -9,8 +9,8 @@ import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
 
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.storage.SharedPreferencesUtils
+import org.falaeapp.falae.R
+import org.falaeapp.falae.storage.SharedPreferencesUtils
 
 class SettingsFragment : Fragment() {
 
@@ -66,9 +66,9 @@ class SettingsFragment : Fragment() {
 
     companion object {
 
-        val SCAN_MODE = "scanMode"
-        val SEEK_BAR_PROGRESS = "seekBarProgress"
-        val SCAN_MODE_DURATION = "scanModeDuration"
+        const val SCAN_MODE = "scanMode"
+        const val SEEK_BAR_PROGRESS = "seekBarProgress"
+        const val SCAN_MODE_DURATION = "scanModeDuration"
 
         fun newInstance(): SettingsFragment = SettingsFragment()
     }

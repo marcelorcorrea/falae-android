@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.service
+package org.falaeapp.falae.service
 
 import android.app.Service
 import android.content.Intent
@@ -14,7 +14,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
     override fun onBind(arg0: Intent): IBinder? = null
 
     override fun onCreate() {
-        mTextToSpeech = TextToSpeech(this, this, "com.google.android.tts")
+        mTextToSpeech = TextToSpeech(this, this, TTS_ENGINE)
         super.onCreate()
     }
 
@@ -57,6 +57,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
     }
 
     companion object {
-        val TEXT_TO_SPEECH_MESSAGE = "TextToSpeechMessage"
+        const val TEXT_TO_SPEECH_MESSAGE = "TextToSpeechMessage"
+        const val TTS_ENGINE = "com.google.android.tts"
     }
 }

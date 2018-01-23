@@ -1,8 +1,7 @@
-package com.marcelorcorrea.falae.task
+package org.falaeapp.falae.task
 
 import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
-import com.android.volley.toolbox.StringRequest
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import org.json.JSONObject
@@ -56,7 +55,7 @@ class GsonRequest<T>(url: String,
     }
 
     companion object {
-        private val PROTOCOL_CHARSET = "utf-8"
+        private const val PROTOCOL_CHARSET = "utf-8"
         private val PROTOCOL_CONTENT_TYPE = String.format("application/json; charset=%s", PROTOCOL_CHARSET)
     }
 }

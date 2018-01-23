@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.fragment
+package org.falaeapp.falae.fragment
 
 import android.content.Context
 import android.os.Bundle
@@ -10,9 +10,9 @@ import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.model.SpreadSheet
-import com.marcelorcorrea.falae.model.User
+import org.falaeapp.falae.R
+import org.falaeapp.falae.model.SpreadSheet
+import org.falaeapp.falae.model.User
 
 class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentListener {
 
@@ -84,7 +84,7 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
 
     companion object {
 
-        private val USER_PARAM = "userParam"
+        private const val USER_PARAM = "userParam"
 
         fun newInstance(user: User?): TabPagerFragment {
             val fragment = TabPagerFragment()

@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.activity
+package org.falaeapp.falae.activity
 
 import android.content.Intent
 import android.os.Bundle

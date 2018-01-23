@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.fragment
+package org.falaeapp.falae.fragment
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -20,10 +20,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.model.Category
-import com.marcelorcorrea.falae.model.Item
-import com.marcelorcorrea.falae.storage.SharedPreferencesUtils
+import org.falaeapp.falae.R
+import org.falaeapp.falae.model.Category
+import org.falaeapp.falae.model.Item
+import org.falaeapp.falae.storage.SharedPreferencesUtils
 import com.squareup.picasso.Picasso
 import java.util.*
 
@@ -237,10 +237,10 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     companion object {
-        private val ITEMS_PARAM = "items"
-        private val COLUMNS_PARAM = "columns"
-        private val ROWS_PARAM = "rows"
-        private val MARGIN_WIDTH = "marginWidth"
+        private const val ITEMS_PARAM = "items"
+        private const val COLUMNS_PARAM = "columns"
+        private const val ROWS_PARAM = "rows"
+        private const val MARGIN_WIDTH = "marginWidth"
 
         fun newInstance(items: ArrayList<Item>, columns: Int, rows: Int, width: Int): ViewPagerItemFragment {
             val fragment = ViewPagerItemFragment()

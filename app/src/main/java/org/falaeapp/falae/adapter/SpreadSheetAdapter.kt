@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.adapter
+package org.falaeapp.falae.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 
-import com.marcelorcorrea.falae.R
-import com.marcelorcorrea.falae.model.SpreadSheet
+import org.falaeapp.falae.R
+import org.falaeapp.falae.model.SpreadSheet
 
 /**
  * Created by marcelo on 4/18/17.

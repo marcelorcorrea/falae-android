@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae.storage
+package org.falaeapp.falae.storage
 
 import android.content.Context
 import android.webkit.MimeTypeMap

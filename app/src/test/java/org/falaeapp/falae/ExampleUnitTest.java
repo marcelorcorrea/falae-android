@@ -1,4 +1,4 @@
-package com.marcelorcorrea.falae;
+package org.falaeapp.falae;
 
 import org.junit.Test;
 

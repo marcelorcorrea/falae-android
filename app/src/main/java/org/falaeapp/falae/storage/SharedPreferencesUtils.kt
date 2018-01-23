@@ -1,9 +1,9 @@
-package com.marcelorcorrea.falae.storage
+package org.falaeapp.falae.storage
 
 import android.content.Context
 import android.content.SharedPreferences
 
-import com.marcelorcorrea.falae.R
+import org.falaeapp.falae.R
 
 /**
  * Created by bellini on 26/05/2017.
