@@ -12,4 +12,13 @@ Feel free to Fork or contribute this project.
 
 Just clone the repository and open using Android Studio.
 
+## Authors
+
+* [Marcelo Correa](https://github.com/marcelorcorrea)
+* [Tomaz da Silva](https://github.com/trdasilva)
+
+## License
+
+MIT -- see [LICENSE](LICENSE)
+
 
