@@ -6,7 +6,13 @@ Batista. It is an Alternative Communication app, that allows people with
 speech and mobility impairments to communicate by using pictures that
 represent words (verbs, nouns, adjectives…).
 
-Feel free to Fork or contribute this project.
+Falaê consists of two parts: Android app and the web platform. The web page is used for user registering. Once registered, the user can customize their profile, as well as create and modify communication boards, pages and items. The Android app connects to the web platform in order to sincronize the user's data.
+
+This repository consists in the Android App.
+
+The web server repository can be found [here](https://github.com/marcelorcorrea/falae)
+
+Feel free to fork or contribute this project.
 
 ## Local setup
 
