@@ -20,7 +20,10 @@ Just clone the repository and open using Android Studio.
 
 ## Authors
 
+* [Leandro Manica](https://github.com/leandrohmanica)
 * [Marcelo Correa](https://github.com/marcelorcorrea)
+* [Matheus Longaray](https://github.com/longaraymatheus)
+* [Tais Bellini](https://github.com/taisbellini)
 * [Tomaz da Silva](https://github.com/trdasilva)
 
 ## License
