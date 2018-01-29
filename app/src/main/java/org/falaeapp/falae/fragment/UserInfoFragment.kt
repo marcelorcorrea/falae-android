@@ -20,7 +20,7 @@ class UserInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let { user = arguments.getParcelable(USER_PARAM) }
+        user = arguments?.getParcelable(USER_PARAM)
         onAttachFragment(parentFragment)
     }
 

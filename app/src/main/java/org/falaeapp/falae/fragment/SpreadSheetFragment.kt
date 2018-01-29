@@ -14,15 +14,13 @@ import org.falaeapp.falae.model.User
 
 class SpreadSheetFragment : Fragment() {
 
-    private val EMAIL_SAMPLE = "@falae.com"
     private lateinit var mListener: SpreadSheetFragmentListener
     private lateinit var spreadSheetAdapter: SpreadSheetAdapter
     private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let { user = arguments.getParcelable(USER_PARAM) }
-
+        user = arguments?.getParcelable(USER_PARAM)
         onAttachFragment(parentFragment)
         setHasOptionsMenu(true)
     }
@@ -89,6 +87,7 @@ class SpreadSheetFragment : Fragment() {
     companion object {
 
         private const val USER_PARAM = "userParam"
+        private const val EMAIL_SAMPLE = "@falae.com"
 
         fun newInstance(user: User): SpreadSheetFragment {
             val fragment = SpreadSheetFragment()

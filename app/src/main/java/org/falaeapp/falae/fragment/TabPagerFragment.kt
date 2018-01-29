@@ -23,7 +23,11 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let { user = arguments.getParcelable(USER_PARAM) }
+        user = if (savedInstanceState == null) {
+            arguments?.getParcelable(USER_PARAM)
+        } else {
+            savedInstanceState.getParcelable(USER_PARAM)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -31,7 +35,7 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         val view = inflater.inflate(R.layout.fragment_tab_pager, container, false)
         viewPager = view.findViewById(R.id.viewpager) as ViewPager
         viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager, activity)
-        viewPager.offscreenPageLimit = 2
+        viewPager.offscreenPageLimit = OFFSCREEN_PAGE_LIMIT
 
         // Give the TabLayout the ViewPager
         val tabLayout = view.findViewById(R.id.layout_tabs) as TabLayout
@@ -48,8 +52,9 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        user?.let { outState?.putParcelable(USER_PARAM, user) }
     }
 
     override fun displayActivity(spreadSheet: SpreadSheet) {
@@ -66,7 +71,6 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
     }
 
     inner class CustomFragmentPagerAdapter(fm: FragmentManager, private val context: Context) : FragmentStatePagerAdapter(fm) {
-        private val TAB_COUNT = 2
         private val tabTitles = arrayOf(resources.getString(R.string.spreadsheets), resources.getString(R.string.user_info))
 
         override fun getItem(position: Int): Fragment {
@@ -85,6 +89,8 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
     companion object {
 
         private const val USER_PARAM = "userParam"
+        private const val TAB_COUNT = 2
+        private const val OFFSCREEN_PAGE_LIMIT = 2
 
         fun newInstance(user: User?): TabPagerFragment {
             val fragment = TabPagerFragment()
