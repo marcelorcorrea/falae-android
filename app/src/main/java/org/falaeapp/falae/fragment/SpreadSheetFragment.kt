@@ -30,8 +30,12 @@ class SpreadSheetFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
         val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
-        spreadSheetAdapter = SpreadSheetAdapter(context, user!!.spreadsheets, { spreadSheet -> mListener.displayActivity(spreadSheet) })
-        recyclerView.adapter = spreadSheetAdapter
+        user?.let {
+            spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets, { spreadSheet ->
+                mListener.displayActivity(spreadSheet)
+            })
+            recyclerView.adapter = spreadSheetAdapter
+        }
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
         return view
