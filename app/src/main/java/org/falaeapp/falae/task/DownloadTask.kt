@@ -28,14 +28,14 @@ import java.util.concurrent.TimeUnit
  */
 
 class DownloadTask(val context: WeakReference<Context>, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
-    private val NUMBER_OF_CORES: Int = Runtime.getRuntime().availableProcessors()
+    private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
     private var pDialog: ProgressDialog? = null
 
     init {
         executor = ThreadPoolExecutor(
-                NUMBER_OF_CORES * 2,
-                NUMBER_OF_CORES * 2,
+                numberOfCores * 2,
+                numberOfCores * 2,
                 60L,
                 TimeUnit.SECONDS,
                 LinkedBlockingQueue()
@@ -77,7 +77,7 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
                 .forEach {
                     executor.execute {
                         val imgSrc = "${BuildConfig.BASE_URL}${it.imgSrc}"
-                        Log.d("DEBUG", "Downloading item: ${it.name} - $imgSrc")
+                        Log.d(this.javaClass.name, "Downloading item: ${it.name} - $imgSrc")
                         val uri = download(folder, user.authToken, it.name, imgSrc)
                         it.imgSrc = uri
                     }

@@ -55,14 +55,14 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun insert(user: User): Long {
         val userContentValues = createUserContentValues(user)
         val db = writableDatabase
-        Log.d("FALAE", "Inserting entry...")
+        Log.d(javaClass.name, "Inserting entry...")
         return db.insert(UserEntry.TABLE_NAME, null, userContentValues)
     }
 
     fun update(user: User) {
         val userContentValues = createUserContentValues(user)
         val db = writableDatabase
-        Log.d("FALAE", "Updating entry...")
+        Log.d(javaClass.name, "Updating entry...")
         db.update(UserEntry.TABLE_NAME, userContentValues, UserEntry.COLUMN_EMAIL + "= ? ", arrayOf(user.email))
     }
 

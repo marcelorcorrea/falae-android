@@ -200,7 +200,7 @@ class ViewPagerItemFragment : Fragment() {
                     activity.runOnUiThread {
                         //Highlight current selected item
                         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
-                            Log.d("Test", "hightlight current item: " + currentItemSelectedFromScan)
+                            Log.d(javaClass.name, "hightlight current item: " + currentItemSelectedFromScan)
                             mItemsLayout[currentItemSelectedFromScan].foreground = context.resources.getDrawable(R.drawable.pressed_color)
                         }
                         var previousItem = currentItemSelectedFromScan - 1
@@ -209,12 +209,12 @@ class ViewPagerItemFragment : Fragment() {
                         }
                         //remove highlight from previus item
                         if (context != null && previousItem < mItemsLayout.size) {
-                            Log.d("Test", "remove hightlight current item: " + previousItem)
+                            Log.d(javaClass.name, "remove hightlight current item: " + previousItem)
                             mItemsLayout[previousItem].foreground = context.resources.getDrawable(R.drawable.normal_color)
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e("Error", "ViewPagerItemFragment:run:256 ")
+                    Log.e(javaClass.name, "ViewPagerItemFragment:run:256 ")
                 }
 
             }
