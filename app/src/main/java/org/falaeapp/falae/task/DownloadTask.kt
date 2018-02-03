@@ -18,6 +18,7 @@ import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -31,6 +32,7 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
     private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
     private var pDialog: ProgressDialog? = null
+    private val downloadCache = ConcurrentHashMap<String, String?>()
 
     init {
         executor = ThreadPoolExecutor(
@@ -77,8 +79,8 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
                 .forEach {
                     executor.execute {
                         val imgSrc = "${BuildConfig.BASE_URL}${it.imgSrc}"
-                        Log.d(this.javaClass.name, "Downloading item: ${it.name} - $imgSrc")
-                        val uri = download(folder, user.authToken, it.name, imgSrc)
+                        val uri = downloadCache[imgSrc]
+                                ?: download(folder, user.authToken, it.name, imgSrc)
                         it.imgSrc = uri
                     }
                 }
@@ -92,8 +94,11 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
     }
 
     private fun download(folder: File, token: String, name: String, imgSrc: String): String {
-        val file = FileHandler.createImg(folder, name, imgSrc)
         val url = URL(imgSrc)
+        val file = FileHandler.createImg(folder, name, imgSrc)
+        val imgUri = Uri.fromFile(file).toString()
+        downloadCache[imgSrc] = imgUri
+        Log.d(this.javaClass.name, "Downloading item: $name - $imgSrc")
         try {
             with(url.openConnection()) {
                 connectTimeout = TIME_OUT
@@ -101,11 +106,13 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
                 setRequestProperty("Authorization", "Token $token")
                 connect()
                 inputStream.toFile(file.absolutePath)
+                return imgUri
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
+            downloadCache.remove(imgSrc)
         }
-        return Uri.fromFile(file).toString()
+        return ""
     }
 
     override fun onPostExecute(user: User?) {
