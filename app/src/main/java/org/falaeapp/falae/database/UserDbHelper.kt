@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.falaeapp.falae.database.DatabaseConstant.DATABASE_NAME
+import org.falaeapp.falae.database.DatabaseConstant.DATABASE_VERSION
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
 import java.util.*
@@ -93,7 +95,9 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var cursor: Cursor? = null
         try {
             val db = readableDatabase
-            val projection = arrayOf(UserEntry._ID, UserEntry.COLUMN_NAME, UserEntry.COLUMN_EMAIL, UserEntry.COLUMN_PROFILE, UserEntry.COLUMN_PHOTO, UserEntry.COLUMN_SPREADSHEETS)
+            val projection = arrayOf(UserEntry._ID,
+                    UserEntry.COLUMN_NAME, UserEntry.COLUMN_EMAIL,
+                    UserEntry.COLUMN_PROFILE, UserEntry.COLUMN_PHOTO, UserEntry.COLUMN_SPREADSHEETS)
             val selection = UserEntry.COLUMN_EMAIL + " = ?"
             val selectionArgs = arrayOf(email)
             cursor = db.query(UserEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null)
@@ -142,10 +146,7 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     companion object {
-        val DATABASE_VERSION = 1
-        val DATABASE_NAME = "Falae.db"
-
-        private val SQL_CREATE_ENTRIES =
+        private const val SQL_CREATE_ENTRIES =
                 "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
                         UserEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                         UserEntry.COLUMN_NAME + " TEXT NOT NULL," +
@@ -154,6 +155,6 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                         UserEntry.COLUMN_PHOTO + " TEXT," +
                         UserEntry.COLUMN_SPREADSHEETS + " TEXT)"
 
-        private val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + UserEntry.TABLE_NAME
+        private const val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + UserEntry.TABLE_NAME
     }
 }

@@ -11,6 +11,8 @@ import android.util.Log
 import android.widget.Toast
 import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
+import org.falaeapp.falae.database.DownloadCacheDbHelper
+import org.falaeapp.falae.model.DownloadCache
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.storage.FileHandler
 import org.falaeapp.falae.toFile
@@ -32,7 +34,9 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
     private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
     private var pDialog: ProgressDialog? = null
-    private val downloadCache = ConcurrentHashMap<String, String?>()
+    private val dbHelper = DownloadCacheDbHelper(context.get())
+    private lateinit var privateDownloadCache: DownloadCache
+    private lateinit var publicDownloadCache: DownloadCache
 
     init {
         executor = ThreadPoolExecutor(
@@ -66,12 +70,17 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
             return null
         }
         val user = params[0]
-        val folder = FileHandler.createUserFolder(context.get(), user.email)
-        val photo = user.photo
-        if (photo != null && photo.isNotEmpty()) {
-            val userUri = download(folder, user.authToken, user.name,
-                    "${BuildConfig.BASE_URL}${user.photo}")
-            user.photo = userUri
+        privateDownloadCache = loadCache(user.email)
+        publicDownloadCache = loadCache(PUBLIC_CACHE_KEY)
+        val publicFolder = FileHandler.createPublicFolder(context.get())
+        val userFolder = FileHandler.createUserFolder(context.get(), user.email)
+        user.photo?.let {
+            if (it.isNotEmpty()) {
+                val userUri = privateDownloadCache.sources[it]
+                        ?: download(userFolder, user.authToken, user.name,
+                                "${BuildConfig.BASE_URL}$it", privateDownloadCache)
+                user.photo = userUri
+            }
         }
         user.spreadsheets
                 .flatMap { it.pages }
@@ -79,8 +88,17 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
                 .forEach {
                     executor.execute {
                         val imgSrc = "${BuildConfig.BASE_URL}${it.imgSrc}"
-                        val uri = downloadCache[imgSrc]
-                                ?: download(folder, user.authToken, it.name, imgSrc)
+                        val file: File
+                        val cache: DownloadCache
+                        if (it.isPrivate) {
+                            file = FileHandler.createImg(userFolder, it.name, imgSrc)
+                            cache = privateDownloadCache
+                        } else {
+                            file = FileHandler.createImg(publicFolder, it.name, imgSrc)
+                            cache = publicDownloadCache
+                        }
+                        val uri = cache.sources[imgSrc]
+                                ?: download(file, user.authToken, it.name, imgSrc, cache)
                         it.imgSrc = uri
                     }
                 }
@@ -90,14 +108,13 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
+        saveCache(privateDownloadCache)
+        saveCache(publicDownloadCache)
         return user
     }
 
-    private fun download(folder: File, token: String, name: String, imgSrc: String): String {
+    private fun download(imgReference: File, token: String, name: String, imgSrc: String, cache: DownloadCache): String {
         val url = URL(imgSrc)
-        val file = FileHandler.createImg(folder, name, imgSrc)
-        val imgUri = Uri.fromFile(file).toString()
-        downloadCache[imgSrc] = imgUri
         Log.d(this.javaClass.name, "Downloading item: $name - $imgSrc")
         try {
             with(url.openConnection()) {
@@ -105,14 +122,27 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
                 readTimeout = TIME_OUT
                 setRequestProperty("Authorization", "Token $token")
                 connect()
-                inputStream.toFile(file.absolutePath)
-                return imgUri
+                inputStream.toFile(imgReference.absolutePath)
+                val uri = Uri.fromFile(imgReference).toString()
+                cache.sources[imgSrc] = uri
+                uri
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
-            downloadCache.remove(imgSrc)
+            cache.sources.remove(imgSrc)
         }
         return ""
+    }
+
+    private fun loadCache(key: String) = dbHelper.findByName(key)
+            ?: DownloadCache(key, ConcurrentHashMap())
+
+    private fun saveCache(cache: DownloadCache) {
+        if (!dbHelper.cacheExist(cache)) {
+            dbHelper.insert(cache)
+        } else {
+            dbHelper.update(cache)
+        }
     }
 
     override fun onPostExecute(user: User?) {
@@ -142,5 +172,6 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
     companion object {
 
         private const val TIME_OUT = 6000
+        private const val PUBLIC_CACHE_KEY = "public"
     }
 }

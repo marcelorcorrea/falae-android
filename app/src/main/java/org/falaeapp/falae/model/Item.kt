@@ -7,14 +7,15 @@ import android.os.Parcelable
  * Created by marcelo on 4/11/17.
  */
 
-data class Item(val name: String, var imgSrc: String, val speech: String, val category: Category, val linkTo: String?) : Parcelable {
+data class Item(val name: String, var imgSrc: String, val speech: String, val category: Category, val linkTo: String?, val isPrivate: Boolean) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
             Category.values()[parcel.readInt()],
-            parcel.readString())
+            parcel.readString(),
+            parcel.readByte() != 0.toByte())
 
     override fun describeContents(): Int = 0
 
@@ -24,6 +25,7 @@ data class Item(val name: String, var imgSrc: String, val speech: String, val ca
         dest.writeString(this.speech)
         dest.writeInt(this.category.ordinal)
         dest.writeString(this.linkTo)
+        dest.writeByte((if (isPrivate) 1 else 0).toByte())
     }
 
     companion object {
