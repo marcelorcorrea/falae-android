@@ -16,6 +16,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
 import org.falaeapp.falae.R
+import org.falaeapp.falae.database.DownloadCacheDbHelper
 import org.falaeapp.falae.database.UserDbHelper
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.fragment.SyncUserFragment
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mDrawer: DrawerLayout
     private lateinit var mNavigationView: NavigationView
     private lateinit var dbHelper: UserDbHelper
+    private lateinit var downloadCacheDbHelper: DownloadCacheDbHelper
     private var mCurrentUser: User? = null
     private var doubleBackToExitPressedOnce: Boolean = false
 
@@ -55,6 +57,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView = findViewById(R.id.nav_view) as NavigationView
         mNavigationView.setNavigationItemSelectedListener(this)
         dbHelper = UserDbHelper(this)
+        downloadCacheDbHelper = DownloadCacheDbHelper(this)
         val users = dbHelper.read()
         for (user in users) {
             addUserToMenu(user)
@@ -146,6 +149,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onDestroy() {
         dbHelper.close()
+        downloadCacheDbHelper.close()
         mCurrentUser?.let {
             SharedPreferencesUtils.storeString(USER_EMAIL, mCurrentUser!!.email, this)
         }
@@ -153,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onUserAuthenticated(user: User?) {
-        DownloadTask(WeakReference(this), { u ->
+        DownloadTask(WeakReference(this), downloadCacheDbHelper, { u ->
             if (!dbHelper.doesUserExist(u)) {
                 val id = dbHelper.insert(u)
                 addUserToMenu(u.copy(id = id.toInt()))
@@ -180,6 +184,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun removeUser(user: User) {
         dbHelper.remove(user.id)
+        downloadCacheDbHelper.remove(user.email)
         SharedPreferencesUtils.remove(USER_EMAIL, this)
         FileHandler.deleteUserFolder(this, user.email)
         mCurrentUser = null

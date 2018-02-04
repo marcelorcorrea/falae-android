@@ -104,6 +104,13 @@ class DownloadCacheDbHelper(context: Context?) : SQLiteOpenHelper(context, Datab
         return null
     }
 
+    fun remove(name: String) {
+        val db = writableDatabase
+        val whereClause = "${DownloadCacheEntry.COLUMN_NAME}=?"
+        val whereArgs = arrayOf(name)
+        db.delete(DownloadCacheEntry.TABLE_NAME, whereClause, whereArgs)
+    }
+
     companion object {
         private const val SQL_CREATE_ENTRIES =
                 "CREATE TABLE " + DownloadCacheDbHelper.DownloadCacheEntry.TABLE_NAME + " (" +

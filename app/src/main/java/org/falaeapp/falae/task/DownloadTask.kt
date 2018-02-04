@@ -30,11 +30,10 @@ import java.util.concurrent.TimeUnit
  * Created by corream on 15/05/2017.
  */
 
-class DownloadTask(val context: WeakReference<Context>, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
+class DownloadTask(val context: WeakReference<Context>, val dbHelper: DownloadCacheDbHelper, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
     private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
     private var pDialog: ProgressDialog? = null
-    private val dbHelper = DownloadCacheDbHelper(context.get())
     private lateinit var privateDownloadCache: DownloadCache
     private lateinit var publicDownloadCache: DownloadCache
 
@@ -108,8 +107,8 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
-        saveCache(privateDownloadCache)
-        saveCache(publicDownloadCache)
+        saveOrUpdateCache(privateDownloadCache)
+        saveOrUpdateCache(publicDownloadCache)
         return user
     }
 
@@ -137,7 +136,7 @@ class DownloadTask(val context: WeakReference<Context>, private val onSyncComple
     private fun loadCache(key: String) = dbHelper.findByName(key)
             ?: DownloadCache(key, ConcurrentHashMap())
 
-    private fun saveCache(cache: DownloadCache) {
+    private fun saveOrUpdateCache(cache: DownloadCache) {
         if (!dbHelper.cacheExist(cache)) {
             dbHelper.insert(cache)
         } else {
