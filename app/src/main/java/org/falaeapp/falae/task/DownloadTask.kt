@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit
  * Created by corream on 15/05/2017.
  */
 
-class DownloadTask(val context: WeakReference<Context>, val dbHelper: DownloadCacheDbHelper, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
+class DownloadTask(val context: WeakReference<Context>, private val dbHelper: DownloadCacheDbHelper, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
     private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
     private var pDialog: ProgressDialog? = null
@@ -75,9 +75,12 @@ class DownloadTask(val context: WeakReference<Context>, val dbHelper: DownloadCa
         val userFolder = FileHandler.createUserFolder(context.get(), user.email)
         user.photo?.let {
             if (it.isNotEmpty()) {
+                val imgSrc = "${BuildConfig.BASE_URL}$it"
+                val file = FileHandler.createImg(userFolder, user.name, imgSrc)
                 val userUri = privateDownloadCache.sources[it]
-                        ?: download(userFolder, user.authToken, user.name,
-                                "${BuildConfig.BASE_URL}$it", privateDownloadCache)
+                        ?: download(file, user.authToken, user.name,
+                                imgSrc, privateDownloadCache)
+                Log.d(javaClass.name, userUri)
                 user.photo = userUri
             }
         }

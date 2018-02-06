@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mDrawer.openDrawer(GravityCompat.START)
         mNavigationView = findViewById(R.id.nav_view) as NavigationView
         mNavigationView.setNavigationItemSelectedListener(this)
+        deleteDatabase("Falae.db")
         dbHelper = UserDbHelper(this)
         downloadCacheDbHelper = DownloadCacheDbHelper(this)
         val users = dbHelper.read()
