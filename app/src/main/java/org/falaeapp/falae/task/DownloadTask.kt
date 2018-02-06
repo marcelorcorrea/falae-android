@@ -34,7 +34,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
     private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
     private var pDialog: ProgressDialog? = null
-    private lateinit var privateDownloadCache: DownloadCache
+    private lateinit var userDownloadCache: DownloadCache
     private lateinit var publicDownloadCache: DownloadCache
 
     init {
@@ -69,7 +69,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
             return null
         }
         val user = params[0]
-        privateDownloadCache = loadCache(user.email)
+        userDownloadCache = loadCache(user.email)
         publicDownloadCache = loadCache(PUBLIC_CACHE_KEY)
         val publicFolder = FileHandler.createPublicFolder(context.get())
         val userFolder = FileHandler.createUserFolder(context.get(), user.email)
@@ -77,9 +77,9 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
             if (it.isNotEmpty()) {
                 val imgSrc = "${BuildConfig.BASE_URL}$it"
                 val file = FileHandler.createImg(userFolder, user.name, imgSrc)
-                val userUri = privateDownloadCache.sources[it]
+                val userUri = userDownloadCache.sources[it]
                         ?: download(file, user.authToken, user.name,
-                                imgSrc, privateDownloadCache)
+                                imgSrc, userDownloadCache)
                 user.photo = userUri
             }
         }
@@ -93,7 +93,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                         val cache: DownloadCache
                         if (it.private) {
                             file = FileHandler.createImg(userFolder, it.name, imgSrc)
-                            cache = privateDownloadCache
+                            cache = userDownloadCache
                         } else {
                             file = FileHandler.createImg(publicFolder, it.name, imgSrc)
                             cache = publicDownloadCache
@@ -109,7 +109,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
-        saveOrUpdateCache(privateDownloadCache)
+        saveOrUpdateCache(userDownloadCache)
         saveOrUpdateCache(publicDownloadCache)
         return user
     }
