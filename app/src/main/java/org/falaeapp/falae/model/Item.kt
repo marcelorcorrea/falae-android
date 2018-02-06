@@ -7,7 +7,7 @@ import android.os.Parcelable
  * Created by marcelo on 4/11/17.
  */
 
-data class Item(val name: String, var imgSrc: String, val speech: String, val category: Category, val linkTo: String?, val isPrivate: Boolean) : Parcelable {
+data class Item(val name: String, var imgSrc: String, val speech: String, val category: Category, val linkTo: String?, val private: Boolean) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readString(),
@@ -25,7 +25,7 @@ data class Item(val name: String, var imgSrc: String, val speech: String, val ca
         dest.writeString(this.speech)
         dest.writeInt(this.category.ordinal)
         dest.writeString(this.linkTo)
-        dest.writeByte((if (isPrivate) 1 else 0).toByte())
+        dest.writeByte((if (private) 1 else 0).toByte())
     }
 
     companion object {

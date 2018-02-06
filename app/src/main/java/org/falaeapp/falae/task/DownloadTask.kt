@@ -91,7 +91,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                         val imgSrc = "${BuildConfig.BASE_URL}${it.imgSrc}"
                         val file: File
                         val cache: DownloadCache
-                        if (it.isPrivate) {
+                        if (it.private) {
                             file = FileHandler.createImg(userFolder, it.name, imgSrc)
                             cache = privateDownloadCache
                         } else {
@@ -139,6 +139,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
             ?: DownloadCache(key, ConcurrentHashMap())
 
     private fun saveOrUpdateCache(cache: DownloadCache) {
+        Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
         if (!dbHelper.cacheExist(cache)) {
             dbHelper.insert(cache)
         } else {
