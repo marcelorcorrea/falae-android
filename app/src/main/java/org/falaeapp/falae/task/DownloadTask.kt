@@ -80,7 +80,6 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                 val userUri = privateDownloadCache.sources[it]
                         ?: download(file, user.authToken, user.name,
                                 imgSrc, privateDownloadCache)
-                Log.d(javaClass.name, userUri)
                 user.photo = userUri
             }
         }
@@ -127,7 +126,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                 inputStream.toFile(imgReference.absolutePath)
                 val uri = Uri.fromFile(imgReference).toString()
                 cache.sources[imgSrc] = uri
-                uri
+                return uri
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
