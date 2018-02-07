@@ -20,7 +20,6 @@ import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.URL
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -86,6 +85,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
         user.spreadsheets
                 .flatMap { it.pages }
                 .flatMap { it.items }
+                .distinctBy { it.imgSrc }
                 .forEach {
                     executor.execute {
                         val imgSrc = "${BuildConfig.BASE_URL}${it.imgSrc}"
@@ -136,7 +136,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
     }
 
     private fun loadCache(key: String) = dbHelper.findByName(key)
-            ?: DownloadCache(key, ConcurrentHashMap())
+            ?: DownloadCache(key, mutableMapOf())
 
     private fun saveOrUpdateCache(cache: DownloadCache) {
         Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")

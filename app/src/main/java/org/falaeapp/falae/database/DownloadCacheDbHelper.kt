@@ -7,7 +7,6 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import org.falaeapp.falae.model.DownloadCache
-import java.util.concurrent.ConcurrentHashMap
 
 
 /**
@@ -82,13 +81,13 @@ class DownloadCacheDbHelper(context: Context) {
                 null,
                 null,
                 null).use {
-            val typeOfHashMap = object : TypeToken<Map<String, String?>>() {}.type
+            val typeOfHashMap = object : TypeToken<MutableMap<String, String?>>() {}.type
             val gson = Gson()
             if (it.moveToFirst()) {
                 val columnNameResult = it.getString(it.getColumnIndex(DownloadCacheEntry.COLUMN_NAME))
                 val columnSourcesResult = it.getString(it.getColumnIndex(DownloadCacheEntry.COLUMN_SOURCES))
-                val map = gson.fromJson<Map<String, String>>(columnSourcesResult, typeOfHashMap)
-                return DownloadCache(columnNameResult, ConcurrentHashMap(map))
+                val map = gson.fromJson<MutableMap<String, String>>(columnSourcesResult, typeOfHashMap)
+                return DownloadCache(columnNameResult, map)
             }
         }
         return null
