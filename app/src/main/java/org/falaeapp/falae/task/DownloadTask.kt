@@ -77,7 +77,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
             if (it.isNotEmpty()) {
                 val imgSrc = "${BuildConfig.BASE_URL}$it"
                 val file = FileHandler.createImg(userFolder, user.name, imgSrc)
-                val userUri = userDownloadCache.sources[it]
+                val userUri = userDownloadCache.sources[imgSrc]
                         ?: download(file, user.authToken, user.name,
                                 imgSrc, userDownloadCache)
                 user.photo = userUri
