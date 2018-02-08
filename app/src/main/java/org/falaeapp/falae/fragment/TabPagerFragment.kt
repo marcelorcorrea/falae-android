@@ -23,11 +23,7 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        user = if (savedInstanceState == null) {
-            arguments?.getParcelable(USER_PARAM)
-        } else {
-            savedInstanceState.getParcelable(USER_PARAM)
-        }
+        user = arguments?.getParcelable(USER_PARAM)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -50,11 +46,6 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         } else {
             throw RuntimeException(context!!.toString() + " must implement TabPagerFragment")
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        user?.let { outState?.putParcelable(USER_PARAM, user) }
     }
 
     override fun displayActivity(spreadSheet: SpreadSheet) {

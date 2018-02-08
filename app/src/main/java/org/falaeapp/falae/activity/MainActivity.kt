@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
+        mCurrentUser = savedInstanceState?.getParcelable(USER_PARAM)
 
         setContentView(R.layout.activity_main)
 
@@ -186,8 +187,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         recreate()
     }
 
-    companion object {
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        mCurrentUser?.let { outState?.putParcelable(USER_PARAM, mCurrentUser) }
+    }
 
+    companion object {
         private const val USER_EMAIL = "email"
+        private const val USER_PARAM = "UserParam"
     }
 }

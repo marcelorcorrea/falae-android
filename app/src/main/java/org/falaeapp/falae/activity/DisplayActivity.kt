@@ -19,7 +19,11 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display)
 
-        currentSpreadSheet = intent.getParcelableExtra(SPREADSHEET)
+        currentSpreadSheet = if (savedInstanceState == null) {
+            intent.getParcelableExtra(SPREADSHEET)
+        } else {
+            savedInstanceState.getParcelable(SPREADSHEET)
+        }
         currentSpreadSheet?.let { openPage(it.initialPage) }
     }
 
@@ -57,6 +61,12 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         super.onBackPressed()
         overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
     }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        currentSpreadSheet?.let { outState?.putParcelable(SPREADSHEET, currentSpreadSheet) }
+    }
+
 
     companion object {
 
