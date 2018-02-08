@@ -19,7 +19,6 @@ class DownloadCacheDbHelper(context: Context) {
 
     class DownloadCacheEntry {
         companion object {
-
             const val TABLE_NAME = "download_cache"
             const val _ID = "_id"
             const val COLUMN_NAME = "name"
@@ -38,7 +37,6 @@ class DownloadCacheDbHelper(context: Context) {
         return db.insert(DownloadCacheEntry.TABLE_NAME, null, contentValues)
     }
 
-
     fun update(downloadCache: DownloadCache) {
         val json = gson.toJson(downloadCache.sources)
         val contentValues = ContentValues()
@@ -46,20 +44,23 @@ class DownloadCacheDbHelper(context: Context) {
         contentValues.put(DownloadCacheEntry.COLUMN_SOURCES, json)
         val db = databaseHelper.writableDatabase
         Log.d(javaClass.name, "Updating entry...")
-        db.update(DownloadCacheEntry.TABLE_NAME, contentValues,
-                DownloadCacheDbHelper.DownloadCacheEntry.COLUMN_NAME + "= ? ",
-                arrayOf(downloadCache.name))
+        val whereClause = DownloadCacheEntry.COLUMN_NAME + " = ?"
+        val whereArgs = arrayOf(downloadCache.name)
+        db.update(DownloadCacheEntry.TABLE_NAME,
+                contentValues,
+                whereClause,
+                whereArgs)
     }
 
     fun cacheExist(downloadCache: DownloadCache): Boolean {
         val db = databaseHelper.readableDatabase
         val projection = arrayOf(DownloadCacheEntry.COLUMN_NAME)
-        val selection = DownloadCacheEntry.COLUMN_NAME + " = ?"
-        val selectionArgs = arrayOf(downloadCache.name)
+        val whereClause = DownloadCacheEntry.COLUMN_NAME + " = ?"
+        val whereArgs = arrayOf(downloadCache.name)
         db.query(DownloadCacheEntry.TABLE_NAME,
                 projection,
-                selection,
-                selectionArgs,
+                whereClause,
+                whereArgs,
                 null,
                 null,
                 null).use {
