@@ -3,8 +3,6 @@ package org.falaeapp.falae.database
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -17,7 +15,8 @@ import java.util.*
  * Created by corream on 11/05/2017.
  */
 
-class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class UserDbHelper(context: Context) {
+    private val databaseHelper: DataBaseHelper = DataBaseHelper.getInstance(context)
 
     class UserEntry {
         companion object {
@@ -33,15 +32,6 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         }
     }
 
-    override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(SQL_CREATE_ENTRIES)
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL(SQL_DELETE_ENTRIES)
-        onCreate(db)
-    }
-
     private fun createUserContentValues(user: User): ContentValues {
         val contentValues = ContentValues()
         contentValues.put(UserEntry.COLUMN_NAME, user.name)
@@ -54,20 +44,20 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     fun insert(user: User): Long {
         val userContentValues = createUserContentValues(user)
-        val db = writableDatabase
+        val db = databaseHelper.writableDatabase
         Log.d(javaClass.name, "Inserting entry...")
         return db.insert(UserEntry.TABLE_NAME, null, userContentValues)
     }
 
     fun update(user: User) {
         val userContentValues = createUserContentValues(user)
-        val db = writableDatabase
+        val db = databaseHelper.writableDatabase
         Log.d(javaClass.name, "Updating entry...")
         db.update(UserEntry.TABLE_NAME, userContentValues, UserEntry.COLUMN_EMAIL + "= ? ", arrayOf(user.email))
     }
 
     fun remove(userId: Int) {
-        val db = writableDatabase
+        val db = databaseHelper.writableDatabase
         val whereClause = "_id=?"
         val whereArgs = arrayOf(userId.toString())
         db.delete(UserEntry.TABLE_NAME, whereClause, whereArgs)
@@ -76,7 +66,7 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun doesUserExist(user: User): Boolean {
         var cursor: Cursor? = null
         try {
-            val db = readableDatabase
+            val db = databaseHelper.readableDatabase
             val projection = arrayOf(UserEntry.COLUMN_NAME)
             val selection = UserEntry.COLUMN_EMAIL + " = ?"
             val selectionArgs = arrayOf(user.email)
@@ -92,8 +82,10 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun findByEmail(email: String): User? {
         var cursor: Cursor? = null
         try {
-            val db = readableDatabase
-            val projection = arrayOf(UserEntry._ID, UserEntry.COLUMN_NAME, UserEntry.COLUMN_EMAIL, UserEntry.COLUMN_PROFILE, UserEntry.COLUMN_PHOTO, UserEntry.COLUMN_SPREADSHEETS)
+            val db = databaseHelper.readableDatabase
+            val projection = arrayOf(UserEntry._ID,
+                    UserEntry.COLUMN_NAME, UserEntry.COLUMN_EMAIL,
+                    UserEntry.COLUMN_PROFILE, UserEntry.COLUMN_PHOTO, UserEntry.COLUMN_SPREADSHEETS)
             val selection = UserEntry.COLUMN_EMAIL + " = ?"
             val selectionArgs = arrayOf(email)
             cursor = db.query(UserEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null)
@@ -124,7 +116,7 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     fun read(): List<User> {
-        val db = readableDatabase
+        val db = databaseHelper.readableDatabase
         val projection = arrayOf(UserEntry._ID, UserEntry.COLUMN_NAME, UserEntry.COLUMN_EMAIL)
         val cursor = db.query(UserEntry.TABLE_NAME, projection, null, null, null, null, null)
         val users = ArrayList<User>()
@@ -141,19 +133,7 @@ class UserDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return users
     }
 
-    companion object {
-        val DATABASE_VERSION = 1
-        val DATABASE_NAME = "Falae.db"
-
-        private val SQL_CREATE_ENTRIES =
-                "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
-                        UserEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                        UserEntry.COLUMN_NAME + " TEXT NOT NULL," +
-                        UserEntry.COLUMN_EMAIL + " TEXT NOT NULL UNIQUE," +
-                        UserEntry.COLUMN_PROFILE + " TEXT," +
-                        UserEntry.COLUMN_PHOTO + " TEXT," +
-                        UserEntry.COLUMN_SPREADSHEETS + " TEXT)"
-
-        private val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + UserEntry.TABLE_NAME
+    fun close() {
+        databaseHelper.close()
     }
 }
