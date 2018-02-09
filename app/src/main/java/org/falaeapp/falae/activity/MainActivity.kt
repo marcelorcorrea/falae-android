@@ -1,6 +1,9 @@
 package org.falaeapp.falae.activity
 
+import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.speech.tts.TextToSpeech
@@ -11,10 +14,13 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
+import android.util.Log
 import android.view.MenuItem
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.security.ProviderInstaller
 import org.falaeapp.falae.R
 import org.falaeapp.falae.database.DownloadCacheDbHelper
 import org.falaeapp.falae.database.UserDbHelper
@@ -29,7 +35,10 @@ import org.falaeapp.falae.storage.SharedPreferencesUtils
 import org.falaeapp.falae.task.DownloadTask
 import java.lang.ref.WeakReference
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, TabPagerFragment.TabPagerFragmentListener, SyncUserFragment.SyncUserFragmentListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+        TabPagerFragment.TabPagerFragmentListener,
+        SyncUserFragment.SyncUserFragmentListener,
+        ProviderInstaller.ProviderInstallListener {
 
     private lateinit var mDrawer: DrawerLayout
     private lateinit var mNavigationView: NavigationView
@@ -45,7 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mCurrentUser = savedInstanceState?.getParcelable(USER_PARAM)
 
         setContentView(R.layout.activity_main)
-
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
@@ -65,6 +73,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         loadDemoUser()
         getLastConnectedUser()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            ProviderInstaller.installIfNeededAsync(this, this)
+        }
     }
 
     private fun getLastConnectedUser() {
@@ -183,6 +195,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left)
     }
 
+    override fun onProviderInstalled() {
+        Log.d(javaClass.name, "Provider installed or up to date.")
+    }
+
+    override fun onProviderInstallFailed(errorCode: Int, recoveryIntent: Intent?) {
+        if (GoogleApiAvailability.getInstance().isUserResolvableError(errorCode)) {
+            GoogleApiAvailability.getInstance().showErrorDialogFragment(
+                    this,
+                    errorCode,
+                    ERROR_DIALOG_REQUEST_CODE,
+                    DialogInterface.OnCancelListener {
+                        onProviderInstallerNotAvailable()
+                    }
+            )
+        } else {
+            onProviderInstallerNotAvailable()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int,
+                                  data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ERROR_DIALOG_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_CANCELED)
+                onProviderInstallerNotAvailable()
+        }
+    }
+
+    private fun onProviderInstallerNotAvailable() {
+        Toast.makeText(this, getString(R.string.provider_not_available), Toast.LENGTH_LONG).show()
+    }
+
     override fun removeUser(user: User) {
         dbHelper.remove(user.id)
         downloadCacheDbHelper.remove(user.email)
@@ -200,5 +244,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     companion object {
         private const val USER_EMAIL = "email"
         private const val USER_PARAM = "UserParam"
+        private const val ERROR_DIALOG_REQUEST_CODE = 1
+        private const val PROVIDER_INSTALLED = "provider_installed"
     }
 }

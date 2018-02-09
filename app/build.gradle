@@ -20,8 +20,8 @@ android {
         applicationId "org.falaeapp.falae"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.0.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -61,6 +61,7 @@ dependencies {
     compile 'com.android.support:support-v4:25.4.0'
     compile 'com.android.support:gridlayout-v7:25.4.0'
     compile 'jp.wasabeef:picasso-transformations:2.1.2'
+    compile "com.google.android.gms:play-services-base:11.8.0"
     testCompile 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }

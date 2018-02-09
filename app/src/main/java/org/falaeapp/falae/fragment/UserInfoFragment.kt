@@ -9,10 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import org.falaeapp.falae.R
-import org.falaeapp.falae.model.User
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
+import org.falaeapp.falae.R
+import org.falaeapp.falae.model.User
 
 class UserInfoFragment : Fragment() {
 
@@ -43,12 +43,16 @@ class UserInfoFragment : Fragment() {
             placeHolderImage = context.getDrawable(R.drawable.ic_person_black_24dp)
         }
 
-        Picasso.with(context)
-                .load(user!!.photo)
-                .placeholder(placeHolderImage)
-                .error(brokenImage!!)
-                .transform(CropCircleTransformation())
-                .into(imageView)
+        user?.photo?.let {
+            if (it.isNotEmpty()) {
+                Picasso.with(context)
+                        .load(it)
+                        .placeholder(placeHolderImage)
+                        .error(brokenImage!!)
+                        .transform(CropCircleTransformation())
+                        .into(imageView)
+            }
+        }
 
         userName.text = user?.name
         userInfo.text = user?.profile

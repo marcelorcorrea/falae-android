@@ -2,6 +2,7 @@ package org.falaeapp.falae.fragment
 
 import android.app.ProgressDialog
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.TextUtils
@@ -17,9 +18,11 @@ import android.widget.Toast
 import com.android.volley.AuthFailureError
 import com.android.volley.Response
 import com.android.volley.VolleyError
+import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.Volley
 import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
+import org.falaeapp.falae.TLSSocketFactory
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.task.GsonRequest
 import org.json.JSONException
@@ -134,7 +137,14 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
                     listener = this,
                     errorListener = this)
 
-            Volley.newRequestQueue(context).add(gsonRequest)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                Volley.newRequestQueue(context,
+                        HurlStack(null, TLSSocketFactory()))
+                        .add(gsonRequest)
+            } else {
+                Volley.newRequestQueue(context).add(gsonRequest)
+            }
             pDialog.show()
         } catch (e: JSONException) {
             e.printStackTrace()

@@ -27,3 +27,5 @@
 -keep public class org.falaeapp.falae.**{
     *;
 }
+-keep public class com.google.android.gms.* { public *; }
+-dontwarn com.google.android.gms.**
