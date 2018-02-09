@@ -13,6 +13,7 @@ import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
 import org.falaeapp.falae.database.DownloadCacheDbHelper
 import org.falaeapp.falae.model.DownloadCache
+import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.storage.FileHandler
 import org.falaeapp.falae.toFile
@@ -82,25 +83,29 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                 user.photo = userUri
             }
         }
-        user.spreadsheets
+        val allItems = user.spreadsheets
                 .flatMap { it.pages }
                 .flatMap { it.items }
-                .distinctBy { it.imgSrc }
-                .forEach {
+        val duplicatedItems = getDuplicatedItems(allItems)
+        allItems.distinctBy { it.imgSrc }
+                .forEach { item: Item ->
                     executor.execute {
-                        val imgSrc = "${BuildConfig.BASE_URL}${it.imgSrc}"
-                        val file: File
+                        val imgSrc = "${BuildConfig.BASE_URL}${item.imgSrc}"
+                        val folder: File
                         val cache: DownloadCache
-                        if (it.private) {
-                            file = FileHandler.createImg(userFolder, it.name, imgSrc)
+                        if (item.private) {
+                            folder = userFolder
                             cache = userDownloadCache
                         } else {
-                            file = FileHandler.createImg(publicFolder, it.name, imgSrc)
+                            folder = publicFolder
                             cache = publicDownloadCache
                         }
+                        val file = FileHandler.createImg(folder, item.name, imgSrc)
                         val uri = cache.sources[imgSrc]
-                                ?: download(file, user.authToken, it.name, imgSrc, cache)
-                        it.imgSrc = uri
+                                ?: download(file, user.authToken, item.name, imgSrc, cache)
+                        item.imgSrc = uri
+                        // Update imgSrc from duplicated items
+                        duplicatedItems[item.imgSrc]?.forEach { it.imgSrc = uri }
                     }
                 }
         executor.shutdown()
@@ -133,6 +138,19 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
             cache.sources.remove(imgSrc)
         }
         return ""
+    }
+
+    private fun getDuplicatedItems(list: List<Item>): Map<String, MutableList<Item>> {
+        val itemsMap = mutableMapOf<String, MutableList<Item>>()
+        val uniqueItems = HashSet<String>()
+        list.forEach {item ->
+            if (!uniqueItems.add(item.imgSrc)) {
+                val listItem = itemsMap[item.imgSrc] ?: mutableListOf()
+                listItem.add(item)
+                itemsMap[item.imgSrc] = listItem
+            }
+        }
+        return itemsMap.toMap()
     }
 
     private fun loadCache(key: String) = dbHelper.findByName(key)
