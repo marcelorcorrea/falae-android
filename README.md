@@ -1,4 +1,8 @@
 # Falaê
+<p align="center">
+  <img src="https://github.com/marcelorcorrea/falae-android/blob/master/app/src/main/res/drawable-xxxhdpi/falaelogotipo_512x512.png?raw=true" width="250" height="250">
+</p>
+
 
 Falaê is an Android app developed by HP volunteers from Brazil R&D in
 partnership with the NGO Educandário – Centro de Reabilitação São João
