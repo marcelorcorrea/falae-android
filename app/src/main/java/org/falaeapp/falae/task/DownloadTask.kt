@@ -103,9 +103,10 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                         val file = FileHandler.createImg(folder, item.name, imgSrc)
                         val uri = cache.sources[imgSrc]
                                 ?: download(file, user.authToken, item.name, imgSrc, cache)
-                        item.imgSrc = uri
-                        // Update imgSrc from duplicated items
+                        // Update imgSrc from duplicated items first
                         duplicatedItems[item.imgSrc]?.forEach { it.imgSrc = uri }
+                        // Update imgSrc of iterated item
+                        item.imgSrc = uri
                     }
                 }
         executor.shutdown()
