@@ -51,8 +51,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
-        mCurrentUser = savedInstanceState?.getParcelable(USER_PARAM)
-
+        mCurrentUser = savedInstanceState?.let {
+            savedInstanceState.classLoader = classLoader
+            it.getParcelable(USER_PARAM)
+        }
         setContentView(R.layout.activity_main)
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)

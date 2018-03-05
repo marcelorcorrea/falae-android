@@ -22,6 +22,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         currentSpreadSheet = if (savedInstanceState == null) {
             intent.getParcelableExtra(SPREADSHEET)
         } else {
+            savedInstanceState.classLoader = classLoader
             savedInstanceState.getParcelable(SPREADSHEET)
         }
         currentSpreadSheet?.let { openPage(it.initialPage) }
