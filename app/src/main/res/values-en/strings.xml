@@ -50,4 +50,5 @@
     <string name="clear_user_cache">Clear user cache</string>
     <string name="clear_public_cache">Clear public cache</string>
     <string name="cache">Cache</string>
+    <string name="clear_cache">Clear Cache</string>
 </resources>
