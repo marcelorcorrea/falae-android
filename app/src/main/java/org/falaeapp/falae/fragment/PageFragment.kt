@@ -18,7 +18,7 @@ import org.falaeapp.falae.model.Page
 
 class PageFragment : Fragment() {
 
-    private var page: Page? = null
+    private lateinit var page: Page
     private lateinit var mPageFragmentListener: PageFragmentListener
     private lateinit var mPager: ViewPager
     private lateinit var mPagerAdapter: ItemPagerAdapter
@@ -65,10 +65,8 @@ class PageFragment : Fragment() {
                 rightNav.layoutParams.height = navHoldersSize
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
-                page?.let {
-                    mPagerAdapter = ItemPagerAdapter(childFragmentManager, it, navHoldersSize * 2)
-                    mPager.adapter = mPagerAdapter
-                }
+                mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
+                mPager.adapter = mPagerAdapter
                 val pagerLayoutParams = mPager.layoutParams as ViewGroup.MarginLayoutParams
                 pagerLayoutParams.leftMargin += navHoldersSize
                 pagerLayoutParams.rightMargin += navHoldersSize

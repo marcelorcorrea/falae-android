@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dbHelper.close()
         downloadCacheDbHelper.close()
         mCurrentUser?.let {
-            SharedPreferencesUtils.storeString(USER_EMAIL, mCurrentUser!!.email, this)
+            SharedPreferencesUtils.storeString(USER_EMAIL, it.email, this)
         }
         super.onDestroy()
     }

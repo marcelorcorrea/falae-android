@@ -2,18 +2,18 @@ package org.falaeapp.falae.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.FragmentManager
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import org.falaeapp.falae.R
 import org.falaeapp.falae.fragment.PageFragment
 import org.falaeapp.falae.fragment.ViewPagerItemFragment
-import org.falaeapp.falae.model.Page
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.service.TextToSpeechService
 
 class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, ViewPagerItemFragment.ViewPagerItemFragmentListener {
 
-    private var currentSpreadSheet: SpreadSheet? = null
+    private lateinit var currentSpreadSheet: SpreadSheet
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +25,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
             savedInstanceState.classLoader = classLoader
             savedInstanceState.getParcelable(SPREADSHEET)
         }
-        currentSpreadSheet?.let { openPage(it.initialPage) }
+        openPage(currentSpreadSheet.initialPage)
     }
 
     override fun openPage(linkTo: String) {
@@ -38,10 +38,10 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
                     .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out,
                             android.R.anim.fade_in, android.R.anim.fade_out)
                     .replace(R.id.page_container, fragment)
-            if (currentSpreadSheet!!.initialPage != linkTo) {
+            if (currentSpreadSheet.initialPage != linkTo) {
                 fragmentTransaction.addToBackStack(null)
             } else if (fragmentManager.backStackEntryCount > 0) {
-                fragmentManager.popBackStackImmediate()
+                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             }
             fragmentTransaction.commit()
             fragmentManager.executePendingTransactions()
@@ -50,7 +50,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         }
     }
 
-    private fun getPage(name: String): Page? = currentSpreadSheet!!.pages.firstOrNull { it.name == name }
+    private fun getPage(name: String) = currentSpreadSheet.pages.find { it.name == name }
 
     override fun speak(msg: String) {
         val intent = Intent(this, TextToSpeechService::class.java)
@@ -65,11 +65,10 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        currentSpreadSheet?.let { outState?.putParcelable(SPREADSHEET, currentSpreadSheet) }
+        outState?.putParcelable(SPREADSHEET, currentSpreadSheet)
     }
 
     companion object {
-
         const val SPREADSHEET = "SpreadSheet"
     }
 }
