@@ -4,13 +4,13 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
-import android.widget.Switch
-import android.widget.TextView
+import android.widget.*
 import org.falaeapp.falae.R
+import org.falaeapp.falae.loadDefaultShowListener
 import org.falaeapp.falae.viewmodel.SettingsViewModel
 
 class SettingsFragment : Fragment() {
@@ -86,6 +86,43 @@ class SettingsFragment : Fragment() {
                     }
                 })
         setHasOptionsMenu(true)
+
+        val btClearUserCache = view.findViewById<Button>(R.id.bt_clear_user_cache)
+        btClearUserCache.setOnClickListener {
+            val confirmBuilder = AlertDialog.Builder(activity!!)
+            val confirmDialog = confirmBuilder.setTitle(getString(R.string.clear_cache))
+                    .setMessage(getString(R.string.confirm_clear_cache))
+                    .setPositiveButton(getString(R.string.yes_option)) { _, _ ->
+                        val message = if (true)//mListener.clearPublicCache())
+                            getString(R.string.public_images_removed)
+                        else
+                            getString(R.string.public_images_removed_error)
+
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton(getString(R.string.no_option)) { _, _ -> }
+                    .create()
+            confirmDialog.loadDefaultShowListener(resources)
+            confirmDialog.show()
+        }
+        val btClearPublicCache = view.findViewById<Button>(R.id.bt_clear_public_cache)
+        btClearPublicCache.setOnClickListener {
+            val confirmBuilder = AlertDialog.Builder(activity!!)
+            val confirmDialog = confirmBuilder.setTitle(getString(R.string.clear_cache))
+                    .setMessage(getString(R.string.confirm_clear_cache))
+                    .setPositiveButton(getString(R.string.yes_option)) { _, _ ->
+                        val message = if (true)//mListener.clearPublicCache())
+                            getString(R.string.public_images_removed)
+                        else
+                            getString(R.string.public_images_removed_error)
+
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton(getString(R.string.no_option)) { _, _ -> }
+                    .create()
+            confirmDialog.loadDefaultShowListener(resources)
+            confirmDialog.show()
+        }
         return view
     }
 

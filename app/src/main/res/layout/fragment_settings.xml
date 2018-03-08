@@ -95,7 +95,50 @@
                 android:text="@string/scan_mode"
                 android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/default_text_size" />
+        </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/default_horizontal_margin">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/small_vertical_margin"
+                android:background="@drawable/border"
+                android:orientation="horizontal"
+                android:padding="15dp">
+
+                <Button
+                    android:id="@+id/bt_clear_user_cache"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="@dimen/tiny_horizontal_margin"
+                    android:layout_marginRight="@dimen/tiny_horizontal_margin"
+                    android:layout_weight="1"
+                    android:text="@string/clear_user_cache" />
+
+                <Button
+                    android:id="@+id/bt_clear_public_cache"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/clear_public_cache" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="@dimen/default_horizontal_margin"
+                android:layout_marginLeft="@dimen/default_horizontal_margin"
+                android:background="@color/white"
+                android:text="@string/cache"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/default_text_size" />
         </RelativeLayout>
     </LinearLayout>
 </ScrollView>

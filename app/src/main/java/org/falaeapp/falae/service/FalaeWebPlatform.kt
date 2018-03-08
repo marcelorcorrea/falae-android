@@ -203,6 +203,6 @@ class FalaeWebPlatform(val context: Context) {
     companion object {
 
         private const val TIME_OUT = 6000
-        private const val PUBLIC_CACHE_KEY = "public"
+        const val PUBLIC_CACHE_KEY = "public"
     }
 }

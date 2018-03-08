@@ -32,8 +32,9 @@ class FileHandler {
         return File(folder, "$fileName.$extension")
     }
 
-    fun deleteUserFolder(context: Context, folderName: String) {
-        val folder = File(context.filesDir, folderName)
-        folder.deleteRecursively()
-    }
+    fun deleteUserFolder(context: Context, folderName: String) =
+            File(context.filesDir, folderName).deleteRecursively()
+
+    fun deletePublicFolder(context: Context) =
+            File(context.filesDir, PUBLIC_IMAGES_PATH).deleteRecursively()
 }
