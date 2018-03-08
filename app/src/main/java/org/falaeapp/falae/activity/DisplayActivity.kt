@@ -68,7 +68,6 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         currentSpreadSheet?.let { outState?.putParcelable(SPREADSHEET, currentSpreadSheet) }
     }
 
-
     companion object {
 
         const val SPREADSHEET = "SpreadSheet"

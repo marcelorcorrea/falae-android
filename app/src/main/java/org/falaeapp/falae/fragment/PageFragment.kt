@@ -29,7 +29,16 @@ class PageFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let { page = arguments.getParcelable(PAGE_PARAM) }
+        page = if (savedInstanceState != null) {
+            savedInstanceState.getParcelable(PAGE_PARAM)
+        } else {
+            arguments.getParcelable(PAGE_PARAM)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putParcelable(PAGE_PARAM, page)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,

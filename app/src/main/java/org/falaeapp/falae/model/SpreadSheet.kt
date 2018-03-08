@@ -22,10 +22,12 @@ data class SpreadSheet(val name: String, val initialPage: String, val pages: Lis
 
     override fun describeContents(): Int = 0
 
-    companion object CREATOR : Parcelable.Creator<SpreadSheet> {
-        override fun createFromParcel(parcel: Parcel): SpreadSheet = SpreadSheet(parcel)
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<SpreadSheet> = object : Parcelable.Creator<SpreadSheet> {
+            override fun createFromParcel(source: Parcel) = SpreadSheet(source)
 
-        override fun newArray(size: Int): Array<SpreadSheet?> = arrayOfNulls(size)
+            override fun newArray(size: Int): Array<SpreadSheet?> = arrayOfNulls(size)
+        }
     }
-
 }

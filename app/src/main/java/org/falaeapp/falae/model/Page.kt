@@ -25,7 +25,7 @@ data class Page(val name: String, val items: List<Item> = emptyList(), val colum
             `in`.readInt())
 
     companion object {
-
+        @JvmField
         val CREATOR: Parcelable.Creator<Page> = object : Parcelable.Creator<Page> {
             override fun createFromParcel(source: Parcel): Page = Page(source)
 

@@ -20,11 +20,11 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.Category
 import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.storage.SharedPreferencesUtils
-import com.squareup.picasso.Picasso
 import java.util.*
 
 class ViewPagerItemFragment : Fragment() {
@@ -41,12 +41,25 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
+        if (savedInstanceState != null) {
+            mItems = savedInstanceState.getParcelableArrayList(ITEMS_PARAM)
+            mColumns = savedInstanceState.getInt(COLUMNS_PARAM)
+            mRows = savedInstanceState.getInt(ROWS_PARAM)
+            mMarginWidth = savedInstanceState.getInt(MARGIN_WIDTH)
+        } else {
             mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
             mColumns = arguments.getInt(COLUMNS_PARAM)
             mRows = arguments.getInt(ROWS_PARAM)
             mMarginWidth = arguments.getInt(MARGIN_WIDTH)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putParcelableArrayList(ITEMS_PARAM, ArrayList(mItems))
+        outState?.putInt(COLUMNS_PARAM, mColumns)
+        outState?.putInt(ROWS_PARAM, mRows)
+        outState?.putInt(MARGIN_WIDTH, mMarginWidth)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

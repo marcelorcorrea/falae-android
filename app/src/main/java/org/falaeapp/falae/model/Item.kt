@@ -29,7 +29,7 @@ data class Item(val name: String, var imgSrc: String, val speech: String, val ca
     }
 
     companion object {
-
+        @JvmField
         val CREATOR: Parcelable.Creator<Item> = object : Parcelable.Creator<Item> {
             override fun createFromParcel(source: Parcel): Item = Item(source)
 

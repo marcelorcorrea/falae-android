@@ -32,7 +32,7 @@ data class User(val id: Int, val name: String, val authToken: String = "", val e
     }
 
     companion object {
-
+        @JvmField
         val CREATOR: Parcelable.Creator<User> = object : Parcelable.Creator<User> {
             override fun createFromParcel(source: Parcel): User = User(source)
 
