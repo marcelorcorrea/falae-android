@@ -99,8 +99,8 @@ class ViewPagerItemFragment : Fragment() {
             frameLayout.background = drawable
         }
         frameLayout.setOnClickListener {
-            val currentScannedItem = getScannedItem() ?: item
-            onItemClicked(currentScannedItem)
+            val currentItem  = getScannedItem() ?: item
+            onItemClicked(currentItem)
         }
         name.text = item.name
         name.post {
