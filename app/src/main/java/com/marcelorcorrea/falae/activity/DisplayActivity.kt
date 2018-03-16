@@ -55,8 +55,13 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
+        // The backPressed should has the same behavior as "home" clicking (when you're not in home!)
+//        if (supportFragmentManager.backStackEntryCount > 0) {
+//            currentSpreadSheet?.let { openPage(it.initialPage) }
+//        } else {
+            super.onBackPressed()
+            overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
+//        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
