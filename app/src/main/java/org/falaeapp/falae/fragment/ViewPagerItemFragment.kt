@@ -46,6 +46,7 @@ class ViewPagerItemFragment : Fragment() {
             mColumns = savedInstanceState.getInt(COLUMNS_PARAM)
             mRows = savedInstanceState.getInt(ROWS_PARAM)
             mMarginWidth = savedInstanceState.getInt(MARGIN_WIDTH)
+            currentItemSelectedFromScan = savedInstanceState.getInt(CURRENT_SELECTED_ITEM_INDEX)
         } else {
             mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
             mColumns = arguments.getInt(COLUMNS_PARAM)
@@ -59,6 +60,7 @@ class ViewPagerItemFragment : Fragment() {
         outState?.putInt(COLUMNS_PARAM, mColumns)
         outState?.putInt(ROWS_PARAM, mRows)
         outState?.putInt(MARGIN_WIDTH, mMarginWidth)
+        outState?.putInt(CURRENT_SELECTED_ITEM_INDEX, currentItemSelectedFromScan)
         super.onSaveInstanceState(outState)
     }
 
@@ -82,7 +84,7 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
+        if (context != null && SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
             currentItemSelectedFromScan = -1
             val scanModeDuration = SharedPreferencesUtils.getInt(SettingsFragment.SCAN_MODE_DURATION, context)
             doSpreadsheetScan(scanModeDuration)
@@ -91,11 +93,12 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if (mTimer != null) {
-            mTimer!!.purge()
-            mTimer!!.cancel()
-            mTimer = null
+        removeHighlightedItem(currentItemSelectedFromScan)
+        mTimer?.let {
+            it.purge()
+            it.cancel()
         }
+        mTimer = null
     }
 
     private fun generateLayout(inflater: LayoutInflater, item: Item, layoutDimensions: Point): FrameLayout {
@@ -121,7 +124,6 @@ class ViewPagerItemFragment : Fragment() {
         name.text = item.name
         name.post {
             val imageSize = calculateImageSize(layoutDimensions.x, layoutDimensions.y, name, imageView)
-
             if (item.category == Category.SUBJECT) {
                 name.setTextColor(Color.BLACK)
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -188,22 +190,19 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     private fun getResizedDrawable(drawableId: Int, size: Int): Drawable {
-        val drawable: Drawable?
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = context.resources.getDrawable(drawableId)
+        val drawable: Drawable? = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            context.resources.getDrawable(drawableId)
         } else {
-            drawable = context.getDrawable(drawableId)
+            context.getDrawable(drawableId)
         }
-
         val bitmap = (drawable as BitmapDrawable).bitmap
-        return BitmapDrawable(resources,
-                Bitmap.createScaledBitmap(bitmap, size, size, true))
+        return BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, size, size, true))
     }
 
 
     private fun doSpreadsheetScan(delay: Int) {
         mTimer = Timer()
-        mTimer!!.schedule(object : TimerTask() {
+        mTimer?.schedule(object : TimerTask() {
             override fun run() {
                 try {
                     currentItemSelectedFromScan++
@@ -211,20 +210,8 @@ class ViewPagerItemFragment : Fragment() {
                         currentItemSelectedFromScan = 0
                     }
                     activity.runOnUiThread {
-                        //Highlight current selected item
-                        if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
-                            Log.d(javaClass.name, "hightlight current item: " + currentItemSelectedFromScan)
-                            mItemsLayout[currentItemSelectedFromScan].foreground = context.resources.getDrawable(R.drawable.pressed_color)
-                        }
-                        var previousItem = currentItemSelectedFromScan - 1
-                        if (previousItem < 0) {
-                            previousItem = mItemsLayout.size - 1
-                        }
-                        //remove highlight from previus item
-                        if (context != null && previousItem < mItemsLayout.size) {
-                            Log.d(javaClass.name, "remove hightlight current item: " + previousItem)
-                            mItemsLayout[previousItem].foreground = context.resources.getDrawable(R.drawable.normal_color)
-                        }
+                        highlightCurrentItem()
+                        removeHighlightedItem(currentItemSelectedFromScan - 1)
                     }
                 } catch (e: Exception) {
                     Log.e(javaClass.name, "ViewPagerItemFragment:run:256 ")
@@ -234,12 +221,28 @@ class ViewPagerItemFragment : Fragment() {
         }, 0, delay.toLong())
     }
 
+    private fun highlightCurrentItem() {
+        if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
+            mItemsLayout[currentItemSelectedFromScan].foreground = context.resources.getDrawable(R.drawable.pressed_color)
+        }
+    }
+
+    private fun removeHighlightedItem(currentItemSelectedFromScan: Int) {
+        var previousItem = currentItemSelectedFromScan
+        if (previousItem < 0) {
+            previousItem = mItemsLayout.size - 1
+        }
+        if (context != null && previousItem < mItemsLayout.size) {
+            mItemsLayout[previousItem].foreground = context.resources.getDrawable(R.drawable.normal_color)
+        }
+    }
+
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         if (context is ViewPagerItemFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement ViewPagerItemFragmentListener")
+            throw RuntimeException(context.toString() + " must implement ViewPagerItemFragmentListener")
         }
     }
 
@@ -254,6 +257,7 @@ class ViewPagerItemFragment : Fragment() {
         private const val COLUMNS_PARAM = "columns"
         private const val ROWS_PARAM = "rows"
         private const val MARGIN_WIDTH = "marginWidth"
+        private const val CURRENT_SELECTED_ITEM_INDEX = "currentSelectedItemIndex"
 
         fun newInstance(items: ArrayList<Item>, columns: Int, rows: Int, width: Int): ViewPagerItemFragment {
             val fragment = ViewPagerItemFragment()
