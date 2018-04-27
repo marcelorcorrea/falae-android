@@ -9,17 +9,22 @@ import java.util.*
 
 class ItemPagerAdapter(fm: FragmentManager, private val page: Page, private val marginWidth: Int) : FragmentStatePagerAdapter(fm) {
     private val pageCount: Int
+    private val fragments: MutableMap<Int, Fragment> = mutableMapOf()
 
     init {
         pageCount = calculatePageCount()
     }
 
     override fun getItem(position: Int): Fragment {
-        val items = page.items
-        val itemsPerPage = page.columns * page.rows
-        val fromIndex = position * itemsPerPage
-        val subList = items.subList(fromIndex, Math.min(fromIndex + itemsPerPage, items.size))
-        return ViewPagerItemFragment.newInstance(ArrayList(subList), page.columns, page.rows, marginWidth)
+        if (fragments[position] == null) {
+            val items = page.items
+            val itemsPerPage = page.columns * page.rows
+            val fromIndex = position * itemsPerPage
+            val subList = items.subList(fromIndex, Math.min(fromIndex + itemsPerPage, items.size))
+            val itemFragment = ViewPagerItemFragment.newInstance(ArrayList(subList), page.columns, page.rows, marginWidth)
+            fragments.put(position, itemFragment)
+        }
+        return fragments[position] as Fragment
     }
 
     override fun getCount(): Int = pageCount

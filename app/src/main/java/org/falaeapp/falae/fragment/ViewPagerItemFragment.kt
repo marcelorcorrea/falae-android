@@ -115,11 +115,8 @@ class ViewPagerItemFragment : Fragment() {
             frameLayout.background = drawable
         }
         frameLayout.setOnClickListener {
-            var itemSelected = item
-            if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-                itemSelected = mItems[currentItemSelectedFromScan]
-            }
-            onItemClicked(itemSelected)
+            val currentItem  = getScannedItem() ?: item
+            onItemClicked(currentItem)
         }
         name.text = item.name
         name.post {
@@ -148,6 +145,20 @@ class ViewPagerItemFragment : Fragment() {
             }
         }
         return frameLayout
+    }
+
+    fun selectScannedItem() {
+        val scannedItem = getScannedItem()
+        if (scannedItem is Item) {
+            onItemClicked(scannedItem)
+        }
+    }
+
+    private fun getScannedItem(): Item? {
+        if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
+            return mItems!![currentItemSelectedFromScan]
+        }
+        return null
     }
 
     private fun onItemClicked(item: Item) {

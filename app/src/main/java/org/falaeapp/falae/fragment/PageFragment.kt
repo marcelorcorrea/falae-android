@@ -143,6 +143,12 @@ class PageFragment : Fragment() {
         mPageFragmentListener.speak(msg)
     }
 
+    fun selectScannedItem() {
+        val currentItem = mPager.currentItem
+        val currentViewPagerItemFragment = mPagerAdapter.getItem(currentItem) as ViewPagerItemFragment
+        currentViewPagerItemFragment.selectScannedItem()
+    }
+
     interface PageFragmentListener {
         fun speak(msg: String)
     }

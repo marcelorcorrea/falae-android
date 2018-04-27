@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AppCompatActivity
+import android.view.KeyEvent
 import android.widget.Toast
 import org.falaeapp.falae.R
 import org.falaeapp.falae.fragment.PageFragment
@@ -61,6 +62,15 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
     override fun onBackPressed() {
         super.onBackPressed()
         overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_A) {
+            val pageFragment = supportFragmentManager.fragments.lastOrNull { it is PageFragment }
+            (pageFragment as PageFragment?)?.selectScannedItem()
+
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
