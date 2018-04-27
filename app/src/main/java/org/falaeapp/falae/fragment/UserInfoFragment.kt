@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import org.falaeapp.falae.R
@@ -50,6 +51,7 @@ class UserInfoFragment : Fragment() {
                         .placeholder(placeHolderImage)
                         .error(brokenImage!!)
                         .transform(CropCircleTransformation())
+                        .memoryPolicy(MemoryPolicy.NO_CACHE)
                         .into(imageView)
             }
         }

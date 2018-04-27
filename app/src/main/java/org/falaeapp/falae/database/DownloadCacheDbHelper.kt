@@ -83,7 +83,6 @@ class DownloadCacheDbHelper(context: Context) {
                 null,
                 null).use {
             val typeOfHashMap = object : TypeToken<MutableMap<String, String?>>() {}.type
-            val gson = Gson()
             if (it.moveToFirst()) {
                 val columnNameResult = it.getString(it.getColumnIndex(DownloadCacheEntry.COLUMN_NAME))
                 val columnSourcesResult = it.getString(it.getColumnIndex(DownloadCacheEntry.COLUMN_SOURCES))

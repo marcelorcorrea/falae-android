@@ -18,7 +18,7 @@
     <string name="sync_user">Synchronize User</string>
     <string name="title_activity_login">Download Spreadsheet</string>
     <string name="spreadsheets">Spreadsheets</string>
-    <string name="users">Add User</string>
+    <string name="users">Synchronize user</string>
     <string name="voice">Voice</string>
     <string name="previous">Back</string>
     <string name="next">Next</string>

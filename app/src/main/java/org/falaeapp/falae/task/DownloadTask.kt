@@ -78,8 +78,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                 val imgSrc = "${BuildConfig.BASE_URL}$it"
                 val file = FileHandler.createImg(userFolder, user.name, imgSrc)
                 val userUri = userDownloadCache.sources[imgSrc]
-                        ?: download(file, user.authToken, user.name,
-                                imgSrc, userDownloadCache)
+                        ?: download(file, user.authToken, user.name, imgSrc, userDownloadCache)
                 user.photo = userUri
             }
         }
@@ -144,7 +143,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
     private fun getDuplicatedItems(list: List<Item>): Map<String, MutableList<Item>> {
         val itemsMap = mutableMapOf<String, MutableList<Item>>()
         val uniqueItems = HashSet<String>()
-        list.forEach {item ->
+        list.forEach { item ->
             if (!uniqueItems.add(item.imgSrc)) {
                 val listItem = itemsMap[item.imgSrc] ?: mutableListOf()
                 listItem.add(item)

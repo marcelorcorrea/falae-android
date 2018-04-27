@@ -41,9 +41,9 @@ class PageFragment : Fragment() {
         super.onSaveInstanceState(outState)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater!!.inflate(R.layout.fragment_page, container, false)
+        val view = inflater.inflate(R.layout.fragment_page, container, false)
         leftNav = view.findViewById(R.id.left_nav) as ImageView
         rightNav = view.findViewById(R.id.right_nav) as ImageView
         leftNavHolder = view.findViewById(R.id.left_nav_holder) as FrameLayout
