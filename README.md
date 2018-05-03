@@ -30,6 +30,10 @@ Just clone the repository and open using Android Studio.
 * [Tais Bellini](https://github.com/taisbellini)
 * [Tomaz da Silva](https://github.com/trdasilva)
 
+## Community
+
+Join us on our [Slack Channel](https://falaeapp.slack.com)! There you can help our community, solve some of your questions, talk about your issues, keep in touch with the creators and much more!
+
 ## License
 
 MIT -- see [LICENSE](LICENSE)
