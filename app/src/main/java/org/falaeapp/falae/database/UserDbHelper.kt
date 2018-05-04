@@ -3,9 +3,9 @@ package org.falaeapp.falae.database
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import mu.KotlinLogging
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
 import java.util.*
@@ -17,6 +17,7 @@ import java.util.*
 
 class UserDbHelper(context: Context) {
     private val databaseHelper: DataBaseHelper = DataBaseHelper.getInstance(context)
+    private val logger = KotlinLogging.logger {}
 
     class UserEntry {
         companion object {
@@ -45,14 +46,14 @@ class UserDbHelper(context: Context) {
     fun insert(user: User): Long {
         val userContentValues = createUserContentValues(user)
         val db = databaseHelper.writableDatabase
-        Log.d(javaClass.name, "Inserting entry...")
+        logger.debug(javaClass.name, "Inserting entry...")
         return db.insert(UserEntry.TABLE_NAME, null, userContentValues)
     }
 
     fun update(user: User) {
         val userContentValues = createUserContentValues(user)
         val db = databaseHelper.writableDatabase
-        Log.d(javaClass.name, "Updating entry...")
+        logger.debug(javaClass.name, "Updating entry...")
         db.update(UserEntry.TABLE_NAME, userContentValues, UserEntry.COLUMN_EMAIL + "= ? ", arrayOf(user.email))
     }
 

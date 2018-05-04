@@ -2,10 +2,9 @@ package org.falaeapp.falae.database
 
 import android.content.ContentValues
 import android.content.Context
-import android.util.Log
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import mu.KotlinLogging
 import org.falaeapp.falae.model.DownloadCache
 
 
@@ -16,6 +15,7 @@ class DownloadCacheDbHelper(context: Context) {
 
     private val databaseHelper: DataBaseHelper = DataBaseHelper.getInstance(context)
     private var gson = GsonBuilder().create()
+    private val logger = KotlinLogging.logger {}
 
     class DownloadCacheEntry {
         companion object {
@@ -33,7 +33,7 @@ class DownloadCacheDbHelper(context: Context) {
         contentValues.put(DownloadCacheEntry.COLUMN_NAME, downloadCache.name)
         contentValues.put(DownloadCacheEntry.COLUMN_SOURCES, json)
         val db = databaseHelper.writableDatabase
-        Log.d(javaClass.name, "Inserting data...")
+        logger.debug(javaClass.name, "Inserting data...")
         return db.insert(DownloadCacheEntry.TABLE_NAME, null, contentValues)
     }
 
@@ -43,7 +43,7 @@ class DownloadCacheDbHelper(context: Context) {
         contentValues.put(DownloadCacheEntry.COLUMN_NAME, downloadCache.name)
         contentValues.put(DownloadCacheEntry.COLUMN_SOURCES, json)
         val db = databaseHelper.writableDatabase
-        Log.d(javaClass.name, "Updating entry...")
+        logger.debug(javaClass.name, "Updating entry...")
         val whereClause = DownloadCacheEntry.COLUMN_NAME + " = ?"
         val whereArgs = arrayOf(downloadCache.name)
         db.update(DownloadCacheEntry.TABLE_NAME,
