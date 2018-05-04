@@ -18,6 +18,8 @@ The web server repository can be found [here](https://github.com/marcelorcorrea/
 
 Feel free to fork or contribute this project.
 
+Download in [Play Store](https://play.google.com/store/apps/details?id=org.falaeapp.falae)
+
 ## Local setup
 
 Just clone the repository and open using Android Studio.
