@@ -13,7 +13,6 @@ import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayout
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +20,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.squareup.picasso.Picasso
+import mu.KotlinLogging
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.Category
 import org.falaeapp.falae.model.Item
@@ -38,6 +38,7 @@ class ViewPagerItemFragment : Fragment() {
     private var currentItemSelectedFromScan = -1
     private lateinit var mGridLayout: GridLayout
     private var mTimer: Timer? = null
+    private val logger = KotlinLogging.logger {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -214,7 +215,7 @@ class ViewPagerItemFragment : Fragment() {
                         removeHighlightedItem(currentItemSelectedFromScan - 1)
                     }
                 } catch (e: Exception) {
-                    Log.e(javaClass.name, "ViewPagerItemFragment:run:256 ")
+                    logger.error(javaClass.name, "ViewPagerItemFragment:run:256 ")
                 }
 
             }

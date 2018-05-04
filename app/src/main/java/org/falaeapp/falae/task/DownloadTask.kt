@@ -7,8 +7,8 @@ import android.net.NetworkInfo
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
+import mu.KotlinLogging
 import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
 import org.falaeapp.falae.database.DownloadCacheDbHelper
@@ -36,6 +36,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
     private var pDialog: ProgressDialog? = null
     private lateinit var userDownloadCache: DownloadCache
     private lateinit var publicDownloadCache: DownloadCache
+    private val logger = KotlinLogging.logger {}
 
     init {
         executor = ThreadPoolExecutor(
@@ -121,7 +122,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
 
     private fun download(imgReference: File, token: String, name: String, imgSrc: String, cache: DownloadCache): String {
         val url = URL(imgSrc)
-        Log.d(this.javaClass.name, "Downloading item: $name - $imgSrc")
+        logger.debug(this.javaClass.name, "Downloading item: $name - $imgSrc")
         try {
             with(url.openConnection()) {
                 connectTimeout = TIME_OUT
@@ -157,7 +158,7 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
             ?: DownloadCache(key, mutableMapOf())
 
     private fun saveOrUpdateCache(cache: DownloadCache) {
-        Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
+        logger.debug(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
         if (!dbHelper.cacheExist(cache)) {
             dbHelper.insert(cache)
         } else {

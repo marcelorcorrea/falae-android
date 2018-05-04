@@ -14,13 +14,13 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.MenuItem
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
+import mu.KotlinLogging
 import org.falaeapp.falae.R
 import org.falaeapp.falae.database.DownloadCacheDbHelper
 import org.falaeapp.falae.database.UserDbHelper
@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var downloadCacheDbHelper: DownloadCacheDbHelper
     private var mCurrentUser: User? = null
     private var doubleBackToExitPressedOnce: Boolean = false
+    private val logger = KotlinLogging.logger {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
@@ -198,7 +199,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onProviderInstalled() {
-        Log.d(javaClass.name, "Provider installed or up to date.")
+        logger.debug(javaClass.name, "Provider installed or up to date.")
     }
 
     override fun onProviderInstallFailed(errorCode: Int, recoveryIntent: Intent?) {
