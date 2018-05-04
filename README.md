@@ -18,7 +18,11 @@ The web server repository can be found [here](https://github.com/marcelorcorrea/
 
 Feel free to fork or contribute this project.
 
-Download in [Play Store](https://play.google.com/store/apps/details?id=org.falaeapp.falae)
+[![Slack channel](https://img.shields.io/badge/Chat-Slack-blue.svg)](https://falaeapp.slack.com)
+[![Language Kotlin](https://img.shields.io/badge/Language-Kotlin-blue.svg)](https://kotlinlang.org/)
+[![License MIT](https://img.shields.io/badge/Licence-Mit-blue.svg)](LICENSE)
+[![Downolad Android](https://img.shields.io/badge/Download-Android-blue.svg)](https://play.google.com/store/apps/details?id=org.falaeapp.falae)
+
 
 ## Local setup
 
@@ -31,13 +35,3 @@ Just clone the repository and open using Android Studio.
 * [Matheus Longaray](https://github.com/longaraymatheus)
 * [Tais Bellini](https://github.com/taisbellini)
 * [Tomaz da Silva](https://github.com/trdasilva)
-
-## Community
-
-Join us on our [Slack Channel](https://falaeapp.slack.com)! There you can help our community, solve some of your questions, talk about your issues, keep in touch with the creators and much more!
-
-## License
-
-MIT -- see [LICENSE](LICENSE)
-
-
