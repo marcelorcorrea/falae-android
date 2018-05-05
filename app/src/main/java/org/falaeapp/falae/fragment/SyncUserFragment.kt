@@ -168,21 +168,25 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
             pDialog.dismiss()
         }
         if (error is AuthFailureError) {
-            if (mListener.isNewUser(mEmailView.text.toString())) {
-                val snackbar = Snackbar.make(coordinatorLayout, getString(R.string.create_accout_msg), Snackbar.LENGTH_INDEFINITE)
-                val view = snackbar.view
-                val tv = view.findViewById(android.support.design.R.id.snackbar_text) as TextView
-                tv.setTextColor(Color.WHITE)
-                snackbar.setAction(getString(R.string.snackbar_confirm), {
-                })
-                snackbar.show()
-            } else {
-                mPasswordView.error = getString(R.string.error_incorrect_password)
-                mPasswordView.requestFocus()
-            }
+            handleError()
         } else {
             Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG).show()
             error.printStackTrace()
+        }
+    }
+
+    private fun handleError() {
+        if (mListener.isNewUser(mEmailView.text.toString())) {
+            val snackbar = Snackbar.make(coordinatorLayout, getString(R.string.create_accout_msg), Snackbar.LENGTH_INDEFINITE)
+            val view = snackbar.view
+            val tv = view.findViewById(android.support.design.R.id.snackbar_text) as TextView
+            tv.setTextColor(Color.WHITE)
+            snackbar.setAction(getString(R.string.snackbar_confirm), {
+            })
+            snackbar.show()
+        } else {
+            mPasswordView.error = getString(R.string.error_incorrect_password)
+            mPasswordView.requestFocus()
         }
     }
 
