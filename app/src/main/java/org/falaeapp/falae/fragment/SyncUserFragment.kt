@@ -2,8 +2,11 @@ package org.falaeapp.falae.fragment
 
 import android.app.ProgressDialog
 import android.content.Context
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.support.design.widget.CoordinatorLayout
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -35,11 +38,13 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
     private lateinit var mEmailView: EditText
     private lateinit var mPasswordView: EditText
     private lateinit var pDialog: ProgressDialog
+    private lateinit var coordinatorLayout: CoordinatorLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_sync_user, container, false)
+        coordinatorLayout = view.findViewById(R.id.coordinatorLayout) as CoordinatorLayout
         mEmailView = view.findViewById(R.id.email) as EditText
         mPasswordView = view.findViewById(R.id.password) as EditText
         mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
@@ -163,8 +168,18 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
             pDialog.dismiss()
         }
         if (error is AuthFailureError) {
-            mPasswordView.error = getString(R.string.error_incorrect_password)
-            mPasswordView.requestFocus()
+            if (mListener.isNewUser(mEmailView.text.toString())) {
+                val snackbar = Snackbar.make(coordinatorLayout, getString(R.string.create_accout_msg), Snackbar.LENGTH_INDEFINITE)
+                val view = snackbar.view
+                val tv = view.findViewById(android.support.design.R.id.snackbar_text) as TextView
+                tv.setTextColor(Color.WHITE)
+                snackbar.setAction("OK", {
+                })
+                snackbar.show()
+            } else {
+                mPasswordView.error = getString(R.string.error_incorrect_password)
+                mPasswordView.requestFocus()
+            }
         } else {
             Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG).show()
             error.printStackTrace()
@@ -173,6 +188,7 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
 
     interface SyncUserFragmentListener {
         fun onUserAuthenticated(user: User?)
+        fun isNewUser(email: String): Boolean
     }
 
     companion object {

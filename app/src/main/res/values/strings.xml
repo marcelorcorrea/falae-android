@@ -41,4 +41,5 @@
     <string name="no_option">Não</string>
     <string name="sampleboard">sampleboard.json</string>
     <string name="provider_not_available">Não foi possível instalar módulos de segurança do Android. Portanto, não será possível sincronizar sua conta.</string>
+    <string name="create_accout_msg">Você já criou sua conta gratuita na plataforma web? (https://www.falaeapp.com)</string>
 </resources>

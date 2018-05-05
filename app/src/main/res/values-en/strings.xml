@@ -41,4 +41,5 @@
     <string name="no_option">No</string>
     <string name="sampleboard">sampleboard_en.json</string>
     <string name="provider_not_available">It was not possible to install Android security modules. Therefore, it won\'t be possible to synchronize your account.</string>
+    <string name="create_accout_msg">Make sure you registered your account in the web platform (https://www.falaeapp.org)</string>
 </resources>
