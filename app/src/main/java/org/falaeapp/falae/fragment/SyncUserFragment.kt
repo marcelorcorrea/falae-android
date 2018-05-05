@@ -173,7 +173,7 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
                 val view = snackbar.view
                 val tv = view.findViewById(android.support.design.R.id.snackbar_text) as TextView
                 tv.setTextColor(Color.WHITE)
-                snackbar.setAction("OK", {
+                snackbar.setAction(getString(R.string.snackbar_confirm), {
                 })
                 snackbar.show()
             } else {

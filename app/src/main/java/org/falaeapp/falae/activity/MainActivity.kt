@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun findUser(user: User) = dbHelper.findByEmail(user.email)
+    private fun findUser(user: User) = findUser(user.email)
 
     private fun findUser(email: String) = dbHelper.findByEmail(email)
 

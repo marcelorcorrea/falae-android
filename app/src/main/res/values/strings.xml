@@ -1,20 +1,16 @@
 <resources>
     <string name="app_name">Falae</string>
-
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Senha</string>
     <string name="action_sign_in">Sincronizar Usuário</string>
     <string name="action_sign_in_short">Sincronizar</string>
     <string name="error_invalid_email">Este email não é válido.</string>
     <string name="error_invalid_password">Senha muito curta</string>
-    <string name="error_incorrect_password">Senha inválida</string>
+    <string name="error_incorrect_password">Email ou senha inválida</string>
     <string name="error_field_required">Este campo é obrigatório</string>
-
     <string name="navigation_drawer_open">Abrir menu de navegação</string>
     <string name="navigation_drawer_close">Fechar menu de navegação</string>
-
     <string name="synchronize">Sincronizar</string>
-
     <string name="title_activity_login">Baixar Prancha</string>
     <string name="spreadsheets">Pranchas</string>
     <string name="users">Sincronizar usuário</string>
@@ -41,5 +37,6 @@
     <string name="no_option">Não</string>
     <string name="sampleboard">sampleboard.json</string>
     <string name="provider_not_available">Não foi possível instalar módulos de segurança do Android. Portanto, não será possível sincronizar sua conta.</string>
-    <string name="create_accout_msg">Você já criou sua conta gratuita na plataforma web? (https://www.falaeapp.com)</string>
+    <string name="create_accout_msg">É necessário ter uma conta cadastrada na plataforma web. (https://www.falaeapp.com)</string>
+    <string name="snackbar_confirm">OK</string>
 </resources>

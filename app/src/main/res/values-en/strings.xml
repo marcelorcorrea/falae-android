@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Falaê</string>
-
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Synchronize User</string>
@@ -10,10 +9,8 @@
     <string name="error_invalid_password">Password too short.</string>
     <string name="error_incorrect_password">Email or Password incorrect.</string>
     <string name="error_field_required">This field is required.</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="synchronize">Synchronize</string>
     <string name="sync_user">Synchronize User</string>
     <string name="title_activity_login">Download Spreadsheet</string>
@@ -41,5 +38,6 @@
     <string name="no_option">No</string>
     <string name="sampleboard">sampleboard_en.json</string>
     <string name="provider_not_available">It was not possible to install Android security modules. Therefore, it won\'t be possible to synchronize your account.</string>
-    <string name="create_accout_msg">Make sure you registered your account in the web platform (https://www.falaeapp.org)</string>
+    <string name="create_accout_msg">Make sure you have an account registered in the web platform (https://www.falaeapp.org)</string>
+    <string name="snackbar_confirm">OK</string>
 </resources>
