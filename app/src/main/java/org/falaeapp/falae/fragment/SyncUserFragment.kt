@@ -2,11 +2,9 @@ package org.falaeapp.falae.fragment
 
 import android.app.ProgressDialog
 import android.content.Context
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -28,6 +26,7 @@ import org.falaeapp.falae.R
 import org.falaeapp.falae.TLSSocketFactory
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.task.GsonRequest
+import org.falaeapp.falae.util.Util
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.regex.Pattern
@@ -177,13 +176,11 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
 
     private fun handleError() {
         if (mListener.isNewUser(mEmailView.text.toString())) {
-            val snackbar = Snackbar.make(coordinatorLayout, getString(R.string.create_accout_msg), Snackbar.LENGTH_INDEFINITE)
-            val view = snackbar.view
-            val tv = view.findViewById(android.support.design.R.id.snackbar_text) as TextView
-            tv.setTextColor(Color.WHITE)
-            snackbar.setAction(getString(R.string.snackbar_confirm), {
-            })
-            snackbar.show()
+            Util.createDialog(
+                    context = context,
+                    positiveText = getString(R.string.ok),
+                    message = getString(R.string.create_accout_msg))
+                    .show()
         } else {
             mPasswordView.error = getString(R.string.error_incorrect_password)
             mPasswordView.requestFocus()

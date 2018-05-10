@@ -36,8 +36,8 @@
     <string name="questionRemoveUser">Are you sure you want to remove this user?</string>
     <string name="yes_option">Yes</string>
     <string name="no_option">No</string>
+    <string name="ok">OK</string>
     <string name="sampleboard">sampleboard_en.json</string>
     <string name="provider_not_available">It was not possible to install Android security modules. Therefore, it won\'t be possible to synchronize your account.</string>
     <string name="create_accout_msg">Make sure you have an account registered in the web platform (https://www.falaeapp.org)</string>
-    <string name="snackbar_confirm">OK</string>
 </resources>

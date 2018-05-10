@@ -2,7 +2,6 @@ package org.falaeapp.falae.fragment
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
@@ -10,6 +9,7 @@ import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.SpreadSheetAdapter
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
+import org.falaeapp.falae.util.Util
 
 
 class SpreadSheetFragment : Fragment() {
@@ -58,21 +58,14 @@ class SpreadSheetFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.remove_item -> {
-                val confirmBuilder = AlertDialog.Builder(activity)
-                val confirmDialog = confirmBuilder.setTitle(getString(R.string.removeUser))
-                        .setMessage(getString(R.string.questionRemoveUser))
-                        .setPositiveButton(getString(R.string.yes_option), { _, _ ->
-                            mListener.removeUser(user!!)
-                        })
-                        .setNegativeButton(getString(R.string.no_option), { _, _ -> })
-                        .create()
-                confirmDialog.setOnShowListener {
-                    val buttonPositive = confirmDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    val buttonNegative = confirmDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                    buttonPositive.setTextColor(resources.getColor(R.color.colorAccent))
-                    buttonNegative.setTextColor(resources.getColor(R.color.colorAccent))
-                }
-                confirmDialog.show()
+                Util.createDialog(
+                        context = context,
+                        title = getString(R.string.removeUser),
+                        message = getString(R.string.questionRemoveUser),
+                        positiveText = getString(R.string.yes_option),
+                        positiveClick = { mListener.removeUser(user!!) },
+                        negativeText = getString(R.string.no_option)
+                ).show()
                 return true
             }
         }
