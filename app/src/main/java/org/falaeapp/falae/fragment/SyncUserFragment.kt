@@ -4,7 +4,6 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.CoordinatorLayout
 import android.support.v4.app.Fragment
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -37,13 +36,11 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
     private lateinit var mEmailView: EditText
     private lateinit var mPasswordView: EditText
     private lateinit var pDialog: ProgressDialog
-    private lateinit var coordinatorLayout: CoordinatorLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_sync_user, container, false)
-        coordinatorLayout = view.findViewById(R.id.coordinatorLayout) as CoordinatorLayout
         mEmailView = view.findViewById(R.id.email) as EditText
         mPasswordView = view.findViewById(R.id.password) as EditText
         mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
