@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         addUserToMenu(demoUser, R.id.settings_group, 1) { null }
     }
 
-    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0, findUser: (User) -> User? = this::findUser) {
+    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0, findUser: (User) -> User? = ::findUser) {
         val userItem = mNavigationView.menu.add(groupId, user.id, order, user.name)
         userItem.setIcon(R.drawable.ic_person_black_24dp)
         userItem.setOnMenuItemClickListener { item ->
@@ -112,7 +112,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun findUser(user: User) = dbHelper.findByEmail(user.email)
+    private fun findUser(user: User) = findUser(user.email)
+
+    private fun findUser(email: String) = dbHelper.findByEmail(email)
 
     override fun onBackPressed() {
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
@@ -183,6 +185,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             openUserMenuItem(u.email)
         }).execute(user)
     }
+
+    override fun isNewUser(email: String): Boolean = findUser(email) == null
 
     private fun openTTSLanguageSettings() {
         val installTts = Intent()

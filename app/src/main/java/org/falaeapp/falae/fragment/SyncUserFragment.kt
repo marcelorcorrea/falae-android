@@ -25,6 +25,7 @@ import org.falaeapp.falae.R
 import org.falaeapp.falae.TLSSocketFactory
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.task.GsonRequest
+import org.falaeapp.falae.util.Util
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.regex.Pattern
@@ -163,16 +164,29 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
             pDialog.dismiss()
         }
         if (error is AuthFailureError) {
-            mPasswordView.error = getString(R.string.error_incorrect_password)
-            mPasswordView.requestFocus()
+            handleError()
         } else {
             Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG).show()
             error.printStackTrace()
         }
     }
 
+    private fun handleError() {
+        if (mListener.isNewUser(mEmailView.text.toString())) {
+            Util.createDialog(
+                    context = context,
+                    positiveText = getString(R.string.ok),
+                    message = getString(R.string.create_accout_msg))
+                    .show()
+        } else {
+            mPasswordView.error = getString(R.string.error_incorrect_password)
+            mPasswordView.requestFocus()
+        }
+    }
+
     interface SyncUserFragmentListener {
         fun onUserAuthenticated(user: User?)
+        fun isNewUser(email: String): Boolean
     }
 
     companion object {
