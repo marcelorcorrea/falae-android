@@ -2,6 +2,7 @@ package org.falaeapp.falae.fragment
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,17 +29,18 @@ class SettingsFragment : Fragment() {
         seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
         seekBar = view.findViewById(R.id.seekBar) as SeekBar
 
-        val seekBarProgress = SharedPreferencesUtils.getInt(SEEK_BAR_PROGRESS, context)
+        val seekBarProgress = SharedPreferencesUtils.getInt(SEEK_BAR_PROGRESS, context, 1)
         seekBar.post {
             setSeekBarText(seekBarProgress)
-            seekBar.progress = seekBarProgress
+            seekBar.progress = seekBarProgress - 1
         }
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                setSeekBarText(progress)
-                SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, progress, context)
-                val timeMillis = progress * 500
+                val actualProgress = progress + 1
+                setSeekBarText(actualProgress)
+                SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, actualProgress, context)
+                val timeMillis = actualProgress * 500
                 SharedPreferencesUtils.storeInt(SCAN_MODE_DURATION, timeMillis, context)
             }
 

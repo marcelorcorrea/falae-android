@@ -38,9 +38,9 @@ object SharedPreferencesUtils {
         return sharedPreferences?.getString(key, "")!!
     }
 
-    fun getInt(key: String, context: Context): Int {
+    fun getInt(key: String, context: Context, defaultValue: Int = 0): Int {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
-        return sharedPreferences?.getInt(key, 0)!!
+        return sharedPreferences?.getInt(key, defaultValue)!!
     }
 
     fun remove(key: String, context: Context) {
