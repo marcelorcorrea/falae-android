@@ -45,20 +45,20 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
         mPasswordView = view.findViewById(R.id.password) as EditText
         mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
-                val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(mPasswordView.windowToken, 0)
                 attemptLogin()
                 return@OnEditorActionListener true
             }
             false
         })
-
         pDialog = ProgressDialog(context)
-        pDialog.setMessage(context.getString(R.string.authenticate_message))
+        pDialog.setMessage(context?.getString(R.string.authenticate_message))
         pDialog.isIndeterminate = false
         pDialog.setCancelable(false)
         val mEmailSignInButton = view.findViewById(R.id.email_sign_in_button) as Button
         mEmailSignInButton.setOnClickListener { attemptLogin() }
+        setHasOptionsMenu(true)
         return view
     }
 
@@ -77,8 +77,8 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
     }
 
     private fun showSoftwareKeyboard(showKeyboard: Boolean) {
-        val inputManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.hideSoftInputFromWindow(activity.currentFocus!!.windowToken,
+        val inputManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(activity?.currentFocus!!.windowToken,
                 if (showKeyboard) InputMethodManager.SHOW_FORCED else InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
@@ -172,13 +172,15 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
     }
 
     private fun handleError() {
-        if (mListener.isNewUser(mEmailView.text.toString())) {
-            Util.createDialog(
-                    context = context,
-                    positiveText = getString(R.string.ok),
-                    message = getString(R.string.create_accout_msg))
-                    .show()
-        } else {
+        context?.let { context ->
+            if (mListener.isNewUser(mEmailView.text.toString())) {
+                Util.createDialog(
+                        context = context,
+                        positiveText = getString(R.string.ok),
+                        message = getString(R.string.create_accout_msg))
+                        .show()
+            }
+        } ?: run {
             mPasswordView.error = getString(R.string.error_incorrect_password)
             mPasswordView.requestFocus()
         }

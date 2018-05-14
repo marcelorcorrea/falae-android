@@ -32,12 +32,12 @@ class PageFragment : Fragment() {
         page = if (savedInstanceState != null) {
             savedInstanceState.getParcelable(PAGE_PARAM)
         } else {
-            arguments.getParcelable(PAGE_PARAM)
-        }
+            arguments?.getParcelable(PAGE_PARAM)
+        } ?: return
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putParcelable(PAGE_PARAM, page)
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(PAGE_PARAM, page)
         super.onSaveInstanceState(outState)
     }
 

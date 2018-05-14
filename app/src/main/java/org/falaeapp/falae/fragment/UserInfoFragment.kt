@@ -17,11 +17,11 @@ import org.falaeapp.falae.model.User
 
 class UserInfoFragment : Fragment() {
 
-    private var user: User? = null
+    private lateinit var user: User
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        user = arguments?.getParcelable(USER_PARAM)
+        user = arguments?.getParcelable(USER_PARAM) ?: return
         onAttachFragment(parentFragment)
     }
 
@@ -37,14 +37,14 @@ class UserInfoFragment : Fragment() {
         val placeHolderImage: Drawable?
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            brokenImage = context.resources.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context.resources.getDrawable(R.drawable.ic_person_black_24dp)
+            brokenImage = context?.resources?.getDrawable(R.drawable.ic_broken_image_black_48dp)
+            placeHolderImage = context?.resources?.getDrawable(R.drawable.ic_person_black_24dp)
         } else {
-            brokenImage = context.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context.getDrawable(R.drawable.ic_person_black_24dp)
+            brokenImage = context?.getDrawable(R.drawable.ic_broken_image_black_48dp)
+            placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
         }
 
-        user?.photo?.let {
+        user.photo?.let {
             if (it.isNotEmpty()) {
                 Picasso.with(context)
                         .load(it)
@@ -56,8 +56,8 @@ class UserInfoFragment : Fragment() {
             }
         }
 
-        userName.text = user?.name
-        userInfo.text = user?.profile
+        userName.text = user.name
+        userInfo.text = user.profile
 
         return view
     }

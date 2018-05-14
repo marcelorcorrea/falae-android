@@ -16,11 +16,11 @@ class SpreadSheetFragment : Fragment() {
 
     private lateinit var mListener: SpreadSheetFragmentListener
     private lateinit var spreadSheetAdapter: SpreadSheetAdapter
-    private var user: User? = null
+    private lateinit var user: User
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        user = arguments?.getParcelable(USER_PARAM)
+        user = arguments?.getParcelable(USER_PARAM) ?: return
         onAttachFragment(parentFragment)
         setHasOptionsMenu(true)
     }
@@ -28,12 +28,10 @@ class SpreadSheetFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
         val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
-        user?.let {
-            spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets, { spreadSheet ->
-                mListener.displayActivity(spreadSheet)
-            })
-            recyclerView.adapter = spreadSheetAdapter
-        }
+        spreadSheetAdapter = SpreadSheetAdapter(context, user.spreadsheets, { spreadSheet ->
+            mListener.displayActivity(spreadSheet)
+        })
+        recyclerView.adapter = spreadSheetAdapter
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
         return view
@@ -48,24 +46,24 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        user?.let {
-            if (it.email.contains(EMAIL_SAMPLE).not()) {
-                inflater?.inflate(R.menu.board_menu, menu)
-            }
+        if (user.email.contains(EMAIL_SAMPLE).not()) {
+            inflater?.inflate(R.menu.board_menu, menu)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.remove_item -> {
-                Util.createDialog(
-                        context = context,
-                        title = getString(R.string.removeUser),
-                        message = getString(R.string.questionRemoveUser),
-                        positiveText = getString(R.string.yes_option),
-                        positiveClick = { mListener.removeUser(user!!) },
-                        negativeText = getString(R.string.no_option)
-                ).show()
+                context?.let { context ->
+                    Util.createDialog(
+                            context = context,
+                            title = getString(R.string.removeUser),
+                            message = getString(R.string.questionRemoveUser),
+                            positiveText = getString(R.string.yes_option),
+                            positiveClick = { mListener.removeUser(user) },
+                            negativeText = getString(R.string.no_option)
+                    ).show()
+                }
                 return true
             }
         }

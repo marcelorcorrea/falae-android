@@ -48,19 +48,21 @@ class ViewPagerItemFragment : Fragment() {
             mMarginWidth = savedInstanceState.getInt(MARGIN_WIDTH)
             currentItemSelectedFromScan = savedInstanceState.getInt(CURRENT_SELECTED_ITEM_INDEX)
         } else {
-            mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
-            mColumns = arguments.getInt(COLUMNS_PARAM)
-            mRows = arguments.getInt(ROWS_PARAM)
-            mMarginWidth = arguments.getInt(MARGIN_WIDTH)
+            arguments?.let { arguments ->
+                mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
+                mColumns = arguments.getInt(COLUMNS_PARAM)
+                mRows = arguments.getInt(ROWS_PARAM)
+                mMarginWidth = arguments.getInt(MARGIN_WIDTH)
+            } ?: return
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putParcelableArrayList(ITEMS_PARAM, ArrayList(mItems))
-        outState?.putInt(COLUMNS_PARAM, mColumns)
-        outState?.putInt(ROWS_PARAM, mRows)
-        outState?.putInt(MARGIN_WIDTH, mMarginWidth)
-        outState?.putInt(CURRENT_SELECTED_ITEM_INDEX, currentItemSelectedFromScan)
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelableArrayList(ITEMS_PARAM, ArrayList(mItems))
+        outState.putInt(COLUMNS_PARAM, mColumns)
+        outState.putInt(ROWS_PARAM, mRows)
+        outState.putInt(MARGIN_WIDTH, mMarginWidth)
+        outState.putInt(CURRENT_SELECTED_ITEM_INDEX, currentItemSelectedFromScan)
         super.onSaveInstanceState(outState)
     }
 
@@ -84,10 +86,12 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (context != null && SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-            currentItemSelectedFromScan = -1
-            val scanModeDuration = SharedPreferencesUtils.getInt(SettingsFragment.SCAN_MODE_DURATION, context)
-            doSpreadsheetScan(scanModeDuration)
+        context?.let { context ->
+            if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
+                currentItemSelectedFromScan = -1
+                val scanModeDuration = SharedPreferencesUtils.getInt(SettingsFragment.SCAN_MODE_DURATION, context)
+                doSpreadsheetScan(scanModeDuration)
+            }
         }
     }
 
@@ -116,8 +120,10 @@ class ViewPagerItemFragment : Fragment() {
         }
         frameLayout.setOnClickListener {
             var itemSelected = item
-            if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-                itemSelected = mItems[currentItemSelectedFromScan]
+            context?.let { context ->
+                if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
+                    itemSelected = mItems[currentItemSelectedFromScan]
+                }
             }
             onItemClicked(itemSelected)
         }
@@ -127,9 +133,9 @@ class ViewPagerItemFragment : Fragment() {
             if (item.category == Category.SUBJECT) {
                 name.setTextColor(Color.BLACK)
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    linkPage.setImageDrawable(context.resources.getDrawable(R.drawable.ic_launch_black_48dp))
+                    linkPage.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_launch_black_48dp))
                 } else {
-                    linkPage.setImageDrawable(context.getDrawable(R.drawable.ic_launch_black_48dp))
+                    linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
                 }
             }
             val brokenImage = getResizedDrawable(R.drawable.ic_broken_image_black_48dp, imageSize)
@@ -159,7 +165,7 @@ class ViewPagerItemFragment : Fragment() {
 
     private fun calculateLayoutDimensions(): Point {
         val metrics = DisplayMetrics()
-        activity.windowManager.defaultDisplay.getMetrics(metrics)
+        activity?.windowManager?.defaultDisplay?.getMetrics(metrics)
         val widthDimension = Math.round(((metrics.widthPixels - mMarginWidth) / mColumns).toFloat())
         val heightDimension = Math.round((metrics.heightPixels / mRows).toFloat())
         return Point(widthDimension, heightDimension)
@@ -191,9 +197,9 @@ class ViewPagerItemFragment : Fragment() {
 
     private fun getResizedDrawable(drawableId: Int, size: Int): Drawable {
         val drawable: Drawable? = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            context.resources.getDrawable(drawableId)
+            context?.resources?.getDrawable(drawableId)
         } else {
-            context.getDrawable(drawableId)
+            context?.getDrawable(drawableId)
         }
         val bitmap = (drawable as BitmapDrawable).bitmap
         return BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, size, size, true))
@@ -209,7 +215,7 @@ class ViewPagerItemFragment : Fragment() {
                     if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
                         currentItemSelectedFromScan = 0
                     }
-                    activity.runOnUiThread {
+                    activity?.runOnUiThread {
                         highlightCurrentItem()
                         removeHighlightedItem(currentItemSelectedFromScan - 1)
                     }
@@ -223,7 +229,7 @@ class ViewPagerItemFragment : Fragment() {
 
     private fun highlightCurrentItem() {
         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
-            mItemsLayout[currentItemSelectedFromScan].foreground = context.resources.getDrawable(R.drawable.pressed_color)
+            mItemsLayout[currentItemSelectedFromScan].foreground = context?.resources?.getDrawable(R.drawable.pressed_color)
         }
     }
 
@@ -233,7 +239,7 @@ class ViewPagerItemFragment : Fragment() {
             previousItem = mItemsLayout.size - 1
         }
         if (context != null && previousItem < mItemsLayout.size) {
-            mItemsLayout[previousItem].foreground = context.resources.getDrawable(R.drawable.normal_color)
+            mItemsLayout[previousItem].foreground = context?.resources?.getDrawable(R.drawable.normal_color)
         }
     }
 

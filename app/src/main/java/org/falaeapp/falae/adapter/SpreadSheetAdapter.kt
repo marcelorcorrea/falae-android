@@ -14,7 +14,7 @@ import org.falaeapp.falae.model.SpreadSheet
  * Created by marcelo on 4/18/17.
  */
 
-class SpreadSheetAdapter(private val context: Context, private val spreadSheets: List<SpreadSheet>, private val onItemClick: (spreadSheet: SpreadSheet) -> Unit) : RecyclerView.Adapter<SpreadSheetAdapter.SpreadSheetViewHolder>() {
+class SpreadSheetAdapter(private val context: Context?, private val spreadSheets: List<SpreadSheet>, private val onItemClick: (spreadSheet: SpreadSheet) -> Unit) : RecyclerView.Adapter<SpreadSheetAdapter.SpreadSheetViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpreadSheetViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.spreadsheet_item, parent, false)

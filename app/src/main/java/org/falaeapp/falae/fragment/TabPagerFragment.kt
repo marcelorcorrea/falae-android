@@ -16,21 +16,20 @@ import org.falaeapp.falae.model.User
 
 class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentListener {
 
-    private var user: User? = null
-
+    private lateinit var user: User
     private lateinit var mListener: TabPagerFragmentListener
     private lateinit var viewPager: ViewPager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        user = arguments?.getParcelable(USER_PARAM)
+        user = arguments?.getParcelable(USER_PARAM) ?: return
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_tab_pager, container, false)
         viewPager = view.findViewById(R.id.viewpager) as ViewPager
-        viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager, activity)
+        viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager, context)
         viewPager.offscreenPageLimit = OFFSCREEN_PAGE_LIMIT
 
         // Give the TabLayout the ViewPager
@@ -61,7 +60,7 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         fun removeUser(user: User)
     }
 
-    inner class CustomFragmentPagerAdapter(fm: FragmentManager, private val context: Context) : FragmentStatePagerAdapter(fm) {
+    inner class CustomFragmentPagerAdapter(fm: FragmentManager, private val context: Context?) : FragmentStatePagerAdapter(fm) {
         private val tabTitles = arrayOf(resources.getString(R.string.spreadsheets), resources.getString(R.string.user_info))
 
         override fun getItem(position: Int): Fragment {

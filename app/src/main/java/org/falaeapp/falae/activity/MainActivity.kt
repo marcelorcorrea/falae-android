@@ -56,16 +56,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             it.getParcelable(USER_PARAM)
         }
         setContentView(R.layout.activity_main)
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        mDrawer = findViewById(R.id.drawer_layout) as DrawerLayout
+        mDrawer = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
                 this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         mDrawer.addDrawerListener(toggle)
         toggle.syncState()
         mDrawer.openDrawer(GravityCompat.START)
-        mNavigationView = findViewById(R.id.nav_view) as NavigationView
+        mNavigationView = findViewById(R.id.nav_view)
         mNavigationView.setNavigationItemSelectedListener(this)
         dbHelper = UserDbHelper(this)
         downloadCacheDbHelper = DownloadCacheDbHelper(this)
