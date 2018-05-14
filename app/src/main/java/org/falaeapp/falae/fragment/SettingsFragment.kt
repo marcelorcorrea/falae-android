@@ -27,7 +27,11 @@ class SettingsFragment : Fragment() {
             seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
             seekBar = view.findViewById(R.id.seekBar) as SeekBar
 
-            val seekBarProgress = SharedPreferencesUtils.getInt(SEEK_BAR_PROGRESS, context, 1)
+            SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, 0, context)
+            val seekBarProgress = (SharedPreferencesUtils.getInt(SEEK_BAR_PROGRESS, context, 1))
+                    // for legacy users
+                    .let { if (it == 0) 1 else it }
+
             seekBar.post {
                 setSeekBarText(seekBarProgress)
                 seekBar.progress = seekBarProgress - 1
