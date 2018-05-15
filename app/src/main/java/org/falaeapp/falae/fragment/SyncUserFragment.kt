@@ -179,10 +179,10 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
                         positiveText = getString(R.string.ok),
                         message = getString(R.string.create_accout_msg))
                         .show()
+            } else {
+                mPasswordView.error = getString(R.string.error_incorrect_password)
+                mPasswordView.requestFocus()
             }
-        } ?: run {
-            mPasswordView.error = getString(R.string.error_incorrect_password)
-            mPasswordView.requestFocus()
         }
     }
 
