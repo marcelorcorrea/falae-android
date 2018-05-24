@@ -28,6 +28,11 @@ object SharedPreferencesUtils {
         sharedPreferences?.edit()?.putInt(key, value)?.apply()
     }
 
+    fun storeLong(key: String, value: Long, context: Context) {
+        sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
+        sharedPreferences?.edit()?.putLong(key, value)?.apply()
+    }
+
     fun getBoolean(key: String, context: Context): Boolean {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
         return sharedPreferences?.getBoolean(key, false)!!
@@ -41,6 +46,11 @@ object SharedPreferencesUtils {
     fun getInt(key: String, context: Context, defaultValue: Int = 0): Int {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
         return sharedPreferences?.getInt(key, defaultValue)!!
+    }
+
+    fun getLong(key: String, context: Context, defaultValue: Long = 0): Long {
+        sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
+        return sharedPreferences?.getLong(key, defaultValue)!!
     }
 
     fun remove(key: String, context: Context) {

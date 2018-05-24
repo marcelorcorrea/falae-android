@@ -89,7 +89,7 @@ class ViewPagerItemFragment : Fragment() {
         context?.let { context ->
             if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
                 currentItemSelectedFromScan = -1
-                val scanModeDuration = SharedPreferencesUtils.getInt(SettingsFragment.SCAN_MODE_DURATION, context)
+                val scanModeDuration = SharedPreferencesUtils.getLong(SettingsFragment.SCAN_MODE_DURATION, context)
                 doSpreadsheetScan(scanModeDuration)
             }
         }
@@ -206,7 +206,7 @@ class ViewPagerItemFragment : Fragment() {
     }
 
 
-    private fun doSpreadsheetScan(delay: Int) {
+    private fun doSpreadsheetScan(delay: Long) {
         mTimer = Timer()
         mTimer?.schedule(object : TimerTask() {
             override fun run() {
@@ -224,7 +224,7 @@ class ViewPagerItemFragment : Fragment() {
                 }
 
             }
-        }, 0, delay.toLong())
+        }, 0, delay)
     }
 
     private fun highlightCurrentItem() {

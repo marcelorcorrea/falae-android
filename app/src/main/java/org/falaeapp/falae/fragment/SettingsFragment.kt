@@ -42,8 +42,8 @@ class SettingsFragment : Fragment() {
                     val actualProgress = progress + 1
                     setSeekBarText(actualProgress)
                     SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, actualProgress, context)
-                    val timeMillis = actualProgress * 500
-                    SharedPreferencesUtils.storeInt(SCAN_MODE_DURATION, timeMillis, context)
+                    val timeMillis: Long = (actualProgress * 500).toLong()
+                    SharedPreferencesUtils.storeLong(SCAN_MODE_DURATION, timeMillis, context)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {
