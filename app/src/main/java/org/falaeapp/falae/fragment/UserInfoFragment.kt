@@ -1,5 +1,6 @@
 package org.falaeapp.falae.fragment
 
+import android.arch.lifecycle.ViewModelProviders
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -13,15 +14,15 @@ import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import org.falaeapp.falae.R
-import org.falaeapp.falae.model.User
+import org.falaeapp.falae.viewmodel.UserViewModel
 
 class UserInfoFragment : Fragment() {
 
-    private lateinit var user: User
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        user = arguments?.getParcelable(USER_PARAM) ?: return
+        userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
         onAttachFragment(parentFragment)
     }
 
@@ -44,7 +45,7 @@ class UserInfoFragment : Fragment() {
             placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
         }
 
-        user.photo?.let {
+        userViewModel.currentUser.photo?.let {
             if (it.isNotEmpty()) {
                 Picasso.with(context)
                         .load(it)
@@ -56,8 +57,8 @@ class UserInfoFragment : Fragment() {
             }
         }
 
-        userName.text = user.name
-        userInfo.text = user.profile
+        userName.text = userViewModel.currentUser.name
+        userInfo.text = userViewModel.currentUser.profile
 
         return view
     }
@@ -66,12 +67,8 @@ class UserInfoFragment : Fragment() {
 
         private const val USER_PARAM = "userParam"
 
-        fun newInstance(user: User): UserInfoFragment {
-            val fragment = UserInfoFragment()
-            val args = Bundle()
-            args.putParcelable(USER_PARAM, user)
-            fragment.arguments = args
-            return fragment
+        fun newInstance(): UserInfoFragment {
+            return UserInfoFragment()
         }
     }
 }

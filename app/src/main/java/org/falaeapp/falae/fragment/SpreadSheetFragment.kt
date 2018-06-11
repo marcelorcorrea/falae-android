@@ -1,5 +1,6 @@
 package org.falaeapp.falae.fragment
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -10,17 +11,17 @@ import org.falaeapp.falae.adapter.SpreadSheetAdapter
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.util.Util
+import org.falaeapp.falae.viewmodel.UserViewModel
 
 
 class SpreadSheetFragment : Fragment() {
 
     private lateinit var mListener: SpreadSheetFragmentListener
     private lateinit var spreadSheetAdapter: SpreadSheetAdapter
-    private lateinit var user: User
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        user = arguments?.getParcelable(USER_PARAM) ?: return
         onAttachFragment(parentFragment)
         setHasOptionsMenu(true)
     }
@@ -28,7 +29,8 @@ class SpreadSheetFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
         val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
-        spreadSheetAdapter = SpreadSheetAdapter(context, user.spreadsheets, { spreadSheet ->
+        userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
+        spreadSheetAdapter = SpreadSheetAdapter(context, userViewModel.currentUser.spreadsheets, { spreadSheet ->
             mListener.displayActivity(spreadSheet)
         })
         recyclerView.adapter = spreadSheetAdapter
@@ -46,7 +48,7 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        if (user.email.contains(EMAIL_SAMPLE).not()) {
+        if (userViewModel.currentUser.email.contains(EMAIL_SAMPLE).not()) {
             inflater?.inflate(R.menu.board_menu, menu)
         }
     }
@@ -60,7 +62,7 @@ class SpreadSheetFragment : Fragment() {
                             title = getString(R.string.removeUser),
                             message = getString(R.string.questionRemoveUser),
                             positiveText = getString(R.string.yes_option),
-                            positiveClick = { mListener.removeUser(user) },
+                            positiveClick = { /*mListener.removeUser(user)*/ },
                             negativeText = getString(R.string.no_option)
                     ).show()
                 }
@@ -80,12 +82,8 @@ class SpreadSheetFragment : Fragment() {
         private const val USER_PARAM = "userParam"
         private const val EMAIL_SAMPLE = "@falae.com"
 
-        fun newInstance(user: User): SpreadSheetFragment {
-            val fragment = SpreadSheetFragment()
-            val args = Bundle()
-            args.putParcelable(USER_PARAM, user)
-            fragment.arguments = args
-            return fragment
+        fun newInstance(): SpreadSheetFragment {
+            return SpreadSheetFragment()
         }
     }
 }

@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit
 class DownloadTask(val context: WeakReference<Context>, private val dbHelper: DownloadCacheDbHelper, private val onSyncComplete: (user: User) -> Unit) : AsyncTask<User, Void, User>() {
     private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
     private val executor: ThreadPoolExecutor
-    private var pDialog: ProgressDialog? = null
     private lateinit var userDownloadCache: DownloadCache
     private lateinit var publicDownloadCache: DownloadCache
 
@@ -45,23 +44,6 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
                 TimeUnit.SECONDS,
                 LinkedBlockingQueue()
         )
-    }
-
-    override fun onPreExecute() {
-        try {
-            if (pDialog != null) {
-                pDialog = null
-            }
-            context.get()?.let {
-                pDialog = ProgressDialog(it)
-                pDialog!!.setMessage(it.getString(R.string.synchronize_message))
-                pDialog!!.isIndeterminate = false
-                pDialog!!.setCancelable(false)
-                pDialog!!.show()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     override fun doInBackground(vararg params: User): User? {
@@ -116,6 +98,8 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
         }
         saveOrUpdateCache(userDownloadCache)
         saveOrUpdateCache(publicDownloadCache)
+
+        onSyncComplete(user)
         return user
     }
 
@@ -166,14 +150,11 @@ class DownloadTask(val context: WeakReference<Context>, private val dbHelper: Do
     }
 
     override fun onPostExecute(user: User?) {
-        user?.let { onSyncComplete(it) } ?: run {
-            context.get()?.let {
-                Toast.makeText(it, it.getString(R.string.download_failed), Toast.LENGTH_LONG).show()
-            }
-        }
-        if (pDialog != null && pDialog!!.isShowing) {
-            pDialog!!.dismiss()
-        }
+//        user?.let { onSyncComplete(it) } ?: run {
+//            context.get()?.let {
+//                Toast.makeText(it, it.getString(R.string.download_failed), Toast.LENGTH_LONG).show()
+//            }
+//        }
     }
 
     private fun hasNetworkConnection(): Boolean {

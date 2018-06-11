@@ -1,6 +1,8 @@
 package org.falaeapp.falae.fragment
 
 import android.app.ProgressDialog
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -26,16 +28,29 @@ import org.falaeapp.falae.TLSSocketFactory
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.task.GsonRequest
 import org.falaeapp.falae.util.Util
+import org.falaeapp.falae.viewmodel.UserViewModel
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.regex.Pattern
 
-class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorListener {
+class SyncUserFragment : Fragment() {
     private lateinit var mListener: SyncUserFragmentListener
 
     private lateinit var mEmailView: EditText
     private lateinit var mPasswordView: EditText
     private lateinit var pDialog: ProgressDialog
+    private lateinit var userViewModel: UserViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
+        userViewModel.loggedUser.observe(this, Observer<User> {
+            if (pDialog.isShowing) {
+                pDialog.dismiss()
+            }
+            it?.let { userViewModel.onUserAuthenticated(it) }
+        })
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -111,7 +126,9 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
         if (cancel) {
             focusView?.requestFocus()
         } else {
-            loginIn(email, password)
+            userViewModel.login(email, password)
+            pDialog.show()
+//            loginIn(email, password)
         }
     }
 
@@ -122,44 +139,43 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
 
     private fun isPasswordValid(password: String): Boolean = password.length > 4
 
-    private fun loginIn(email: String, password: String) {
-        try {
-            val credentials = JSONObject()
-            credentials.put(EMAIL_CREDENTIAL_FIELD, email)
-            credentials.put(PASSWORD_CREDENTIAL_FIELD, password)
+//    private fun loginIn(email: String, password: String) {
+//        try {
+//            val credentials = JSONObject()
+//            credentials.put(EMAIL_CREDENTIAL_FIELD, email)
+//            credentials.put(PASSWORD_CREDENTIAL_FIELD, password)
+//
+//            val jsonRequest = JSONObject()
+//            jsonRequest.put(USER_CREDENTIAL_FIELD, credentials)
+//
+//            val url = BuildConfig.BASE_URL + LOGIN_ENDPOINT
+//            val gsonRequest = GsonRequest(url = url,
+//                    clazz = User::class.java,
+//                    jsonRequest = jsonRequest,
+//                    listener = this,
+//                    errorListener = this)
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+//                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+//                Volley.newRequestQueue(context,
+//                        HurlStack(null, TLSSocketFactory()))
+//                        .add(gsonRequest)
+//            } else {
+//                Volley.newRequestQueue(context).add(gsonRequest)
+//            }
+//        } catch (e: JSONException) {
+//            e.printStackTrace()
+//        }
+//    }
 
-            val jsonRequest = JSONObject()
-            jsonRequest.put(USER_CREDENTIAL_FIELD, credentials)
+//    override fun onResponse(response: User) {
+//        mListener.onUserAuthenticated(response)
+//        if (pDialog.isShowing) {
+//            pDialog.dismiss()
+//        }
+//    }
 
-            val url = BuildConfig.BASE_URL + LOGIN_ENDPOINT
-            val gsonRequest = GsonRequest(url = url,
-                    clazz = User::class.java,
-                    jsonRequest = jsonRequest,
-                    listener = this,
-                    errorListener = this)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Volley.newRequestQueue(context,
-                        HurlStack(null, TLSSocketFactory()))
-                        .add(gsonRequest)
-            } else {
-                Volley.newRequestQueue(context).add(gsonRequest)
-            }
-            pDialog.show()
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-    }
-
-    override fun onResponse(response: User) {
-        mListener.onUserAuthenticated(response)
-        if (pDialog.isShowing) {
-            pDialog.dismiss()
-        }
-    }
-
-    override fun onErrorResponse(error: VolleyError) {
+     fun onErrorResponse(error: VolleyError) {
         if (pDialog.isShowing) {
             pDialog.dismiss()
         }
@@ -187,7 +203,6 @@ class SyncUserFragment : Fragment(), Response.Listener<User>, Response.ErrorList
     }
 
     interface SyncUserFragmentListener {
-        fun onUserAuthenticated(user: User?)
         fun isNewUser(email: String): Boolean
     }
 

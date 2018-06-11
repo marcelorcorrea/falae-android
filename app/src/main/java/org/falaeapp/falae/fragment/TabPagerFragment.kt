@@ -16,14 +16,8 @@ import org.falaeapp.falae.model.User
 
 class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentListener {
 
-    private lateinit var user: User
     private lateinit var mListener: TabPagerFragmentListener
     private lateinit var viewPager: ViewPager
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        user = arguments?.getParcelable(USER_PARAM) ?: return
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -65,9 +59,9 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
 
         override fun getItem(position: Int): Fragment {
             return if (position == 0) {
-                SpreadSheetFragment.newInstance(user!!)
+                SpreadSheetFragment.newInstance()
             } else {
-                UserInfoFragment.newInstance(user!!)
+                UserInfoFragment.newInstance()
             }
         }
 
@@ -78,15 +72,15 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
 
     companion object {
 
-        private const val USER_PARAM = "userParam"
+        private const val USER_ID_PARAM = "userIdParam"
         private const val TAB_COUNT = 2
         private const val OFFSCREEN_PAGE_LIMIT = 2
 
-        fun newInstance(user: User?): TabPagerFragment {
+        fun newInstance(): TabPagerFragment {
             val fragment = TabPagerFragment()
-            val args = Bundle()
-            args.putParcelable(USER_PARAM, user)
-            fragment.arguments = args
+//            val args = Bundle()
+//            args.putLong(USER_ID_PARAM, userId)
+//            fragment.arguments = args
             return fragment
         }
     }

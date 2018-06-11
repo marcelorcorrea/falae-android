@@ -1,6 +1,8 @@
 package org.falaeapp.falae.activity
 
 import android.app.Activity
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
@@ -27,13 +29,11 @@ import org.falaeapp.falae.database.UserDbHelper
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.fragment.SyncUserFragment
 import org.falaeapp.falae.fragment.TabPagerFragment
-import org.falaeapp.falae.loadUser
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.storage.FileHandler
 import org.falaeapp.falae.storage.SharedPreferencesUtils
-import org.falaeapp.falae.task.DownloadTask
-import java.lang.ref.WeakReference
+import org.falaeapp.falae.viewmodel.UserViewModel
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
         TabPagerFragment.TabPagerFragmentListener,
@@ -44,17 +44,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mNavigationView: NavigationView
     private lateinit var dbHelper: UserDbHelper
     private lateinit var downloadCacheDbHelper: DownloadCacheDbHelper
-    private var mCurrentUser: User? = null
+    //    private var mCurrentUser: User? = null
     private var doubleBackToExitPressedOnce: Boolean = false
+
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
-        mCurrentUser = savedInstanceState?.let {
-            savedInstanceState.classLoader = classLoader
-            it.getParcelable(USER_PARAM)
-        }
+//        deleteDatabase("falae.db")
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -69,11 +68,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView.setNavigationItemSelectedListener(this)
         dbHelper = UserDbHelper(this)
         downloadCacheDbHelper = DownloadCacheDbHelper(this)
-        val users = dbHelper.read()
-        for (user in users) {
-            addUserToMenu(user)
-        }
-        loadDemoUser()
+
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
+
+        userViewModel.users.observe(this, Observer<List<User>> { users ->
+            users?.forEach { addUserToMenu(it) }
+        })
+        userViewModel.loadDemoUser(assets.open(getString(R.string.sampleboard))).observe(
+                this, Observer<User> {
+            it?.let { addUserToMenu(it, R.id.settings_group, 1) }
+        })
+
         getLastConnectedUser()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
@@ -92,29 +97,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openUserMenuItem(email: String) {
-        mCurrentUser = dbHelper.findByEmail(email)
-        val item = mCurrentUser?.id?.let { mNavigationView.menu.findItem(it) }
-        item?.let { onNavigationItemSelected(it) }
+//        mCurrentUser = dbHelper.findByEmail(email)
+//        val item = mCurrentUser?.id?.let { mNavigationView.menu.findItem(it) }
+//        item?.let { onNavigationItemSelected(it) }
     }
 
-    private fun loadDemoUser() {
-        val demoUser = resources.loadUser(getString(R.string.sampleboard))
-        addUserToMenu(demoUser, R.id.settings_group, 1) { null }
-    }
-
-    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0, findUser: (User) -> User? = ::findUser) {
+    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0) { //findUser: (User) -> User? = ::findUser) {
         val userItem = mNavigationView.menu.add(groupId, user.id, order, user.name)
         userItem.setIcon(R.drawable.ic_person_black_24dp)
         userItem.setOnMenuItemClickListener { item ->
-            mCurrentUser = findUser(user) ?: user
+            //            mCurrentUser = findUser(user) ?: user
             onNavigationItemSelected(item)
             true
         }
     }
 
-    private fun findUser(user: User) = findUser(user.email)
-
-    private fun findUser(email: String) = dbHelper.findByEmail(email)
+//    private fun findUser(user: User) = findUser(user.email)
+//
+//    private fun findUser(email: String) = dbHelper.findByEmail(email)
 
     override fun onBackPressed() {
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
@@ -131,8 +131,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val fragment: Fragment
-        val tag: String
+        var fragment: Fragment? = null
+        var tag: String? = null
         val id = item.itemId
         when (id) {
             R.id.add_user -> {
@@ -148,15 +148,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 tag = SettingsFragment::class.java.simpleName
             }
             else -> {
-                fragment = TabPagerFragment.newInstance(mCurrentUser)
-                tag = TabPagerFragment::class.java.simpleName
+                userViewModel.loadUser(id.toLong()).observe(this, Observer<User> { user ->
+                    user?.let {
+                        fragment = TabPagerFragment.newInstance()
+                        tag = TabPagerFragment::class.java.simpleName
+                        userViewModel.currentUser = it
+                        changeFragment(fragment, tag)
+                    }
+                })
             }
         }
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left,
-                        R.anim.enter_from_left, R.anim.exit_to_right)
-                .replace(R.id.container, fragment, tag)
-                .commit()
+        if (fragment != null && tag != null) {
+            changeFragment(fragment, tag)
+        }
 
         item.isChecked = true
         title = item.title
@@ -164,29 +168,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    private fun changeFragment(fragment: Fragment?, tag: String?) {
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left,
+                        R.anim.enter_from_left, R.anim.exit_to_right)
+                .replace(R.id.container, fragment, tag)
+                .commit()
+    }
+
+
     override fun onDestroy() {
-        dbHelper.close()
+//        dbHelper.close()
         downloadCacheDbHelper.close()
-        mCurrentUser?.let {
-            SharedPreferencesUtils.storeString(USER_EMAIL, it.email, this)
-        }
+//        mCurrentUser?.let {
+//            SharedPreferencesUtils.storeString(USER_EMAIL, it.email, this)
+//        }
         super.onDestroy()
     }
 
-    override fun onUserAuthenticated(user: User?) {
-        DownloadTask(WeakReference(this), downloadCacheDbHelper, { u ->
-            if (!dbHelper.doesUserExist(u)) {
-                val id = dbHelper.insert(u)
-                addUserToMenu(u.copy(id = id.toInt()))
-            } else {
-                dbHelper.update(u)
-            }
-            Toast.makeText(this@MainActivity, R.string.success_user_added, Toast.LENGTH_SHORT).show()
-            openUserMenuItem(u.email)
-        }).execute(user)
-    }
 
-    override fun isNewUser(email: String): Boolean = findUser(email) == null
+    override fun isNewUser(email: String): Boolean = true//findUser(email) == null
 
     private fun openTTSLanguageSettings() {
         val installTts = Intent()
@@ -238,13 +239,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         downloadCacheDbHelper.remove(user.email)
         SharedPreferencesUtils.remove(USER_EMAIL, this)
         FileHandler.deleteUserFolder(this, user.email)
-        mCurrentUser = null
+//        mCurrentUser = null
         recreate()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        mCurrentUser?.let { outState?.putParcelable(USER_PARAM, mCurrentUser) }
+//        mCurrentUser?.let { outState?.putParcelable(USER_PARAM, mCurrentUser) }
     }
 
     companion object {
