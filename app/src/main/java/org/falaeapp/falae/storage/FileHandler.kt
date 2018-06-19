@@ -7,9 +7,9 @@ import java.io.File
 /**
  * Created by marcelo on 9/17/17.
  */
-object FileHandler {
+class FileHandler {
 
-    private const val PUBLIC_IMAGES_PATH = "public_images"
+    private val PUBLIC_IMAGES_PATH = "public_images"
 
     fun createPublicFolder(context: Context?): File {
         val folder = File(context?.filesDir, PUBLIC_IMAGES_PATH)

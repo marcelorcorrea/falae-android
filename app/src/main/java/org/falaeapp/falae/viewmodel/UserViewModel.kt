@@ -4,94 +4,59 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.os.Build
 import android.util.Log
-import com.android.volley.Response
-import com.android.volley.toolbox.HurlStack
-import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
-import org.falaeapp.falae.BuildConfig
-import org.falaeapp.falae.TLSSocketFactory
-import org.falaeapp.falae.database.DownloadCacheDbHelper
+import org.falaeapp.falae.Event
+import org.falaeapp.falae.R
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.readText
-import org.falaeapp.falae.room.AppDatabase
-import org.falaeapp.falae.task.DownloadTask
-import org.falaeapp.falae.task.GsonRequest
-import org.json.JSONException
-import org.json.JSONObject
-import java.io.InputStream
-import java.lang.ref.WeakReference
+import org.falaeapp.falae.repository.UserRepository
+import org.jetbrains.anko.doAsync
 
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val userModelDao = AppDatabase.getInstance(application).userModelDao()
-    private var downloadCacheDbHelper: DownloadCacheDbHelper = DownloadCacheDbHelper(application)
-    val users: LiveData<List<User>> = userModelDao.getAllUsers()
-    val loggedUser: MutableLiveData<User> = MutableLiveData()
-    lateinit var currentUser: User
+    private val userRepository: UserRepository = UserRepository(application)
+    val users: LiveData<List<User>>
+    var currentUser: LiveData<User> = MutableLiveData()
+    val reposResult = MutableLiveData<Event<Pair<User?, Exception?>>>()
 
-    fun loadUser(userId: Long): LiveData<User> {
-        return userModelDao.findById(userId)
+    init {
+        Log.d("FALAE", "INITIALIZING ")
+        loadDemoUser()
+        users = userRepository.getAllUsers()
     }
 
-    fun loadDemoUser(inputStream: InputStream): LiveData<User> {
-        val mutableLiveData = MutableLiveData<User>()
-        mutableLiveData.value = Gson().fromJson(inputStream.readText(), User::class.java)!!
-        return mutableLiveData
+    fun loadUser(userId: Long) {
+        currentUser = userRepository.getUser(userId)
     }
 
-    fun findById(id: Long): LiveData<User> {
-        return userModelDao.findById(id)
-    }
-
-    fun login(email: String, password: String) {
-        try {
-            val credentials = JSONObject()
-            credentials.put("email", email)
-            credentials.put("password", password)
-
-            val jsonRequest = JSONObject()
-            jsonRequest.put("user", credentials)
-
-            val url = BuildConfig.BASE_URL + "/login.json"
-            val gsonRequest = GsonRequest(url = url,
-                    clazz = User::class.java,
-                    jsonRequest = jsonRequest,
-                    listener = Response.Listener {
-                        loggedUser.value = it
-                    },
-                    errorListener = Response.ErrorListener {
-                        loggedUser.value = null
-                    })
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Volley.newRequestQueue(getApplication(),
-                        HurlStack(null, TLSSocketFactory()))
-                        .add(gsonRequest)
-            } else {
-                Volley.newRequestQueue(getApplication()).add(gsonRequest)
+    private fun loadDemoUser() {
+        doAsync {
+            val result = userRepository.findByEmail("demo@falaeapp.org")
+            Log.d("FALAE", "Demo user ? ${result.toString()}")
+            if (result == null) {
+                val context = getApplication<Application>()
+                val inputStream = context.assets.open(context.getString(R.string.sampleboard))
+                val demoUser = Gson().fromJson(inputStream.readText(), User::class.java)!!
+                userRepository.insert(demoUser)
             }
-        } catch (e: JSONException) {
-            e.printStackTrace()
         }
     }
 
-    fun onUserAuthenticated(user: User) {
-        println("CALLING ONCE")
-
-        DownloadTask(WeakReference(getApplication()), downloadCacheDbHelper, { u ->
-            if (!userModelDao.doesUserExist(u.email)) {
-                val id = userModelDao.insert(u)
-                Log.d("FALAE", "generated ID: $id")
-//                loggedUser.value = u.copy(id = id.toInt())
-            } else {
-                userModelDao.update(u)
-            }
-        }).execute(user)
+    fun login(email: String, password: String) {
+        Log.d("FALAE", "executing login")
+        userRepository.login(email, password) { user, error ->
+            Log.d("FALAE", "executing callback: $user and $error")
+            reposResult.postValue(Event(Pair(user, error)))
+        }
     }
 
-
+    fun removeUser() {
+        currentUser.value?.let {
+            doAsync {
+                userRepository.remove(it)
+            }
+        }
+    }
 }

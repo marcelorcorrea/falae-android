@@ -4,10 +4,10 @@ import android.app.ProgressDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,19 +18,10 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.android.volley.AuthFailureError
-import com.android.volley.Response
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.HurlStack
-import com.android.volley.toolbox.Volley
-import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
-import org.falaeapp.falae.TLSSocketFactory
-import org.falaeapp.falae.model.User
-import org.falaeapp.falae.task.GsonRequest
+import org.falaeapp.falae.exception.UserNotFoundException
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.UserViewModel
-import org.json.JSONException
-import org.json.JSONObject
 import java.util.regex.Pattern
 
 class SyncUserFragment : Fragment() {
@@ -38,17 +29,22 @@ class SyncUserFragment : Fragment() {
 
     private lateinit var mEmailView: EditText
     private lateinit var mPasswordView: EditText
-    private lateinit var pDialog: ProgressDialog
+    private var pDialog: ProgressDialog? = null
     private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
-        userViewModel.loggedUser.observe(this, Observer<User> {
-            if (pDialog.isShowing) {
-                pDialog.dismiss()
+        userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
+        userViewModel.reposResult.observe(activity!!, Observer { event ->
+            event?.getContentIfNotHandled()?.let { result ->
+                Log.d("FALAE", "$this Something changed ${result?.first} and ${result?.second}")
+                result.second?.let { error ->
+                    onError(error)
+                }
+                if (pDialog?.isShowing == true) {
+                    pDialog?.dismiss()
+                }
             }
-            it?.let { userViewModel.onUserAuthenticated(it) }
         })
     }
 
@@ -68,9 +64,11 @@ class SyncUserFragment : Fragment() {
             false
         })
         pDialog = ProgressDialog(context)
-        pDialog.setMessage(context?.getString(R.string.authenticate_message))
-        pDialog.isIndeterminate = false
-        pDialog.setCancelable(false)
+        pDialog?.apply {
+            setMessage(context?.getString(R.string.authenticate_message))
+            isIndeterminate = false
+            setCancelable(false)
+        }
         val mEmailSignInButton = view.findViewById(R.id.email_sign_in_button) as Button
         mEmailSignInButton.setOnClickListener { attemptLogin() }
         setHasOptionsMenu(true)
@@ -127,7 +125,7 @@ class SyncUserFragment : Fragment() {
             focusView?.requestFocus()
         } else {
             userViewModel.login(email, password)
-            pDialog.show()
+            pDialog?.show()
 //            loginIn(email, password)
         }
     }
@@ -139,57 +137,18 @@ class SyncUserFragment : Fragment() {
 
     private fun isPasswordValid(password: String): Boolean = password.length > 4
 
-//    private fun loginIn(email: String, password: String) {
-//        try {
-//            val credentials = JSONObject()
-//            credentials.put(EMAIL_CREDENTIAL_FIELD, email)
-//            credentials.put(PASSWORD_CREDENTIAL_FIELD, password)
-//
-//            val jsonRequest = JSONObject()
-//            jsonRequest.put(USER_CREDENTIAL_FIELD, credentials)
-//
-//            val url = BuildConfig.BASE_URL + LOGIN_ENDPOINT
-//            val gsonRequest = GsonRequest(url = url,
-//                    clazz = User::class.java,
-//                    jsonRequest = jsonRequest,
-//                    listener = this,
-//                    errorListener = this)
-//
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-//                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-//                Volley.newRequestQueue(context,
-//                        HurlStack(null, TLSSocketFactory()))
-//                        .add(gsonRequest)
-//            } else {
-//                Volley.newRequestQueue(context).add(gsonRequest)
-//            }
-//        } catch (e: JSONException) {
-//            e.printStackTrace()
-//        }
-//    }
-
-//    override fun onResponse(response: User) {
-//        mListener.onUserAuthenticated(response)
-//        if (pDialog.isShowing) {
-//            pDialog.dismiss()
-//        }
-//    }
-
-     fun onErrorResponse(error: VolleyError) {
-        if (pDialog.isShowing) {
-            pDialog.dismiss()
-        }
+    private fun onError(error: Exception) {
         if (error is AuthFailureError) {
-            handleError()
+            handleError(error)
         } else {
             Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG).show()
             error.printStackTrace()
         }
     }
 
-    private fun handleError() {
+    private fun handleError(error: AuthFailureError) {
         context?.let { context ->
-            if (mListener.isNewUser(mEmailView.text.toString())) {
+            if (error is UserNotFoundException) {
                 Util.createDialog(
                         context = context,
                         positiveText = getString(R.string.ok),

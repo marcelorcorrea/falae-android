@@ -1,10 +1,12 @@
 package org.falaeapp.falae.fragment
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,20 +47,27 @@ class UserInfoFragment : Fragment() {
             placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
         }
 
-        userViewModel.currentUser.photo?.let {
-            if (it.isNotEmpty()) {
-                Picasso.with(context)
-                        .load(it)
-                        .placeholder(placeHolderImage)
-                        .error(brokenImage!!)
-                        .transform(CropCircleTransformation())
-                        .memoryPolicy(MemoryPolicy.NO_CACHE)
-                        .into(imageView)
+        userViewModel.currentUser.observe(activity!!, Observer { user ->
+            user?.let {
+                Log.d("FALAE", "user is $user")
+                Log.d("FALAE", "this is $this")
+                user.photo?.let {
+                    if (it.isNotEmpty()) {
+                        Picasso.with(context)
+                                .load(it)
+                                .placeholder(placeHolderImage)
+                                .error(brokenImage!!)
+                                .transform(CropCircleTransformation())
+                                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                                .into(imageView)
+                    }
+                }
+                userName.text = it.name
+                userInfo.text = it.profile
             }
-        }
+        })
 
-        userName.text = userViewModel.currentUser.name
-        userInfo.text = userViewModel.currentUser.profile
+
 
         return view
     }

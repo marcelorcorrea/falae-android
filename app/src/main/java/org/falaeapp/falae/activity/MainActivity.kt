@@ -24,8 +24,6 @@ import android.widget.Toast
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import org.falaeapp.falae.R
-import org.falaeapp.falae.database.DownloadCacheDbHelper
-import org.falaeapp.falae.database.UserDbHelper
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.fragment.SyncUserFragment
 import org.falaeapp.falae.fragment.TabPagerFragment
@@ -42,9 +40,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var mDrawer: DrawerLayout
     private lateinit var mNavigationView: NavigationView
-    private lateinit var dbHelper: UserDbHelper
-    private lateinit var downloadCacheDbHelper: DownloadCacheDbHelper
-    //    private var mCurrentUser: User? = null
     private var doubleBackToExitPressedOnce: Boolean = false
 
     private lateinit var userViewModel: UserViewModel
@@ -53,11 +48,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
-//        deleteDatabase("falae.db")
+        deleteDatabase("falae.db")
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        Log.d("FALAE", "ONCREATE")
         mDrawer = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
                 this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -66,43 +62,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mDrawer.openDrawer(GravityCompat.START)
         mNavigationView = findViewById(R.id.nav_view)
         mNavigationView.setNavigationItemSelectedListener(this)
-        dbHelper = UserDbHelper(this)
-        downloadCacheDbHelper = DownloadCacheDbHelper(this)
 
         userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
 
         userViewModel.users.observe(this, Observer<List<User>> { users ->
-            users?.forEach { addUserToMenu(it) }
+            mNavigationView.menu.removeGroup(R.id.users_group)
+            users?.reversed()?.forEach {
+                addUserToMenu(it)
+            }
         })
-        userViewModel.loadDemoUser(assets.open(getString(R.string.sampleboard))).observe(
-                this, Observer<User> {
-            it?.let { addUserToMenu(it, R.id.settings_group, 1) }
-        })
+//        userViewModel.loadDemoUser(assets.open(getString(R.string.sampleboard))).observe(
+//                this, Observer<User> {
+//            it?.let { addUserToMenu(it, R.id.settings_group, 1) }
+//        })
 
-        getLastConnectedUser()
+//        getLastConnectedUser()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
             ProviderInstaller.installIfNeededAsync(this, this)
         }
     }
 
-    private fun getLastConnectedUser() {
-        val email = SharedPreferencesUtils.getString(USER_EMAIL, this)
-        if (email.isNotEmpty()) {
-            openUserMenuItem(email)
-        } else {
-            onNavigationItemSelected(mNavigationView.menu.findItem(R.id.add_user))
-            mDrawer.openDrawer(GravityCompat.START)
-        }
-    }
+//    private fun getLastConnectedUser() {
+//        val email = SharedPreferencesUtils.getString(USER_EMAIL, this)
+//        if (email.isNotEmpty()) {
+//            openUserMenuItem(email)
+//        } else {
+//            onNavigationItemSelected(mNavigationView.menu.findItem(R.id.add_user))
+//            mDrawer.openDrawer(GravityCompat.START)
+//        }
+//    }
 
-    private fun openUserMenuItem(email: String) {
+    private fun openUserMenuItem(user: User) {
 //        mCurrentUser = dbHelper.findByEmail(email)
 //        val item = mCurrentUser?.id?.let { mNavigationView.menu.findItem(it) }
 //        item?.let { onNavigationItemSelected(it) }
     }
 
     private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0) { //findUser: (User) -> User? = ::findUser) {
+        Log.d("FALAE", "Getting called. ${user.name}")
         val userItem = mNavigationView.menu.add(groupId, user.id, order, user.name)
         userItem.setIcon(R.drawable.ic_person_black_24dp)
         userItem.setOnMenuItemClickListener { item ->
@@ -131,8 +129,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        var fragment: Fragment? = null
-        var tag: String? = null
+        val fragment: Fragment
+        val tag: String
+        item.isChecked = true
+        title = item.title
+        mDrawer.closeDrawer(GravityCompat.START)
+
         val id = item.itemId
         when (id) {
             R.id.add_user -> {
@@ -148,27 +150,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 tag = SettingsFragment::class.java.simpleName
             }
             else -> {
-                userViewModel.loadUser(id.toLong()).observe(this, Observer<User> { user ->
-                    user?.let {
-                        fragment = TabPagerFragment.newInstance()
-                        tag = TabPagerFragment::class.java.simpleName
-                        userViewModel.currentUser = it
-                        changeFragment(fragment, tag)
-                    }
-                })
+                userViewModel.loadUser(id.toLong())
+                fragment = TabPagerFragment.newInstance()
+                tag = TabPagerFragment::class.java.simpleName
             }
         }
-        if (fragment != null && tag != null) {
-            changeFragment(fragment, tag)
-        }
-
-        item.isChecked = true
-        title = item.title
-        mDrawer.closeDrawer(GravityCompat.START)
+        changeFragment(fragment, tag)
         return true
     }
 
-    private fun changeFragment(fragment: Fragment?, tag: String?) {
+    private fun changeFragment(fragment: Fragment, tag: String) {
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left,
                         R.anim.enter_from_left, R.anim.exit_to_right)
@@ -176,10 +167,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
+    private fun loadUser(userId: Long) {
+//        userViewModel.loadUser(userId).observe(this, Observer { user ->
+//            user?.let {
+//                val fragment = TabPagerFragment.newInstance()
+//                val tag = TabPagerFragment::class.java.simpleName
+//                userViewModel.currentUser = it
+//                changeFragment(fragment, tag)
+//            }
+//        })
+    }
+
 
     override fun onDestroy() {
+//        userViewModel.saveLastConnectedUser()
 //        dbHelper.close()
-        downloadCacheDbHelper.close()
+//        downloadCacheDbHelper.close()
 //        mCurrentUser?.let {
 //            SharedPreferencesUtils.storeString(USER_EMAIL, it.email, this)
 //        }
@@ -235,10 +238,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun removeUser(user: User) {
-        dbHelper.remove(user.id)
-        downloadCacheDbHelper.remove(user.email)
-        SharedPreferencesUtils.remove(USER_EMAIL, this)
-        FileHandler.deleteUserFolder(this, user.email)
+//        dbHelper.remove(user.id)
+//        downloadCacheDbHelper.remove(user.email)
+//        SharedPreferencesUtils.remove(USER_EMAIL, this)
+//        FileHandler.deleteUserFolder(this, user.email)
 //        mCurrentUser = null
         recreate()
     }

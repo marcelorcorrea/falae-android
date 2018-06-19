@@ -10,7 +10,7 @@ import org.falaeapp.falae.model.User
 interface UserModelDao {
 
     @Query("select id, name, email, profile, photo, spreadsheets from User where email = :email")
-    fun findByEmail(email: String): LiveData<User>
+    fun findByEmail(email: String): User?
 
     @Query("select * from User where id = :id")
     fun findById(id: Long): LiveData<User>

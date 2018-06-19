@@ -1,10 +1,12 @@
 package org.falaeapp.falae.fragment
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.*
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.SpreadSheetAdapter
@@ -30,10 +32,14 @@ class SpreadSheetFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
         val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
         userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
-        spreadSheetAdapter = SpreadSheetAdapter(context, userViewModel.currentUser.spreadsheets, { spreadSheet ->
-            mListener.displayActivity(spreadSheet)
+        userViewModel.currentUser.observe(activity!!, Observer { user ->
+            user?.let {
+                spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->
+                    mListener.displayActivity(spreadSheet)
+                }
+                recyclerView.adapter = spreadSheetAdapter
+            }
         })
-        recyclerView.adapter = spreadSheetAdapter
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
         return view
@@ -48,9 +54,11 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        if (userViewModel.currentUser.email.contains(EMAIL_SAMPLE).not()) {
-            inflater?.inflate(R.menu.board_menu, menu)
-        }
+        userViewModel.currentUser.observe(activity!!, Observer { user ->
+            if (user != null && user.email.contains(EMAIL_SAMPLE).not()) {
+                inflater?.inflate(R.menu.board_menu, menu)
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -62,7 +70,7 @@ class SpreadSheetFragment : Fragment() {
                             title = getString(R.string.removeUser),
                             message = getString(R.string.questionRemoveUser),
                             positiveText = getString(R.string.yes_option),
-                            positiveClick = { /*mListener.removeUser(user)*/ },
+                            positiveClick = { userViewModel.removeUser() },
                             negativeText = getString(R.string.no_option)
                     ).show()
                 }
@@ -80,7 +88,7 @@ class SpreadSheetFragment : Fragment() {
     companion object {
 
         private const val USER_PARAM = "userParam"
-        private const val EMAIL_SAMPLE = "@falae.com"
+        private const val EMAIL_SAMPLE = "@falaeapp.org"
 
         fun newInstance(): SpreadSheetFragment {
             return SpreadSheetFragment()
