@@ -5,7 +5,6 @@
     <string name="action_sign_in">Sincronizar Usuário</string>
     <string name="action_sign_in_short">Sincronizar</string>
     <string name="error_invalid_email">Este email não é válido.</string>
-    <string name="error_invalid_password">Senha muito curta</string>
     <string name="error_incorrect_password">Email ou senha inválida</string>
     <string name="error_field_required">Este campo é obrigatório</string>
     <string name="navigation_drawer_open">Abrir menu de navegação</string>

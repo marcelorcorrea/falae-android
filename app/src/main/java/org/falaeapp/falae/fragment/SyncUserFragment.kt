@@ -20,6 +20,7 @@ import android.widget.Toast
 import com.android.volley.AuthFailureError
 import org.falaeapp.falae.R
 import org.falaeapp.falae.exception.UserNotFoundException
+import org.falaeapp.falae.model.User
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.UserViewModel
 import java.util.regex.Pattern
@@ -37,9 +38,11 @@ class SyncUserFragment : Fragment() {
         userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
         userViewModel.reposResult.observe(activity!!, Observer { event ->
             event?.getContentIfNotHandled()?.let { result ->
-                Log.d("FALAE", "$this Something changed ${result?.first} and ${result?.second}")
+                Log.d("FALAE", "$this Something changed ${result.first} and ${result.second}")
                 result.second?.let { error ->
                     onError(error)
+                } ?: run {
+                    Log.d("FALAE", "$this Something changed ${result.first} and ${result.second}")
                 }
                 if (pDialog?.isShowing == true) {
                     pDialog?.dismiss()
@@ -105,12 +108,6 @@ class SyncUserFragment : Fragment() {
         var cancel = false
         var focusView: View? = null
 
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.error = getString(R.string.error_invalid_password)
-            focusView = mPasswordView
-            cancel = true
-        }
-
         if (TextUtils.isEmpty(email)) {
             mEmailView.error = getString(R.string.error_field_required)
             focusView = mEmailView
@@ -126,7 +123,6 @@ class SyncUserFragment : Fragment() {
         } else {
             userViewModel.login(email, password)
             pDialog?.show()
-//            loginIn(email, password)
         }
     }
 
@@ -134,8 +130,6 @@ class SyncUserFragment : Fragment() {
         val m = VALID_EMAIL_REGEX.matcher(email)
         return m.matches()
     }
-
-    private fun isPasswordValid(password: String): Boolean = password.length > 4
 
     private fun onError(error: Exception) {
         if (error is AuthFailureError) {
@@ -162,7 +156,6 @@ class SyncUserFragment : Fragment() {
     }
 
     interface SyncUserFragmentListener {
-        fun isNewUser(email: String): Boolean
     }
 
     companion object {

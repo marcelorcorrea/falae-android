@@ -29,8 +29,6 @@ import org.falaeapp.falae.fragment.SyncUserFragment
 import org.falaeapp.falae.fragment.TabPagerFragment
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
-import org.falaeapp.falae.storage.FileHandler
-import org.falaeapp.falae.storage.SharedPreferencesUtils
 import org.falaeapp.falae.viewmodel.UserViewModel
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -71,10 +69,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 addUserToMenu(it)
             }
         })
-//        userViewModel.loadDemoUser(assets.open(getString(R.string.sampleboard))).observe(
-//                this, Observer<User> {
-//            it?.let { addUserToMenu(it, R.id.settings_group, 1) }
-//        })
 
 //        getLastConnectedUser()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
@@ -93,26 +87,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //        }
 //    }
 
-    private fun openUserMenuItem(user: User) {
-//        mCurrentUser = dbHelper.findByEmail(email)
-//        val item = mCurrentUser?.id?.let { mNavigationView.menu.findItem(it) }
-//        item?.let { onNavigationItemSelected(it) }
+    fun openUserItem(user: User) {
+        Log.d("FALAE", "OPENING")
+        val item = mNavigationView.menu.findItem(user.id)
+        item?.let { onNavigationItemSelected(it) }
     }
 
-    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0) { //findUser: (User) -> User? = ::findUser) {
+    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0) {
         Log.d("FALAE", "Getting called. ${user.name}")
         val userItem = mNavigationView.menu.add(groupId, user.id, order, user.name)
         userItem.setIcon(R.drawable.ic_person_black_24dp)
         userItem.setOnMenuItemClickListener { item ->
-            //            mCurrentUser = findUser(user) ?: user
             onNavigationItemSelected(item)
             true
         }
     }
-
-//    private fun findUser(user: User) = findUser(user.email)
-//
-//    private fun findUser(email: String) = dbHelper.findByEmail(email)
 
     override fun onBackPressed() {
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
@@ -167,18 +156,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    private fun loadUser(userId: Long) {
-//        userViewModel.loadUser(userId).observe(this, Observer { user ->
-//            user?.let {
-//                val fragment = TabPagerFragment.newInstance()
-//                val tag = TabPagerFragment::class.java.simpleName
-//                userViewModel.currentUser = it
-//                changeFragment(fragment, tag)
-//            }
-//        })
-    }
-
-
     override fun onDestroy() {
 //        userViewModel.saveLastConnectedUser()
 //        dbHelper.close()
@@ -188,9 +165,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //        }
         super.onDestroy()
     }
-
-
-    override fun isNewUser(email: String): Boolean = true//findUser(email) == null
 
     private fun openTTSLanguageSettings() {
         val installTts = Intent()
