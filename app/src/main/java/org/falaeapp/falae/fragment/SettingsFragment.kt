@@ -20,30 +20,30 @@ class SettingsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
         val scanMode = view.findViewById(R.id.scan_mode) as Switch
         context?.let { context ->
-            scanMode.isChecked = SharedPreferencesUtils.getBoolean(SCAN_MODE, context)
+//            scanMode.isChecked = SharedPreferencesUtils.getBoolean(SCAN_MODE, context)
 
-            scanMode.setOnCheckedChangeListener { _, isChecked -> SharedPreferencesUtils.storeBoolean(SCAN_MODE, isChecked, context) }
+//            scanMode.setOnCheckedChangeListener { _, isChecked -> SharedPreferencesUtils.storeBoolean(SCAN_MODE, isChecked, context) }
 
             seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
             seekBar = view.findViewById(R.id.seekBar) as SeekBar
 
-            SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, 0, context)
-            val seekBarProgress = (SharedPreferencesUtils.getInt(SEEK_BAR_PROGRESS, context, 1))
-                    // for legacy users
-                    .let { if (it == 0) 1 else it }
+//            SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, 0, context)
+//            val seekBarProgress = (SharedPreferencesUtils.getInt(SEEK_BAR_PROGRESS, context, 1))
+//                     for legacy users
+//                    .let { if (it == 0) 1 else it }
 
-            seekBar.post {
-                setSeekBarText(seekBarProgress)
-                seekBar.progress = seekBarProgress - 1
-            }
+//            seekBar.post {
+//                setSeekBarText(seekBarProgress)
+//                seekBar.progress = seekBarProgress - 1
+//            }
 
             seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     val actualProgress = progress + 1
                     setSeekBarText(actualProgress)
-                    SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, actualProgress, context)
+//                    SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, actualProgress, context)
                     val timeMillis: Long = (actualProgress * 500).toLong()
-                    SharedPreferencesUtils.storeLong(SCAN_MODE_DURATION, timeMillis, context)
+//                    SharedPreferencesUtils.storeLong(SCAN_MODE_DURATION, timeMillis, context)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {

@@ -46,7 +46,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
-        deleteDatabase("falae.db")
+//        deleteDatabase("falae.db")
+//        SharedPreferencesUtils(this).remove("LastConnectedUser")
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -68,33 +69,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             users?.reversed()?.forEach {
                 addUserToMenu(it)
             }
+            userViewModel.loadLastConnectedUser()
         })
 
-//        getLastConnectedUser()
+        userViewModel.lastConnectedUserId.observe(this, Observer {
+            Log.d("FALAE", "LOADING lastConnectedUserId! $it")
+            it?.let {
+                openUserItem(it)
+            }
+        })
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
             ProviderInstaller.installIfNeededAsync(this, this)
         }
     }
 
-//    private fun getLastConnectedUser() {
-//        val email = SharedPreferencesUtils.getString(USER_EMAIL, this)
-//        if (email.isNotEmpty()) {
-//            openUserMenuItem(email)
-//        } else {
-//            onNavigationItemSelected(mNavigationView.menu.findItem(R.id.add_user))
-//            mDrawer.openDrawer(GravityCompat.START)
-//        }
-//    }
-
-    fun openUserItem(user: User) {
-        Log.d("FALAE", "OPENING")
-        val item = mNavigationView.menu.findItem(user.id)
+    private fun openUserItem(userId: Long) {
+        val item = mNavigationView.menu.findItem(userId.toInt())
         item?.let { onNavigationItemSelected(it) }
     }
 
-    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 0) {
-        Log.d("FALAE", "Getting called. ${user.name}")
+    private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 1) {
+        Log.d("FALAE", "Getting called. ${user.name} user id is: ${user.id}")
         val userItem = mNavigationView.menu.add(groupId, user.id, order, user.name)
         userItem.setIcon(R.drawable.ic_person_black_24dp)
         userItem.setOnMenuItemClickListener { item ->
@@ -156,16 +153,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun onDestroy() {
-//        userViewModel.saveLastConnectedUser()
-//        dbHelper.close()
-//        downloadCacheDbHelper.close()
-//        mCurrentUser?.let {
-//            SharedPreferencesUtils.storeString(USER_EMAIL, it.email, this)
-//        }
-        super.onDestroy()
-    }
-
     private fun openTTSLanguageSettings() {
         val installTts = Intent()
         installTts.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
@@ -209,20 +196,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun onProviderInstallerNotAvailable() {
         Toast.makeText(this, getString(R.string.provider_not_available), Toast.LENGTH_LONG).show()
-    }
-
-    override fun removeUser(user: User) {
-//        dbHelper.remove(user.id)
-//        downloadCacheDbHelper.remove(user.email)
-//        SharedPreferencesUtils.remove(USER_EMAIL, this)
-//        FileHandler.deleteUserFolder(this, user.email)
-//        mCurrentUser = null
-        recreate()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-//        mCurrentUser?.let { outState?.putParcelable(USER_PARAM, mCurrentUser) }
     }
 
     companion object {

@@ -4,12 +4,13 @@ import android.arch.lifecycle.LiveData
 import android.content.Context
 import android.util.Log
 import com.android.volley.AuthFailureError
-import org.falaeapp.falae.FalaeWebPlatform
+import org.falaeapp.falae.service.FalaeWebPlatform
 import org.falaeapp.falae.exception.UserNotFoundException
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.room.AppDatabase
 import org.falaeapp.falae.room.DownloadCacheDao
 import org.falaeapp.falae.storage.FileHandler
+import org.falaeapp.falae.storage.SharedPreferencesUtils
 import org.jetbrains.anko.doAsync
 
 class UserRepository(val context: Context) {
@@ -17,26 +18,14 @@ class UserRepository(val context: Context) {
     private val downloadCacheDao: DownloadCacheDao = AppDatabase.getInstance(context).downloadCacheDao()
     private val falaeWebPlatform: FalaeWebPlatform = FalaeWebPlatform(context.applicationContext)
     private val fileHandler: FileHandler = FileHandler()
+    private val sharedPreferences: SharedPreferencesUtils = SharedPreferencesUtils(context.applicationContext)
 
     fun getAllUsers(): LiveData<List<User>> {
         return userModelDao.getAllUsers()
     }
 
-    fun findById(userId: Long): LiveData<User> {
-        return userModelDao.findById(userId)
-    }
-
-    fun findByEmail(email: String): User? {
-        return userModelDao.findByEmail(email)
-    }
-
-    fun insert(user: User) {
-        userModelDao.insert(user)
-    }
-
     fun login(email: String, password: String, onComplete: (User?, Exception?) -> Unit) {
         falaeWebPlatform.login(email, password) { user, error ->
-            Log.d("FALAE", "executing callback: $user and $error")
             error?.let { e ->
                 doAsync {
                     val exception: Exception = if (e is AuthFailureError) {
@@ -53,12 +42,15 @@ class UserRepository(val context: Context) {
             } ?: run {
                 doAsync {
                     falaeWebPlatform.downloadImages(user!!, downloadCacheDao, fileHandler) { u ->
+                        val id: Long
                         if (!userModelDao.doesUserExist(u.email)) {
-                            val id = userModelDao.insert(u)
-                            Log.d("FALAE", "generated ID: $id")
+                            id = userModelDao.insert(u)
                         } else {
+                            id = u.id.toLong()
                             userModelDao.update(u)
                         }
+                        saveLastConnectedUserId(id)
+                        user.id = id.toInt()
                         onComplete(user, null)
                     }
                 }
@@ -70,18 +62,22 @@ class UserRepository(val context: Context) {
         userModelDao.remove(user)
         downloadCacheDao.remove(user.email)
         fileHandler.deleteUserFolder(context, user.email)
+        sharedPreferences.remove(LAST_CONNECTED_USER)
     }
 
     fun getUser(userId: Long): LiveData<User> {
         return userModelDao.findById(userId)
     }
 
-//    companion object {
-//        private var INSTANCE: UserRepository? = null
-//
-//        fun getInstance(context: Context): UserRepository =
-//                INSTANCE ?: synchronized(this) {
-//                    INSTANCE ?: UserRepository(context).also { INSTANCE = it }
-//                }
-//    }
+    fun saveLastConnectedUserId(userId: Long) {
+        sharedPreferences.storeLong(LAST_CONNECTED_USER, userId)
+    }
+
+    fun getLastConnectedUserId(): Long {
+        return sharedPreferences.getLong(LAST_CONNECTED_USER, 1)
+    }
+
+    companion object {
+        private const val LAST_CONNECTED_USER = "LastConnectedUser"
+    }
 }

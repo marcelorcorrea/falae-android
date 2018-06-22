@@ -87,11 +87,11 @@ class ViewPagerItemFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         context?.let { context ->
-            if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-                currentItemSelectedFromScan = -1
-                val scanModeDuration = SharedPreferencesUtils.getLong(SettingsFragment.SCAN_MODE_DURATION, context)
-                doSpreadsheetScan(scanModeDuration)
-            }
+//            if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
+//                currentItemSelectedFromScan = -1
+//                val scanModeDuration = SharedPreferencesUtils.getLong(SettingsFragment.SCAN_MODE_DURATION, context)
+//                doSpreadsheetScan(scanModeDuration)
+//            }
         }
     }
 
@@ -121,9 +121,9 @@ class ViewPagerItemFragment : Fragment() {
         frameLayout.setOnClickListener {
             var itemSelected = item
             context?.let { context ->
-                if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-                    itemSelected = mItems[currentItemSelectedFromScan]
-                }
+//                if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
+//                    itemSelected = mItems[currentItemSelectedFromScan]
+//                }
             }
             onItemClicked(itemSelected)
         }

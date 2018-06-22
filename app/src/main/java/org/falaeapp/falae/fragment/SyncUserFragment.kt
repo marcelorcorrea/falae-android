@@ -20,7 +20,6 @@ import android.widget.Toast
 import com.android.volley.AuthFailureError
 import org.falaeapp.falae.R
 import org.falaeapp.falae.exception.UserNotFoundException
-import org.falaeapp.falae.model.User
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.UserViewModel
 import java.util.regex.Pattern
@@ -36,18 +35,14 @@ class SyncUserFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
-        userViewModel.reposResult.observe(activity!!, Observer { event ->
+        userViewModel.reposResult.observe(this, Observer { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 Log.d("FALAE", "$this Something changed ${result.first} and ${result.second}")
                 result.second?.let { error ->
                     onError(error)
-                } ?: run {
-                    Log.d("FALAE", "$this Something changed ${result.first} and ${result.second}")
-                }
-                if (pDialog?.isShowing == true) {
-                    pDialog?.dismiss()
                 }
             }
+            pDialog?.dismiss()
         })
     }
 
@@ -92,9 +87,14 @@ class SyncUserFragment : Fragment() {
         showSoftwareKeyboard(false)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        pDialog?.dismiss()
+    }
+
     private fun showSoftwareKeyboard(showKeyboard: Boolean) {
         val inputManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.hideSoftInputFromWindow(activity?.currentFocus!!.windowToken,
+        inputManager.hideSoftInputFromWindow(activity?.currentFocus?.windowToken,
                 if (showKeyboard) InputMethodManager.SHOW_FORCED else InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
@@ -115,6 +115,10 @@ class SyncUserFragment : Fragment() {
         } else if (!isEmailValid(email)) {
             mEmailView.error = getString(R.string.error_invalid_email)
             focusView = mEmailView
+            cancel = true
+        } else if (TextUtils.isEmpty(password)) {
+            mPasswordView.error = getString(R.string.error_field_required)
+            focusView = mPasswordView
             cancel = true
         }
 

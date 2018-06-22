@@ -49,8 +49,6 @@ class UserInfoFragment : Fragment() {
 
         userViewModel.currentUser.observe(activity!!, Observer { user ->
             user?.let {
-                Log.d("FALAE", "user is $user")
-                Log.d("FALAE", "this is $this")
                 user.photo?.let {
                     if (it.isNotEmpty()) {
                         Picasso.with(context)

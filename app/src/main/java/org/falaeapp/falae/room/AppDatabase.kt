@@ -9,10 +9,10 @@ import android.content.Context
 import com.google.gson.Gson
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.DownloadCache
-import org.falaeapp.falae.model.MutableMapConverter
-import org.falaeapp.falae.model.SpreadSheetConverter
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.readText
+import org.falaeapp.falae.room.converter.MutableMapConverter
+import org.falaeapp.falae.room.converter.SpreadSheetConverter
 import org.jetbrains.anko.doAsync
 
 @Database(entities = [User::class, DownloadCache::class], version = 1)

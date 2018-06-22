@@ -1,4 +1,4 @@
-package org.falaeapp.falae
+package org.falaeapp.falae.service
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -10,12 +10,15 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.Volley
+import org.falaeapp.falae.BuildConfig
+import org.falaeapp.falae.TLSSocketFactory
 import org.falaeapp.falae.model.DownloadCache
 import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.room.DownloadCacheDao
 import org.falaeapp.falae.storage.FileHandler
 import org.falaeapp.falae.task.GsonRequest
+import org.falaeapp.falae.toFile
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
@@ -39,7 +42,6 @@ class FalaeWebPlatform(val context: Context) {
     fun login(email: String, password: String, onComplete: (User?, VolleyError?) -> Unit) {
         initExecutor()
         try {
-            Log.d("FALAE", "LOGGING IN")
             val credentials = JSONObject()
             credentials.put("email", email)
             credentials.put("password", password)
@@ -52,7 +54,6 @@ class FalaeWebPlatform(val context: Context) {
                     clazz = User::class.java,
                     jsonRequest = jsonRequest,
                     listener = Response.Listener {
-                        Log.d("FALAE", "DONE! user is $it")
                         onComplete(it, null)
                     },
                     errorListener = Response.ErrorListener {

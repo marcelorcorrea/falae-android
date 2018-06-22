@@ -21,23 +21,23 @@ object Util {
             builder.setTitle(title)
         }
         if (neutralText.isNotEmpty()) {
-            builder.setNeutralButton(neutralText, { dialog, _ ->
+            builder.setNeutralButton(neutralText) { dialog, _ ->
                 neutral()
                 dialog.dismiss()
 
-            })
+            }
         }
         if (negativeText.isNotEmpty()) {
-            builder.setNegativeButton(negativeText, { dialog, _ ->
+            builder.setNegativeButton(negativeText) { dialog, _ ->
                 negativeClick()
                 dialog.dismiss()
-            })
+            }
         }
         if (positiveText.isNotEmpty()) {
-            builder.setPositiveButton(positiveText, { dialog, _ ->
+            builder.setPositiveButton(positiveText) { dialog, _ ->
                 positiveClick()
                 dialog.dismiss()
-            })
+            }
         }
         val alertDialog = builder.create()
         alertDialog.setOnShowListener {

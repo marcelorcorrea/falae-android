@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.SpreadSheet
-import org.falaeapp.falae.model.User
 
 class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentListener {
 
@@ -45,13 +44,8 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         mListener.displayActivity(spreadSheet)
     }
 
-    override fun removeUser(user: User) {
-        mListener.removeUser(user)
-    }
-
     interface TabPagerFragmentListener {
         fun displayActivity(spreadSheet: SpreadSheet)
-        fun removeUser(user: User)
     }
 
     inner class CustomFragmentPagerAdapter(fm: FragmentManager, private val context: Context?) : FragmentStatePagerAdapter(fm) {

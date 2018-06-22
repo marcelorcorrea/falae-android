@@ -82,7 +82,6 @@ class SpreadSheetFragment : Fragment() {
 
     interface SpreadSheetFragmentListener {
         fun displayActivity(spreadSheet: SpreadSheet)
-        fun removeUser(user: User)
     }
 
     companion object {
