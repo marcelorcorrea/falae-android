@@ -4,7 +4,6 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import org.falaeapp.falae.Event
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.repository.UserRepository
@@ -20,7 +19,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     val lastConnectedUserId: MutableLiveData<Long> = MutableLiveData()
 
     init {
-        Log.d("FALAE", "INITIALIZING ")
         users = userRepository.getAllUsers()
     }
 
@@ -34,7 +32,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun login(email: String, password: String) {
-        Log.d("FALAE", "executing login")
         userRepository.login(email, password) { user, error ->
             user?.let {
                 lastConnectedUserId.postValue(user.id.toLong())

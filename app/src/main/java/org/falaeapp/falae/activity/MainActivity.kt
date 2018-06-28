@@ -47,12 +47,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
 //        deleteDatabase("falae.db")
-//        SharedPreferencesUtils(this).remove("LastConnectedUser")
+//        SharedPreferencesUtils(this).clear()
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        Log.d("FALAE", "ONCREATE")
         mDrawer = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
                 this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -73,7 +72,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
         userViewModel.lastConnectedUserId.observe(this, Observer {
-            Log.d("FALAE", "LOADING lastConnectedUserId! $it")
             it?.let {
                 openUserItem(it)
             }
@@ -91,7 +89,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun addUserToMenu(user: User, groupId: Int = R.id.users_group, order: Int = 1) {
-        Log.d("FALAE", "Getting called. ${user.name} user id is: ${user.id}")
         val userItem = mNavigationView.menu.add(groupId, user.id, order, user.name)
         userItem.setIcon(R.drawable.ic_person_black_24dp)
         userItem.setOnMenuItemClickListener { item ->
@@ -175,11 +172,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             GoogleApiAvailability.getInstance().showErrorDialogFragment(
                     this,
                     errorCode,
-                    ERROR_DIALOG_REQUEST_CODE,
-                    DialogInterface.OnCancelListener {
-                        onProviderInstallerNotAvailable()
-                    }
-            )
+                    ERROR_DIALOG_REQUEST_CODE
+            ) {
+                onProviderInstallerNotAvailable()
+            }
         } else {
             onProviderInstallerNotAvailable()
         }

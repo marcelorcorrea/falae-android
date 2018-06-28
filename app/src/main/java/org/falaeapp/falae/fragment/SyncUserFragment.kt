@@ -7,7 +7,6 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +36,6 @@ class SyncUserFragment : Fragment() {
         userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
         userViewModel.reposResult.observe(this, Observer { event ->
             event?.getContentIfNotHandled()?.let { result ->
-                Log.d("FALAE", "$this Something changed ${result.first} and ${result.second}")
                 result.second?.let { error ->
                     onError(error)
                 }

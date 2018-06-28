@@ -2,13 +2,12 @@ package org.falaeapp.falae.repository
 
 import android.arch.lifecycle.LiveData
 import android.content.Context
-import android.util.Log
 import com.android.volley.AuthFailureError
-import org.falaeapp.falae.service.FalaeWebPlatform
 import org.falaeapp.falae.exception.UserNotFoundException
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.room.AppDatabase
 import org.falaeapp.falae.room.DownloadCacheDao
+import org.falaeapp.falae.service.FalaeWebPlatform
 import org.falaeapp.falae.storage.FileHandler
 import org.falaeapp.falae.storage.SharedPreferencesUtils
 import org.jetbrains.anko.doAsync

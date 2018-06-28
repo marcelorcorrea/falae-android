@@ -1,5 +1,7 @@
 package org.falaeapp.falae.fragment
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -9,52 +11,63 @@ import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
 import org.falaeapp.falae.R
-import org.falaeapp.falae.storage.SharedPreferencesUtils
+import org.falaeapp.falae.viewmodel.SettingsViewModel
 
 class SettingsFragment : Fragment() {
 
     private lateinit var seekBar: SeekBar
     private lateinit var seekBarValue: TextView
+    private lateinit var settingsViewModel: SettingsViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        settingsViewModel = ViewModelProviders.of(activity!!).get(SettingsViewModel::class.java)
+
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
         val scanMode = view.findViewById(R.id.scan_mode) as Switch
-        context?.let { context ->
-//            scanMode.isChecked = SharedPreferencesUtils.getBoolean(SCAN_MODE, context)
+        seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
+        seekBar = view.findViewById(R.id.seekBar) as SeekBar
 
-//            scanMode.setOnCheckedChangeListener { _, isChecked -> SharedPreferencesUtils.storeBoolean(SCAN_MODE, isChecked, context) }
+        settingsViewModel.loadScan()
+        settingsViewModel.loadSeekBarProgress()
 
-            seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
-            seekBar = view.findViewById(R.id.seekBar) as SeekBar
+        settingsViewModel.isScanModeEnabled.observe(this, Observer {
+            it?.let { scanMode.isChecked = it }
+        })
+        scanMode.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setScanModeChecked(isChecked) }
+        settingsViewModel.setSeekBarProgress(0)
 
-//            SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, 0, context)
-//            val seekBarProgress = (SharedPreferencesUtils.getInt(SEEK_BAR_PROGRESS, context, 1))
-//                     for legacy users
-//                    .let { if (it == 0) 1 else it }
-
-//            seekBar.post {
-//                setSeekBarText(seekBarProgress)
-//                seekBar.progress = seekBarProgress - 1
-//            }
-
-            seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    val actualProgress = progress + 1
-                    setSeekBarText(actualProgress)
-//                    SharedPreferencesUtils.storeInt(SEEK_BAR_PROGRESS, actualProgress, context)
-                    val timeMillis: Long = (actualProgress * 500).toLong()
-//                    SharedPreferencesUtils.storeLong(SCAN_MODE_DURATION, timeMillis, context)
+        settingsViewModel.seekBarProgress.observe(this, Observer { sk ->
+            sk?.let {
+                val seekBarProgress = if (it == 0) 1 else it
+                seekBar.post {
+                    setSeekBarText(seekBarProgress)
+                    seekBar.progress = it - 1
                 }
+            }
+        })
 
-                override fun onStartTrackingTouch(seekBar: SeekBar) {
+        seekBar.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                        val actualProgress = progress + 1
+                        setSeekBarText(actualProgress)
+                        settingsViewModel.setSeekBarProgress(actualProgress)
+                        val timeMillis: Long = (actualProgress * 500).toLong()
+                        settingsViewModel.setScanModeDuration(timeMillis)
+                    }
 
-                }
+                    override fun onStartTrackingTouch(seekBar: SeekBar) {
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    }
 
-                }
-            })
-        }
+                    override fun onStopTrackingTouch(seekBar: SeekBar) {
+
+                    }
+                })
         setHasOptionsMenu(true)
         return view
     }
@@ -70,11 +83,6 @@ class SettingsFragment : Fragment() {
     }
 
     companion object {
-
-        const val SCAN_MODE = "scanMode"
-        const val SEEK_BAR_PROGRESS = "seekBarProgress"
-        const val SCAN_MODE_DURATION = "scanModeDuration"
-
         fun newInstance(): SettingsFragment = SettingsFragment()
     }
 }

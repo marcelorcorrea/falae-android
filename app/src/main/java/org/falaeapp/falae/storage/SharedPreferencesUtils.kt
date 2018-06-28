@@ -57,4 +57,8 @@ class SharedPreferencesUtils(val context: Context) {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
         sharedPreferences?.edit()?.remove(key)?.apply()
     }
+    fun clear() {
+        sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
+        sharedPreferences?.edit()?.clear()?.apply()
+    }
 }
