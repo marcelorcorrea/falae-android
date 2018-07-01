@@ -1,5 +1,7 @@
 package org.falaeapp.falae.repository
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.storage.SharedPreferencesUtils
@@ -27,6 +29,9 @@ class SettingsRepository(val context: Context) {
         return sharedPreferences.getInt(SEEK_BAR_PROGRESS)
     }
 
+    fun getScanModeDuration(): Long {
+        return sharedPreferences.getLong(SCAN_MODE_DURATION)
+    }
 
     companion object {
 

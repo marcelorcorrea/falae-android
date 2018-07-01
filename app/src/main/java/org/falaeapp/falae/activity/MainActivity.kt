@@ -3,7 +3,6 @@ package org.falaeapp.falae.activity
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -195,8 +194,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     companion object {
-        private const val USER_EMAIL = "email"
-        private const val USER_PARAM = "UserParam"
         private const val ERROR_DIALOG_REQUEST_CODE = 1
         private const val PROVIDER_INSTALLED = "provider_installed"
     }

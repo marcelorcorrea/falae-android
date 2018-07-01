@@ -33,7 +33,6 @@ class SpreadSheetAdapter(private val context: Context?, private val spreadSheets
         internal fun bind(spreadSheet: SpreadSheet, onItemClickListener: (spreadSheet: SpreadSheet) -> Unit) {
             name.text = spreadSheet.name
             itemView.setOnClickListener { onItemClickListener(spreadSheet) }
-
         }
     }
 }

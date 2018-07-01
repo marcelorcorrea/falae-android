@@ -1,5 +1,7 @@
 package org.falaeapp.falae.fragment
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -24,7 +26,8 @@ import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.Category
 import org.falaeapp.falae.model.Item
-import org.falaeapp.falae.storage.SharedPreferencesUtils
+import org.falaeapp.falae.viewmodel.DisplayViewModel
+import org.falaeapp.falae.viewmodel.SettingsViewModel
 import java.util.*
 
 class ViewPagerItemFragment : Fragment() {
@@ -38,9 +41,14 @@ class ViewPagerItemFragment : Fragment() {
     private var currentItemSelectedFromScan = -1
     private lateinit var mGridLayout: GridLayout
     private var mTimer: Timer? = null
+    private lateinit var displayViewModel: DisplayViewModel
+    private lateinit var settingsViewModel: SettingsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
+        settingsViewModel = ViewModelProviders.of(activity!!).get(SettingsViewModel::class.java)
         if (savedInstanceState != null) {
             mItems = savedInstanceState.getParcelableArrayList(ITEMS_PARAM)
             mColumns = savedInstanceState.getInt(COLUMNS_PARAM)
@@ -86,13 +94,14 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        context?.let { context ->
-//            if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-//                currentItemSelectedFromScan = -1
-//                val scanModeDuration = SharedPreferencesUtils.getLong(SettingsFragment.SCAN_MODE_DURATION, context)
-//                doSpreadsheetScan(scanModeDuration)
-//            }
-        }
+        settingsViewModel.getScanMode().observe(this, Observer {
+            it?.let { pair ->
+                if (pair.first) {
+                    currentItemSelectedFromScan = -1
+                    doSpreadsheetScan(pair.second)
+                }
+            }
+        })
     }
 
     override fun onPause() {
@@ -120,10 +129,14 @@ class ViewPagerItemFragment : Fragment() {
         }
         frameLayout.setOnClickListener {
             var itemSelected = item
-            context?.let { context ->
-//                if (SharedPreferencesUtils.getBoolean(SettingsFragment.SCAN_MODE, context)) {
-//                    itemSelected = mItems[currentItemSelectedFromScan]
-//                }
+            context?.let {
+                settingsViewModel.getScanMode().observe(this, Observer {
+                    it?.let { pair ->
+                        if (pair.first) {
+                            itemSelected = mItems[currentItemSelectedFromScan]
+                        }
+                    }
+                })
             }
             onItemClicked(itemSelected)
         }
@@ -159,7 +172,7 @@ class ViewPagerItemFragment : Fragment() {
     private fun onItemClicked(item: Item) {
         mListener.speak(item.speech)
         if (item.linkTo != null && item.linkTo.isNotEmpty()) {
-            mListener.openPage(item.linkTo)
+            displayViewModel.openPage(item.linkTo)
         }
     }
 
@@ -253,8 +266,6 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     interface ViewPagerItemFragmentListener {
-        fun openPage(linkTo: String)
-
         fun speak(msg: String)
     }
 

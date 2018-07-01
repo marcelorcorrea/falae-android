@@ -2,8 +2,8 @@ package org.falaeapp.falae.viewmodel
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import org.falaeapp.falae.repository.SettingsRepository
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -31,5 +31,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setScanModeDuration(timeMillis: Long) {
         settingsRepository.saveScanModeDuration(timeMillis)
+    }
+
+    fun getScanMode(): LiveData<Pair<Boolean, Long>> {
+        val data = MutableLiveData<Pair<Boolean, Long>>()
+        val scanModeEnabled = settingsRepository.isScanModeEnabled()
+        if (scanModeEnabled) {
+            val duration = settingsRepository.getScanModeDuration()
+            data.value = Pair(scanModeEnabled, duration)
+        }
+        return data
     }
 }
