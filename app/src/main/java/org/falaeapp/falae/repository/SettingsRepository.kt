@@ -30,7 +30,7 @@ class SettingsRepository(val context: Context) {
     }
 
     fun getScanModeDuration(): Long {
-        return sharedPreferences.getLong(SCAN_MODE_DURATION)
+        return sharedPreferences.getLong(SCAN_MODE_DURATION, 500L)
     }
 
     companion object {
