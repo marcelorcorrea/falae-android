@@ -26,16 +26,9 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         displayViewModel = ViewModelProviders.of(this).get(DisplayViewModel::class.java)
         displayViewModel.init(spreadSheet)
 
-        displayViewModel.getInitialPage().observe(this, Observer {
-            it?.let { initialPage ->
-                changeFragment(initialPage)
-            } ?: run {
-                Toast.makeText(this, getString(R.string.page_not_found), Toast.LENGTH_SHORT).show()
-            }
-        })
         displayViewModel.currentPage.observe(this, Observer {
             it?.let { page ->
-                changeFragment(page, true)
+                changeFragment(page, page.initialPage.not())
             } ?: run {
                 Toast.makeText(this, getString(R.string.page_not_found), Toast.LENGTH_SHORT).show()
             }
@@ -51,9 +44,8 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
                         android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.page_container, fragment)
         if (addToBackStack) {
-            fragmentTransaction.addToBackStack(null)
-        }
-        if (fragmentManager.backStackEntryCount > 0) {
+            fragmentTransaction.addToBackStack(page.name)
+        } else if (fragmentManager.backStackEntryCount > 0) {
             fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         }
         fragmentTransaction.commit()

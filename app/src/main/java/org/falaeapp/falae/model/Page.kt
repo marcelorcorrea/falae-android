@@ -11,4 +11,5 @@ import kotlinx.android.parcel.Parcelize
 data class Page(val name: String,
                 val items: List<Item> = emptyList(),
                 val columns: Int,
-                val rows: Int) : Parcelable
+                val rows: Int,
+                var initialPage: Boolean = false) : Parcelable

@@ -6,27 +6,24 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import org.falaeapp.falae.model.Page
 import org.falaeapp.falae.model.SpreadSheet
-import org.falaeapp.falae.repository.SettingsRepository
 
 class DisplayViewModel(application: Application) : AndroidViewModel(application) {
-    var currentSpreadSheet: MutableLiveData<SpreadSheet> = MutableLiveData()
+    private var currentSpreadSheet: MutableLiveData<SpreadSheet> = MutableLiveData()
     var currentPage: MutableLiveData<Page> = MutableLiveData()
-    private val settingsRepository: SettingsRepository = SettingsRepository(application)
 
     fun init(spreadSheet: SpreadSheet?) {
         if (spreadSheet == null) {
             return
         }
         currentSpreadSheet.value = spreadSheet
+        openPage(spreadSheet.initialPage)
     }
 
     fun openPage(linkTo: String) {
-        currentPage.value = currentSpreadSheet.value?.pages?.find { it.name == linkTo }
+        val page = currentSpreadSheet.value?.pages?.find { it.name == linkTo }
+        page?.initialPage = isInitialPage(page)
+        currentPage.value = page
     }
 
-    fun getInitialPage(): LiveData<Page> {
-        val data = MutableLiveData<Page>()
-        data.value = currentSpreadSheet.value?.pages?.find { it.name == currentSpreadSheet.value?.initialPage }
-        return data
-    }
+    private fun isInitialPage(page: Page?) = page?.name == currentSpreadSheet.value?.initialPage
 }
