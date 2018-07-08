@@ -1,5 +1,7 @@
 package org.falaeapp.falae.fragment
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -13,12 +15,11 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.ItemPagerAdapter
-import org.falaeapp.falae.model.Page
+import org.falaeapp.falae.viewmodel.DisplayViewModel
 
 
 class PageFragment : Fragment() {
 
-    private lateinit var page: Page
     private lateinit var mPageFragmentListener: PageFragmentListener
     private lateinit var mPager: ViewPager
     private lateinit var mPagerAdapter: ItemPagerAdapter
@@ -26,19 +27,11 @@ class PageFragment : Fragment() {
     private lateinit var rightNav: ImageView
     private lateinit var leftNavHolder: FrameLayout
     private lateinit var rightNavHolder: FrameLayout
+    private lateinit var displayViewModel: DisplayViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        page = if (savedInstanceState != null) {
-            savedInstanceState.getParcelable(PAGE_PARAM)
-        } else {
-            arguments?.getParcelable(PAGE_PARAM)
-        } ?: return
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(PAGE_PARAM, page)
-        super.onSaveInstanceState(outState)
+        displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -65,8 +58,12 @@ class PageFragment : Fragment() {
                 rightNav.layoutParams.height = navHoldersSize
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
-                mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
-                mPager.adapter = mPagerAdapter
+                displayViewModel.currentPage.observe(this@PageFragment, Observer {
+                    it?.let { page ->
+                        mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
+                        mPager.adapter = mPagerAdapter
+                    }
+                })
                 val pagerLayoutParams = mPager.layoutParams as ViewGroup.MarginLayoutParams
                 pagerLayoutParams.leftMargin += navHoldersSize
                 pagerLayoutParams.rightMargin += navHoldersSize
@@ -139,6 +136,11 @@ class PageFragment : Fragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        displayViewModel.currentPage.removeObservers(this@PageFragment)
+    }
+
     fun speak(msg: String) {
         mPageFragmentListener.speak(msg)
     }
@@ -148,14 +150,9 @@ class PageFragment : Fragment() {
     }
 
     companion object {
-        private const val PAGE_PARAM = "pageParam"
 
-        fun newInstance(page: Page): PageFragment {
-            val fragment = PageFragment()
-            val args = Bundle()
-            args.putParcelable(PAGE_PARAM, page)
-            fragment.arguments = args
-            return fragment
+        fun newInstance(): PageFragment {
+            return PageFragment()
         }
     }
 }

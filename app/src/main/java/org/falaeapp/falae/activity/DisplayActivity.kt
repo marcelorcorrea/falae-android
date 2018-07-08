@@ -26,7 +26,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         displayViewModel = ViewModelProviders.of(this).get(DisplayViewModel::class.java)
         displayViewModel.init(spreadSheet)
 
-        displayViewModel.currentPage.observe(this, Observer {
+        displayViewModel.pageToOpen.observe(this, Observer {
             it?.let { page ->
                 changeFragment(page, page.initialPage.not())
             } ?: run {
@@ -36,7 +36,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
     }
 
     private fun changeFragment(page: Page, addToBackStack: Boolean = false) {
-        val fragment = PageFragment.newInstance(page)
+        val fragment = PageFragment.newInstance()
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager
                 .beginTransaction()
@@ -50,6 +50,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         }
         fragmentTransaction.commit()
         fragmentManager.executePendingTransactions()
+        displayViewModel.setCurrentPage(page)
     }
 
     override fun speak(msg: String) {
