@@ -60,8 +60,7 @@ class FalaeWebPlatform(val context: Context) {
                         onComplete(null, it)
                     })
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Volley.newRequestQueue(context,
                         HurlStack(null, TLSSocketFactory()))
                         .add(gsonRequest)

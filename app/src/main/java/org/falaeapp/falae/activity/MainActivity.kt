@@ -76,8 +76,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
             ProviderInstaller.installIfNeededAsync(this, this)
         }
     }
