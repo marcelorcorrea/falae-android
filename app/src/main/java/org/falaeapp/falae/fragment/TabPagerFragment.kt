@@ -71,11 +71,7 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         private const val OFFSCREEN_PAGE_LIMIT = 2
 
         fun newInstance(): TabPagerFragment {
-            val fragment = TabPagerFragment()
-//            val args = Bundle()
-//            args.putLong(USER_ID_PARAM, userId)
-//            fragment.arguments = args
-            return fragment
+            return TabPagerFragment()
         }
     }
 }

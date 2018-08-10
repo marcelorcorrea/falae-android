@@ -16,7 +16,9 @@ class DisplayViewModel(application: Application) : AndroidViewModel(application)
             return
         }
         currentSpreadSheet.value = spreadSheet
-        openPage(spreadSheet.initialPage)
+        spreadSheet.initialPage?.let {
+            openPage(it)
+        }
     }
 
     fun openPage(linkTo: String) {

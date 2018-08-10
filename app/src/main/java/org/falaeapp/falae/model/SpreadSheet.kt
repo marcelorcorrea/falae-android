@@ -9,5 +9,5 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class SpreadSheet(val name: String,
-                       val initialPage: String,
+                       val initialPage: String?,
                        val pages: List<Page>) : Parcelable

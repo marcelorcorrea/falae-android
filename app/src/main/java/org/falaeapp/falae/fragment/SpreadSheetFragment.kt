@@ -6,12 +6,11 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.*
+import android.widget.Toast
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.SpreadSheetAdapter
 import org.falaeapp.falae.model.SpreadSheet
-import org.falaeapp.falae.model.User
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.UserViewModel
 
@@ -35,7 +34,11 @@ class SpreadSheetFragment : Fragment() {
         userViewModel.currentUser.observe(activity!!, Observer { user ->
             user?.let {
                 spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->
-                    mListener.displayActivity(spreadSheet)
+                    spreadSheet.initialPage?.let {
+                        mListener.displayActivity(spreadSheet)
+                    } ?: run {
+                        Toast.makeText(activity, getString(R.string.no_initial_page), Toast.LENGTH_SHORT).show()
+                    }
                 }
                 recyclerView.adapter = spreadSheetAdapter
             }
