@@ -49,29 +49,12 @@ class ViewPagerItemFragment : Fragment() {
 
         displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
         settingsViewModel = ViewModelProviders.of(activity!!).get(SettingsViewModel::class.java)
-        if (savedInstanceState != null) {
-            mItems = savedInstanceState.getParcelableArrayList(ITEMS_PARAM)
-            mColumns = savedInstanceState.getInt(COLUMNS_PARAM)
-            mRows = savedInstanceState.getInt(ROWS_PARAM)
-            mMarginWidth = savedInstanceState.getInt(MARGIN_WIDTH)
-            currentItemSelectedFromScan = savedInstanceState.getInt(CURRENT_SELECTED_ITEM_INDEX)
-        } else {
-            arguments?.let { arguments ->
-                mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
-                mColumns = arguments.getInt(COLUMNS_PARAM)
-                mRows = arguments.getInt(ROWS_PARAM)
-                mMarginWidth = arguments.getInt(MARGIN_WIDTH)
-            } ?: return
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelableArrayList(ITEMS_PARAM, ArrayList(mItems))
-        outState.putInt(COLUMNS_PARAM, mColumns)
-        outState.putInt(ROWS_PARAM, mRows)
-        outState.putInt(MARGIN_WIDTH, mMarginWidth)
-        outState.putInt(CURRENT_SELECTED_ITEM_INDEX, currentItemSelectedFromScan)
-        super.onSaveInstanceState(outState)
+        arguments?.let { arguments ->
+            mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
+            mColumns = arguments.getInt(COLUMNS_PARAM)
+            mRows = arguments.getInt(ROWS_PARAM)
+            mMarginWidth = arguments.getInt(MARGIN_WIDTH)
+        } ?: return
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
