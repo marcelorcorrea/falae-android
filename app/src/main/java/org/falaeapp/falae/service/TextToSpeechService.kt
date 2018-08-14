@@ -1,5 +1,6 @@
 package org.falaeapp.falae.service
 
+import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.os.Build
@@ -14,6 +15,9 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
     override fun onBind(arg0: Intent): IBinder? = null
 
     override fun onCreate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForeground(1, Notification())
+        }
         mTextToSpeech = TextToSpeech(this, this, TTS_ENGINE)
         super.onCreate()
     }

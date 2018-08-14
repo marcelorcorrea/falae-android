@@ -14,6 +14,10 @@ class FalaeApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        startService(Intent(this, TextToSpeechService::class.java))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(Intent(this, TextToSpeechService::class.java))
+        } else {
+            startService(Intent(this, TextToSpeechService::class.java))
+        }
     }
 }

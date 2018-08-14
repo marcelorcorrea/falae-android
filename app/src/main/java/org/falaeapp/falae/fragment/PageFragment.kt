@@ -65,7 +65,9 @@ class PageFragment : Fragment() {
                         }
                     })
                 }
-                mPager.adapter = mPagerAdapter
+                if (::mPager.isInitialized && isPagerAdapterInitialized()) {
+                    mPager.adapter = mPagerAdapter
+                }
                 val pagerLayoutParams = mPager.layoutParams as ViewGroup.MarginLayoutParams
                 pagerLayoutParams.leftMargin += navHoldersSize
                 pagerLayoutParams.rightMargin += navHoldersSize

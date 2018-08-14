@@ -3,6 +3,7 @@ package org.falaeapp.falae.activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v7.app.AppCompatActivity
@@ -56,7 +57,11 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
     override fun speak(msg: String) {
         val intent = Intent(this, TextToSpeechService::class.java)
         intent.putExtra(TextToSpeechService.TEXT_TO_SPEECH_MESSAGE, msg)
-        startService(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 
     override fun onBackPressed() {

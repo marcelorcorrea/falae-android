@@ -110,17 +110,15 @@ class ViewPagerItemFragment : Fragment() {
         } else {
             frameLayout.background = drawable
         }
-        frameLayout.setOnClickListener {
+        frameLayout.setOnClickListener { _ ->
             var itemSelected = item
-            context?.let {
-                settingsViewModel.getScanMode().observe(this, Observer {
-                    it?.let { pair ->
-                        if (pair.first) {
-                            itemSelected = mItems[currentItemSelectedFromScan]
-                        }
+            settingsViewModel.getScanMode().observe(this, Observer { result ->
+                result?.let { pair ->
+                    if (pair.first) {
+                        itemSelected = mItems[currentItemSelectedFromScan]
                     }
-                })
-            }
+                }
+            })
             onItemClicked(itemSelected)
         }
         name.text = item.name
@@ -134,13 +132,10 @@ class ViewPagerItemFragment : Fragment() {
                     linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
                 }
             }
-            val brokenImage = getResizedDrawable(R.drawable.ic_broken_image_black_48dp, imageSize)
-            val placeHolderImage = getResizedDrawable(R.drawable.ic_image_black_48dp, imageSize)
-
             Picasso.with(context)
                     .load(item.imgSrc)
-                    .placeholder(placeHolderImage)
-                    .error(brokenImage)
+                    .placeholder(R.drawable.ic_image_black_48dp)
+                    .error(R.drawable.ic_broken_image_black_48dp)
                     .resize(imageSize, imageSize)
                     .centerCrop()
                     .into(imageView)
