@@ -76,7 +76,27 @@ class UserRepository(val context: Context) {
         return sharedPreferences.getLong(LAST_CONNECTED_USER, 1)
     }
 
+    fun handleNewVersion(currentVersionCode: Int) {
+        val doesntExist = -1
+        // Get saved version code
+        val storedVersionCode = sharedPreferences.getInt(VERSION_CODE, doesntExist)
+        // Check for first run or upgrade
+        when {
+            currentVersionCode == storedVersionCode -> // This is just a normal run
+                return
+            storedVersionCode == doesntExist -> {
+                // TODO This is a new install (or the user cleared the shared preferences)
+            }
+            currentVersionCode > storedVersionCode -> {
+                sharedPreferences.clear()
+            }
+        }
+        // Update the shared preferences with the current version code
+        sharedPreferences.storeInt(VERSION_CODE, currentVersionCode)
+    }
+
     companion object {
         private const val LAST_CONNECTED_USER = "LastConnectedUser"
+        private const val VERSION_CODE = "versionCode"
     }
 }

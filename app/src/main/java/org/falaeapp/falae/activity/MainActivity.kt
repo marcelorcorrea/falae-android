@@ -22,6 +22,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
+import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.fragment.SyncUserFragment
@@ -45,8 +46,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
-//        deleteDatabase("falae.db")
-//        SharedPreferencesUtils(this).clear()
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -62,6 +61,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
 
+        userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
+
         userViewModel.users.observe(this, Observer<List<User>> { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
             users?.reversed()?.forEach {
@@ -71,8 +72,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
         userViewModel.lastConnectedUserId.observe(this, Observer {
-            it?.let {
-                openUserItem(it)
+            it?.let { lastConnectedUserId ->
+                openUserItem(lastConnectedUserId)
             }
         })
 

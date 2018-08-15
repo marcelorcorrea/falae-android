@@ -47,4 +47,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun handleNewVersion(versionCode: Int) {
+        userRepository.handleNewVersion(versionCode)
+    }
 }
