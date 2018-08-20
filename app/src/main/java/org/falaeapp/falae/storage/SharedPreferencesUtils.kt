@@ -48,7 +48,7 @@ class SharedPreferencesUtils(val context: Context) {
         return sharedPreferences?.getInt(key, defaultValue)!!
     }
 
-    fun getLong(key: String, defaultValue: Long = 0): Long {
+    fun getLong(key: String, defaultValue: Long = 0L): Long {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
         return sharedPreferences?.getLong(key, defaultValue)!!
     }

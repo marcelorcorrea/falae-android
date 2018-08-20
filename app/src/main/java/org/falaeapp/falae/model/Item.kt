@@ -8,7 +8,7 @@ import kotlinx.android.parcel.Parcelize
  */
 @Parcelize
 data class Item(val name: String,
-                var imgSrc: String,
+                var imgSrc: String = "",
                 val speech: String,
                 val category: Category,
                 val linkTo: String?,

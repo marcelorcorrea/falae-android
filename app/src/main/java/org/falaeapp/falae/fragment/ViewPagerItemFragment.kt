@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.Category
@@ -77,8 +78,8 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        settingsViewModel.getScanMode().observe(this, Observer {
-            it?.let { pair ->
+        settingsViewModel.getScanMode().observe(this, Observer { result ->
+            result?.let { pair ->
                 if (pair.first) {
                     currentItemSelectedFromScan = -1
                     doSpreadsheetScan(pair.second)
@@ -132,14 +133,17 @@ class ViewPagerItemFragment : Fragment() {
                     linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
                 }
             }
-            Picasso.with(context)
-                    .load(item.imgSrc)
-                    .placeholder(R.drawable.ic_image_black_48dp)
-                    .error(R.drawable.ic_broken_image_black_48dp)
-                    .resize(imageSize, imageSize)
-                    .centerCrop()
-                    .into(imageView)
-
+            if (item.imgSrc.isNotEmpty()) {
+                Picasso.with(context)
+                        .load(item.imgSrc)
+                        .placeholder(R.drawable.ic_image_black_48dp)
+                        .error(R.drawable.ic_broken_image_black_48dp)
+                        .resize(imageSize, imageSize)
+                        .centerCrop()
+                        .into(imageView)
+            } else {
+                Toast.makeText(context, getString(R.string.picasso_load_error), Toast.LENGTH_SHORT).show()
+            }
             if (item.linkTo != null && item.linkTo.isNotEmpty()) {
                 linkPage.visibility = View.VISIBLE
             }

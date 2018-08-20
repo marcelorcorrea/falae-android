@@ -31,10 +31,6 @@
             android:name=".activity.DisplayActivity"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.FullScreen" />
-
-        <service
-            android:name=".service.TextToSpeechService"
-            android:stopWithTask="false" />
     </application>
 
 </manifest>

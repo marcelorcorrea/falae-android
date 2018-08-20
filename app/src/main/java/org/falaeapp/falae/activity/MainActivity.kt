@@ -29,6 +29,7 @@ import org.falaeapp.falae.fragment.SyncUserFragment
 import org.falaeapp.falae.fragment.TabPagerFragment
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
+import org.falaeapp.falae.service.TextToSpeechManager
 import org.falaeapp.falae.viewmodel.UserViewModel
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -59,10 +60,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView = findViewById(R.id.nav_view)
         mNavigationView.setNavigationItemSelectedListener(this)
 
+        TextToSpeechManager.init(applicationContext)
+
         userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
-
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
-
         userViewModel.users.observe(this, Observer<List<User>> { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
             users?.reversed()?.forEach {
@@ -70,7 +71,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             userViewModel.loadLastConnectedUser()
         })
-
         userViewModel.lastConnectedUserId.observe(this, Observer {
             it?.let { lastConnectedUserId ->
                 openUserItem(lastConnectedUserId)
@@ -150,9 +150,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openTTSLanguageSettings() {
-        val installTts = Intent()
-        installTts.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
-        startActivity(installTts)
+        val installIntent = Intent()
+        installIntent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
+        startActivity(installIntent)
     }
 
     override fun displayActivity(spreadSheet: SpreadSheet) {
@@ -191,6 +191,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun onProviderInstallerNotAvailable() {
         Toast.makeText(this, getString(R.string.provider_not_available), Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        TextToSpeechManager.shutdown()
     }
 
     companion object {
