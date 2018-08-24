@@ -41,12 +41,12 @@ class UserRepository(val context: Context) {
             } ?: run {
                 doAsync {
                     falaeWebPlatform.downloadImages(user!!, downloadCacheDao, fileHandler) { u ->
-                        val id: Long
-                        if (!userModelDao.doesUserExist(u.email)) {
-                            id = userModelDao.insert(u)
-                        } else {
-                            id = u.id.toLong()
+                        val id = userModelDao.findByEmail(u.email)?.let { result ->
+                            u.id = result.id
                             userModelDao.update(u)
+                            u.id.toLong()
+                        } ?: run {
+                            userModelDao.insert(u)
                         }
                         saveLastConnectedUserId(id)
                         user.id = id.toInt()
