@@ -1,7 +1,5 @@
 package org.falaeapp.falae.repository
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.storage.SharedPreferencesUtils

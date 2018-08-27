@@ -35,28 +35,29 @@ class SharedPreferencesUtils(val context: Context) {
 
     fun getBoolean(key: String): Boolean {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
-        return sharedPreferences?.getBoolean(key, false)!!
+        return sharedPreferences?.getBoolean(key, false) ?: false
     }
 
     fun getString(key: String): String {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
-        return sharedPreferences?.getString(key, "")!!
+        return sharedPreferences?.getString(key, "") ?: ""
     }
 
     fun getInt(key: String, defaultValue: Int = 0): Int {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
-        return sharedPreferences?.getInt(key, defaultValue)!!
+        return sharedPreferences?.getInt(key, defaultValue) ?: 0
     }
 
-    fun getLong(key: String, defaultValue: Long = 0): Long {
+    fun getLong(key: String, defaultValue: Long = 0L): Long {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
-        return sharedPreferences?.getLong(key, defaultValue)!!
+        return sharedPreferences?.getLong(key, defaultValue) ?: 0L
     }
 
     fun remove(key: String) {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
         sharedPreferences?.edit()?.remove(key)?.apply()
     }
+
     fun clear() {
         sharedPreferences = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
         sharedPreferences?.edit()?.clear()?.apply()

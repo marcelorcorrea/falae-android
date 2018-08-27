@@ -60,9 +60,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView.setNavigationItemSelectedListener(this)
 
         userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
-
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
-
         userViewModel.users.observe(this, Observer<List<User>> { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
             users?.reversed()?.forEach {
@@ -70,7 +68,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             userViewModel.loadLastConnectedUser()
         })
-
         userViewModel.lastConnectedUserId.observe(this, Observer {
             it?.let { lastConnectedUserId ->
                 openUserItem(lastConnectedUserId)

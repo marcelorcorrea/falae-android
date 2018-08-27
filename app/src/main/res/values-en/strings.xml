@@ -40,4 +40,5 @@
     <string name="provider_not_available">It was not possible to install Android security modules. Therefore, it won\'t be possible to synchronize your account.</string>
     <string name="create_accout_msg">Make sure you have an account registered in the web platform (https://www.falaeapp.org)</string>
     <string name="no_initial_page">There is no initial page configured for this spreadsheet</string>
+    <string name="picasso_load_error">Could not load image. Please try to re-synchronize your account.</string>
 </resources>
