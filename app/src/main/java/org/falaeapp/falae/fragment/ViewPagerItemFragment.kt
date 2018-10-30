@@ -133,7 +133,7 @@ class ViewPagerItemFragment : Fragment() {
                     linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
                 }
             }
-            if (item.imgSrc.isNotEmpty()) {
+            if (item.imgSrc.isNotEmpty() && imageSize > 0 && context != null) {
                 Picasso.with(context)
                         .load(item.imgSrc)
                         .placeholder(R.drawable.ic_image_black_48dp)

@@ -47,11 +47,11 @@ class UserInfoFragment : Fragment() {
         }
 
         userViewModel.currentUser.observe(activity!!, Observer { user ->
-            user?.let {
-                user.photo?.let {
-                    if (it.isNotEmpty()) {
+            user?.apply {
+                photo?.let {linkPhoto ->
+                    if (linkPhoto.isNotEmpty() && context != null) {
                         Picasso.with(context)
-                                .load(it)
+                                .load(linkPhoto)
                                 .placeholder(placeHolderImage)
                                 .error(brokenImage!!)
                                 .transform(CropCircleTransformation())
@@ -59,8 +59,8 @@ class UserInfoFragment : Fragment() {
                                 .into(imageView)
                     }
                 }
-                userName.text = it.name
-                userInfo.text = it.profile
+                userName.text = name
+                userInfo.text = profile
             }
         })
         return view
