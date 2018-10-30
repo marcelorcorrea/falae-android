@@ -125,7 +125,7 @@ class ViewPagerItemFragment : Fragment() {
         name.text = item.name
         name.post {
             val imageSize = calculateImageSize(layoutDimensions.x, layoutDimensions.y, name, imageView)
-            if (item.category == Category.SUBJECT) {
+            if (item.category == Category.SUBJECT || item.category == Category.OTHER) {
                 name.setTextColor(Color.BLACK)
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                     linkPage.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_launch_black_48dp))
