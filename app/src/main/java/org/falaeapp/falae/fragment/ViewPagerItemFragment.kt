@@ -133,14 +133,16 @@ class ViewPagerItemFragment : Fragment() {
                     linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
                 }
             }
-            if (item.imgSrc.isNotEmpty() && imageSize > 0 && context != null) {
-                Picasso.with(context)
-                        .load(item.imgSrc)
-                        .placeholder(R.drawable.ic_image_black_48dp)
-                        .error(R.drawable.ic_broken_image_black_48dp)
-                        .resize(imageSize, imageSize)
-                        .centerCrop()
-                        .into(imageView)
+            if (item.imgSrc.isNotEmpty()) {
+                if (imageSize > 0 && context != null) {
+                    Picasso.with(context)
+                            .load(item.imgSrc)
+                            .placeholder(R.drawable.ic_image_black_48dp)
+                            .error(R.drawable.ic_broken_image_black_48dp)
+                            .resize(imageSize, imageSize)
+                            .centerCrop()
+                            .into(imageView)
+                }
             } else {
                 Toast.makeText(context, getString(R.string.picasso_load_error), Toast.LENGTH_SHORT).show()
             }
