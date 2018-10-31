@@ -16,10 +16,6 @@ android {
                 storeFile file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
             }
-            keyAlias 'falae'
-            keyPassword '40dias'
-            storeFile file('/home/marcelo/Downloads/falae_keystore.jks')
-            storePassword '40diasfazendoobem'
         }
         debug {
             storeFile file("../keys/debug.keystore")
