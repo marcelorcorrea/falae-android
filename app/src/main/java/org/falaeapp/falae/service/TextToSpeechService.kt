@@ -1,12 +1,20 @@
 package org.falaeapp.falae.service
 
+import android.R
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
+import android.support.annotation.RequiresApi
+import android.support.v4.app.NotificationCompat
 import java.util.*
+
 
 class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
 
@@ -16,10 +24,29 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
 
     override fun onCreate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForeground(1, Notification())
+            startForegroundService()
         }
         mTextToSpeech = TextToSpeech(this, this, TTS_ENGINE)
         super.onCreate()
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun startForegroundService() {
+        val chan = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Background Service", NotificationManager.IMPORTANCE_NONE)
+        chan.lightColor = Color.BLUE
+        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.createNotificationChannel(chan)
+
+        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+        val notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(R.drawable.arrow_up_float)
+                .setContentTitle(getString(org.falaeapp.falae.R.string.background_run))
+                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build()
+        startForeground(2, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -29,7 +56,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
                 speak(message)
             }
         }
-        return Service.START_STICKY
+        return START_STICKY
     }
 
     private fun speak(msg: String) {
@@ -63,5 +90,6 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
     companion object {
         const val TEXT_TO_SPEECH_MESSAGE = "TextToSpeechMessage"
         const val TTS_ENGINE = "com.google.android.tts"
+        const val NOTIFICATION_CHANNEL_ID = "org.falaeapp.falae"
     }
 }

@@ -10,10 +10,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val settingsRepository: SettingsRepository = SettingsRepository(application)
     var isScanModeEnabled: MutableLiveData<Boolean> = MutableLiveData()
     var seekBarProgress: MutableLiveData<Int> = MutableLiveData()
+    var isFeedbackSoundEnabled: MutableLiveData<Boolean> = MutableLiveData()
 
     fun loadScan() {
         val scanModeEnabled = settingsRepository.isScanModeEnabled()
         isScanModeEnabled.value = scanModeEnabled
+    }
+
+    fun loadFeedbackSound() {
+        val feedbackSoundEnabled = settingsRepository.isFeedbackSoundEnabled()
+        isFeedbackSoundEnabled.value = feedbackSoundEnabled
     }
 
     fun loadSeekBarProgress() {
@@ -23,6 +29,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setScanModeChecked(checked: Boolean) {
         settingsRepository.saveEnableScanMode(checked)
+    }
+
+    fun setFeedbackSoundChecked(checked: Boolean) {
+        settingsRepository.saveEnableFeedbackSound(checked)
     }
 
     fun setSeekBarProgress(progress: Int) {
@@ -40,6 +50,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             val duration = settingsRepository.getScanModeDuration()
             data.value = Pair(scanModeEnabled, duration)
         }
+        return data
+    }
+
+    fun getFeedbackSound(): LiveData<Boolean> {
+        val data = MutableLiveData<Boolean>()
+        val feedbackSound = settingsRepository.isFeedbackSoundEnabled()
+        data.value = feedbackSound
         return data
     }
 }

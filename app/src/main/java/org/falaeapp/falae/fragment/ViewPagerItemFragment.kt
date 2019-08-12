@@ -44,10 +44,10 @@ class ViewPagerItemFragment : Fragment() {
     private var mTimer: Timer? = null
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var settingsViewModel: SettingsViewModel
+    private var shouldPlayFeedbackSound: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
         settingsViewModel = ViewModelProviders.of(activity!!).get(SettingsViewModel::class.java)
         arguments?.let { arguments ->
@@ -73,6 +73,11 @@ class ViewPagerItemFragment : Fragment() {
             mGridLayout.addView(layout)
             layout
         }
+        settingsViewModel.getFeedbackSound().observe(this, Observer { result ->
+            result?.let {
+                shouldPlayFeedbackSound = it
+            }
+        })
         return view
     }
 
@@ -111,7 +116,7 @@ class ViewPagerItemFragment : Fragment() {
         } else {
             frameLayout.background = drawable
         }
-        frameLayout.setOnClickListener { _ ->
+        frameLayout.setOnClickListener {
             var itemSelected = item
             settingsViewModel.getScanMode().observe(this, Observer { result ->
                 result?.let { pair ->
@@ -135,7 +140,7 @@ class ViewPagerItemFragment : Fragment() {
             }
             if (item.imgSrc.isNotEmpty()) {
                 if (imageSize > 0 && context != null) {
-                    Picasso.with(context)
+                    Picasso.get()
                             .load(item.imgSrc)
                             .placeholder(R.drawable.ic_image_black_48dp)
                             .error(R.drawable.ic_broken_image_black_48dp)
@@ -213,6 +218,7 @@ class ViewPagerItemFragment : Fragment() {
                         currentItemSelectedFromScan = 0
                     }
                     activity?.runOnUiThread {
+                        playFeedbackSound()
                         highlightCurrentItem()
                         removeHighlightedItem(currentItemSelectedFromScan - 1)
                     }
@@ -222,6 +228,12 @@ class ViewPagerItemFragment : Fragment() {
 
             }
         }, 0, delay)
+    }
+
+    private fun playFeedbackSound() {
+        if (shouldPlayFeedbackSound) {
+            mListener.playFeedbackSound()
+        }
     }
 
     private fun highlightCurrentItem() {
@@ -251,6 +263,7 @@ class ViewPagerItemFragment : Fragment() {
 
     interface ViewPagerItemFragmentListener {
         fun speak(msg: String)
+        fun playFeedbackSound()
     }
 
     companion object {

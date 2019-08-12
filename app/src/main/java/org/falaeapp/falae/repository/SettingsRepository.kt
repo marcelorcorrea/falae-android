@@ -11,8 +11,16 @@ class SettingsRepository(val context: Context) {
         return sharedPreferences.getBoolean(SCAN_MODE)
     }
 
+    fun isFeedbackSoundEnabled(): Boolean {
+        return sharedPreferences.getBoolean(FEEDBACK_SOUND)
+    }
+
     fun saveEnableScanMode(checked: Boolean) {
         sharedPreferences.storeBoolean(SCAN_MODE, checked)
+    }
+
+    fun saveEnableFeedbackSound(checked: Boolean) {
+        sharedPreferences.storeBoolean(FEEDBACK_SOUND, checked)
     }
 
     fun saveSeekBarProgress(progress: Int) {
@@ -34,6 +42,7 @@ class SettingsRepository(val context: Context) {
     companion object {
 
         const val SCAN_MODE = "scanMode"
+        const val FEEDBACK_SOUND = "feedbackSound"
         const val SEEK_BAR_PROGRESS = "seekBarProgress"
         const val SCAN_MODE_DURATION = "scanModeDuration"
 

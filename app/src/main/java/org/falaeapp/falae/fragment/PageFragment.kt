@@ -151,6 +151,7 @@ class PageFragment : Fragment() {
 
     interface PageFragmentListener {
         fun speak(msg: String)
+        fun playFeedbackSound()
     }
 
     companion object {
