@@ -15,7 +15,6 @@ import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayout
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -213,19 +212,21 @@ class ViewPagerItemFragment : Fragment() {
         mTimer?.schedule(object : TimerTask() {
             override fun run() {
                 try {
-                    currentItemSelectedFromScan++
-                    if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
-                        currentItemSelectedFromScan = 0
-                    }
-                    activity?.runOnUiThread {
-                        playFeedbackSound()
-                        highlightCurrentItem()
-                        removeHighlightedItem(currentItemSelectedFromScan - 1)
+                    if (userVisibleHint) {
+                        currentItemSelectedFromScan++
+                        activity?.runOnUiThread {
+                            if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
+                                currentItemSelectedFromScan = 0
+                                (parentFragment as PageInteractionListener).nextPage()
+                            }
+                            playFeedbackSound()
+                            highlightCurrentItem()
+                            removeHighlightedItem(currentItemSelectedFromScan - 1)
+                        }
                     }
                 } catch (e: Exception) {
-                    Log.e(javaClass.name, "ViewPagerItemFragment:run:256 ")
+                    e.printStackTrace()
                 }
-
             }
         }, 0, delay)
     }
@@ -264,6 +265,10 @@ class ViewPagerItemFragment : Fragment() {
     interface ViewPagerItemFragmentListener {
         fun speak(msg: String)
         fun playFeedbackSound()
+    }
+
+    interface PageInteractionListener {
+        fun nextPage()
     }
 
     companion object {
