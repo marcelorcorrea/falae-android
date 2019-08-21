@@ -17,8 +17,8 @@ import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.ItemPagerAdapter
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 
+class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
-class PageFragment : Fragment() {
 
     private lateinit var mPageFragmentListener: PageFragmentListener
     private lateinit var mPager: ViewPager
@@ -105,6 +105,17 @@ class PageFragment : Fragment() {
         return view
     }
 
+    override fun nextPage() {
+        if (shouldEnableNavButtons()) {
+            var currentItem = mPager.currentItem
+            if (currentItem == mPagerAdapter.count - 1) {
+                mPager.currentItem = 0
+            } else {
+                mPager.currentItem = ++currentItem
+            }
+        }
+    }
+
     private fun handleNavButtons() {
         enableNavButtons()
         if (shouldDisableLeftNavButton()) {
@@ -151,7 +162,6 @@ class PageFragment : Fragment() {
 
     interface PageFragmentListener {
         fun speak(msg: String)
-        fun playFeedbackSound()
     }
 
     companion object {

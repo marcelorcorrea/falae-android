@@ -45,6 +45,7 @@ class ViewPagerItemFragment : Fragment() {
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private var shouldPlayFeedbackSound: Boolean = false
+    private var shouldCallNextPage: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +77,11 @@ class ViewPagerItemFragment : Fragment() {
         settingsViewModel.getFeedbackSound().observe(this, Observer { result ->
             result?.let {
                 shouldPlayFeedbackSound = it
+            }
+        })
+        settingsViewModel.getAutomaticNextPage().observe(this, Observer { result ->
+            result?.let {
+                shouldCallNextPage = it
             }
         })
         return view
@@ -213,19 +219,26 @@ class ViewPagerItemFragment : Fragment() {
         mTimer?.schedule(object : TimerTask() {
             override fun run() {
                 try {
-                    currentItemSelectedFromScan++
-                    if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
-                        currentItemSelectedFromScan = 0
-                    }
-                    activity?.runOnUiThread {
-                        playFeedbackSound()
-                        highlightCurrentItem()
-                        removeHighlightedItem(currentItemSelectedFromScan - 1)
+                    if (userVisibleHint) {
+                        currentItemSelectedFromScan++
+                        activity?.runOnUiThread {
+                            if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
+                                currentItemSelectedFromScan = 0
+                                if (shouldCallNextPage) {
+                                    val fragment = parentFragment
+                                    if (fragment is PageInteractionListener) {
+                                        fragment.nextPage()
+                                    }
+                                }
+                            }
+                            playFeedbackSound()
+                            highlightCurrentItem()
+                            removeHighlightedItem(currentItemSelectedFromScan - 1)
+                        }
                     }
                 } catch (e: Exception) {
-                    Log.e(javaClass.name, "ViewPagerItemFragment:run:256 ")
+                    Log.e(javaClass.name, "ViewPagerItemFragment: ${e.message}")
                 }
-
             }
         }, 0, delay)
     }
@@ -264,6 +277,10 @@ class ViewPagerItemFragment : Fragment() {
     interface ViewPagerItemFragmentListener {
         fun speak(msg: String)
         fun playFeedbackSound()
+    }
+
+    interface PageInteractionListener {
+        fun nextPage()
     }
 
     companion object {

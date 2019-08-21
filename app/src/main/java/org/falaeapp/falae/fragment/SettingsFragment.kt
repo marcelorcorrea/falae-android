@@ -27,8 +27,10 @@ class SettingsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
-        val scanMode = view.findViewById(R.id.scan_mode) as Switch
-        val feedbackSound = view.findViewById(R.id.feedback_sound) as Switch
+        val scanMode = view.findViewById<Switch>(R.id.scan_mode)
+        val feedbackSound = view.findViewById<Switch>(R.id.feedback_sound)
+        val automaticNextPage = view.findViewById<Switch>(R.id.automatic_next_page)
+
         seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
         seekBar = view.findViewById(R.id.seekBar) as SeekBar
 
@@ -36,6 +38,7 @@ class SettingsFragment : Fragment() {
         settingsViewModel.loadScan()
         settingsViewModel.loadSeekBarProgress()
         settingsViewModel.loadFeedbackSound()
+        settingsViewModel.loadAutomaticNextPage()
 
         settingsViewModel.isScanModeEnabled.observe(this, Observer {
             it?.let { scanMode.isChecked = it }
@@ -46,6 +49,11 @@ class SettingsFragment : Fragment() {
             it?.let { feedbackSound.isChecked = it }
         })
         feedbackSound.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setFeedbackSoundChecked(isChecked) }
+
+        settingsViewModel.isAutomaticNextPageEnabled.observe(this, Observer {
+            it?.let { automaticNextPage.isChecked = it }
+        })
+        automaticNextPage.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setAutomaticNextPageChecked(isChecked) }
 
         settingsViewModel.setSeekBarProgress(0)
 
