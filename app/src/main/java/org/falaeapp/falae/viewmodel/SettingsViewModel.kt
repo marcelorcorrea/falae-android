@@ -22,8 +22,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun loadAutomaticNextPage() {
-        val automaticNextPageEnabled = settingsRepository.isAutomaticNextPageEnabled()
-        isAutomaticNextPageEnabled.value = automaticNextPageEnabled
+        isAutomaticNextPageEnabled.value = settingsRepository.isAutomaticNextPageEnabled()
     }
 
     fun loadSeekBarProgress() {
@@ -68,8 +67,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun getAutomaticNextPage(): LiveData<Boolean> {
         val data = MutableLiveData<Boolean>()
-        val automaticNextPage = settingsRepository.isAutomaticNextPageEnabled()
-        data.value = automaticNextPage
+        data.value = settingsRepository.isAutomaticNextPageEnabled()
         return data
     }
 }

@@ -42,5 +42,5 @@
     <string name="no_initial_page">Não existe uma página inicial configurada para esta prancha.</string>
     <string name="picasso_load_error">Não foi possível carregar a imagem. Por favor tente re-sincronizar sua conta.</string>
     <string name="background_run">Falaê está rodando em plano de fundo.</string>
-    <string name="scan_mode_automatic_next_page">Mudança de pagina automática</string>
+    <string name="scan_mode_automatic_next_page">Mudança de página automática</string>
 </resources>

@@ -15,6 +15,7 @@ import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayout
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -236,7 +237,7 @@ class ViewPagerItemFragment : Fragment() {
                         }
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e(javaClass.name, "ViewPagerItemFragment: ${e.message}")
                 }
             }
         }, 0, delay)
