@@ -1,6 +1,5 @@
 package org.falaeapp.falae.service
 
-import android.R
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -41,7 +40,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
         val notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.drawable.arrow_up_float)
+                .setSmallIcon(android.R.drawable.arrow_up_float)
                 .setContentTitle(getString(org.falaeapp.falae.R.string.background_run))
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
