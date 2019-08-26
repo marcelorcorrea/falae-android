@@ -15,12 +15,20 @@ class SettingsRepository(val context: Context) {
         return sharedPreferences.getBoolean(FEEDBACK_SOUND)
     }
 
+    fun isAutomaticNextPageEnabled(): Boolean {
+        return sharedPreferences.getBoolean(AUTOMATIC_NEXT_PAGE)
+    }
+
     fun saveEnableScanMode(checked: Boolean) {
         sharedPreferences.storeBoolean(SCAN_MODE, checked)
     }
 
     fun saveEnableFeedbackSound(checked: Boolean) {
         sharedPreferences.storeBoolean(FEEDBACK_SOUND, checked)
+    }
+
+    fun saveEnableAutomaticNextPage(checked: Boolean) {
+        sharedPreferences.storeBoolean(AUTOMATIC_NEXT_PAGE, checked)
     }
 
     fun saveSeekBarProgress(progress: Int) {
@@ -43,6 +51,7 @@ class SettingsRepository(val context: Context) {
 
         const val SCAN_MODE = "scanMode"
         const val FEEDBACK_SOUND = "feedbackSound"
+        const val AUTOMATIC_NEXT_PAGE = "automaticNextPage"
         const val SEEK_BAR_PROGRESS = "seekBarProgress"
         const val SCAN_MODE_DURATION = "scanModeDuration"
 

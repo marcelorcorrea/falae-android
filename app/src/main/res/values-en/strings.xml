@@ -43,4 +43,5 @@
     <string name="no_initial_page">There is no initial page configured for this spreadsheet</string>
     <string name="picasso_load_error">Could not load image. Please try to re-synchronize your account.</string>
     <string name="background_run">Falaê is running in background.</string>
+    <string name="scan_mode_automatic_next_page">Automatic next page</string>
 </resources>

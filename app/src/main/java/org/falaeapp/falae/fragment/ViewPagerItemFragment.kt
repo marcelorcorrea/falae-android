@@ -44,6 +44,7 @@ class ViewPagerItemFragment : Fragment() {
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private var shouldPlayFeedbackSound: Boolean = false
+    private var shouldCallNextPage: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +76,11 @@ class ViewPagerItemFragment : Fragment() {
         settingsViewModel.getFeedbackSound().observe(this, Observer { result ->
             result?.let {
                 shouldPlayFeedbackSound = it
+            }
+        })
+        settingsViewModel.getAutomaticNextPage().observe(this, Observer { result ->
+            result?.let {
+                shouldCallNextPage = it
             }
         })
         return view
@@ -217,7 +223,12 @@ class ViewPagerItemFragment : Fragment() {
                         activity?.runOnUiThread {
                             if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
                                 currentItemSelectedFromScan = 0
-                                (parentFragment as PageInteractionListener).nextPage()
+                                if (shouldCallNextPage) {
+                                    val fragment = parentFragment
+                                    if (fragment is PageInteractionListener) {
+                                        fragment.nextPage()
+                                    }
+                                }
                             }
                             playFeedbackSound()
                             highlightCurrentItem()
