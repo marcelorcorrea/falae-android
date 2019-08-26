@@ -41,5 +41,5 @@
     <string name="create_accout_msg">É necessário ter uma conta cadastrada na plataforma web. (https://www.falaeapp.com)</string>
     <string name="no_initial_page">Não existe uma página inicial configurada para esta prancha.</string>
     <string name="picasso_load_error">Não foi possível carregar a imagem. Por favor tente re-sincronizar sua conta.</string>
-    <string name="background_run">Falae está rodando em plano de fundo.</string>
+    <string name="background_run">Falaê está rodando em plano de fundo.</string>
 </resources>

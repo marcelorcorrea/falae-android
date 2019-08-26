@@ -33,7 +33,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun startForegroundService() {
-        val chan = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Background Service", NotificationManager.IMPORTANCE_NONE)
+        val chan = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Foreground Service", NotificationManager.IMPORTANCE_NONE)
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
