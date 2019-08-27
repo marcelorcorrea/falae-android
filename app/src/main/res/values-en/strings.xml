@@ -24,6 +24,7 @@
     <string name="authenticate_message">Authorizing</string>
     <string name="settings">Settings</string>
     <string name="scan_mode">Scan Mode</string>
+    <string name="feedback_sound">Audio Feedback</string>
     <string name="success_user_added">User successfully synchronized!</string>
     <string name="user_info">Profile</string>
     <string name="scan_mode_duration">Duration (seconds)</string>
@@ -41,4 +42,5 @@
     <string name="create_accout_msg">Make sure you have an account registered in the web platform (https://www.falaeapp.org)</string>
     <string name="no_initial_page">There is no initial page configured for this spreadsheet</string>
     <string name="picasso_load_error">Could not load image. Please try to re-synchronize your account.</string>
+    <string name="background_run">Falaê is running in background.</string>
 </resources>

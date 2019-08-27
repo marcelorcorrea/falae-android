@@ -3,6 +3,7 @@ package org.falaeapp.falae.activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.FragmentManager
@@ -18,6 +19,7 @@ import org.falaeapp.falae.viewmodel.DisplayViewModel
 
 class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, ViewPagerItemFragment.ViewPagerItemFragmentListener {
     private lateinit var displayViewModel: DisplayViewModel
+    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +36,7 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
                 Toast.makeText(this, getString(R.string.page_not_found), Toast.LENGTH_SHORT).show()
             }
         })
+        mediaPlayer = MediaPlayer.create(this, R.raw.click_sound)
     }
 
     private fun changeFragment(page: Page, addToBackStack: Boolean = false) {
@@ -62,6 +65,10 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         } else {
             startService(intent)
         }
+    }
+
+    override fun playFeedbackSound() {
+        mediaPlayer.start()
     }
 
     override fun onBackPressed() {

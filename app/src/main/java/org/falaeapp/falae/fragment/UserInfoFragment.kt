@@ -50,9 +50,9 @@ class UserInfoFragment : Fragment() {
             user?.apply {
                 photo?.let {linkPhoto ->
                     if (linkPhoto.isNotEmpty() && context != null) {
-                        Picasso.with(context)
+                        Picasso.get()
                                 .load(linkPhoto)
-                                .placeholder(placeHolderImage)
+                                .placeholder(placeHolderImage!!)
                                 .error(brokenImage!!)
                                 .transform(CropCircleTransformation())
                                 .memoryPolicy(MemoryPolicy.NO_CACHE)
