@@ -88,7 +88,7 @@ class SettingsFragment : Fragment() {
         context?.let { context ->
             val btClearUserCache = view.findViewById<Button>(R.id.bt_clear_user_cache)
             btClearUserCache.setOnClickListener {
-                Util.createDialog(context = context,
+                val dialog = Util.createDialog(context = context,
                         message = getString(R.string.confirm_clear_cache),
                         positiveText = getString(R.string.yes_option),
                         positiveClick = {
@@ -101,10 +101,11 @@ class SettingsFragment : Fragment() {
                         },
                         negativeText = getString(R.string.no_option)
                 )
+                dialog.show()
             }
             val btClearPublicCache = view.findViewById<Button>(R.id.bt_clear_public_cache)
             btClearPublicCache.setOnClickListener {
-                Util.createDialog(context = context,
+                val dialog = Util.createDialog(context = context,
                         message = getString(R.string.confirm_clear_cache),
                         positiveText = getString(R.string.yes_option),
                         positiveClick = {
@@ -117,6 +118,7 @@ class SettingsFragment : Fragment() {
                         },
                         negativeText = getString(R.string.no_option)
                 )
+                dialog.show()
             }
         }
         return view
