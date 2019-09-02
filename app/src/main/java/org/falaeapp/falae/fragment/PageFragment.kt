@@ -76,6 +76,19 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                         handleNavButtons()
                     }
                 })
+                mPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+                    var currentPosition = 0
+
+                    override fun onPageSelected(newPosition: Int) {
+                        val fragmentToShow = mPagerAdapter.getItem(newPosition) as FragmentLifecycle
+                        fragmentToShow.onResumeFragment()
+
+                        val fragmentToHide = mPagerAdapter.getItem(currentPosition) as FragmentLifecycle
+                        fragmentToHide.onPauseFragment()
+
+                        currentPosition = newPosition
+                    }
+                })
 
                 if (shouldEnableNavButtons()) {
                     handleNavButtons()
@@ -170,4 +183,12 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
             return PageFragment()
         }
     }
+
+}
+
+interface FragmentLifecycle {
+
+    fun onPauseFragment()
+    fun onResumeFragment()
+
 }

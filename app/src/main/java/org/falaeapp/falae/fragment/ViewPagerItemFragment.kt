@@ -31,8 +31,7 @@ import org.falaeapp.falae.viewmodel.DisplayViewModel
 import org.falaeapp.falae.viewmodel.SettingsViewModel
 import java.util.*
 
-class ViewPagerItemFragment : Fragment() {
-
+class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
     private var mItems: List<Item> = emptyList()
     private var mItemsLayout: List<FrameLayout> = emptyList()
     private lateinit var mListener: ViewPagerItemFragmentListener
@@ -46,6 +45,7 @@ class ViewPagerItemFragment : Fragment() {
     private lateinit var settingsViewModel: SettingsViewModel
     private var shouldPlayFeedbackSound: Boolean = false
     private var shouldCallNextPage: Boolean = false
+    private var delay: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +57,14 @@ class ViewPagerItemFragment : Fragment() {
             mRows = arguments.getInt(ROWS_PARAM)
             mMarginWidth = arguments.getInt(MARGIN_WIDTH)
         } ?: return
+    }
+
+    override fun onResumeFragment() {
+        doPageScan()
+    }
+
+    override fun onPauseFragment() {
+        stopPageScan()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -92,8 +100,8 @@ class ViewPagerItemFragment : Fragment() {
         settingsViewModel.getScanMode().observe(this, Observer { result ->
             result?.let { pair ->
                 if (pair.first) {
-                    currentItemSelectedFromScan = -1
-                    doSpreadsheetScan(pair.second)
+                    delay = pair.second
+                    doPageScan()
                 }
             }
         })
@@ -101,6 +109,10 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        stopPageScan()
+    }
+
+    private fun stopPageScan() {
         removeHighlightedItem(currentItemSelectedFromScan)
         mTimer?.let {
             it.purge()
@@ -214,12 +226,13 @@ class ViewPagerItemFragment : Fragment() {
     }
 
 
-    private fun doSpreadsheetScan(delay: Long) {
-        mTimer = Timer()
-        mTimer?.schedule(object : TimerTask() {
-            override fun run() {
-                try {
-                    if (userVisibleHint) {
+    private fun doPageScan() {
+        currentItemSelectedFromScan = -1
+        if (userVisibleHint) {
+            mTimer = Timer()
+            mTimer?.schedule(object : TimerTask() {
+                override fun run() {
+                    try {
                         currentItemSelectedFromScan++
                         activity?.runOnUiThread {
                             if (currentItemSelectedFromScan > mItemsLayout.size - 1) {
@@ -235,12 +248,12 @@ class ViewPagerItemFragment : Fragment() {
                             highlightCurrentItem()
                             removeHighlightedItem(currentItemSelectedFromScan - 1)
                         }
+                    } catch (e: Exception) {
+                        Log.e(javaClass.name, "ViewPagerItemFragment: ${e.message}")
                     }
-                } catch (e: Exception) {
-                    Log.e(javaClass.name, "ViewPagerItemFragment: ${e.message}")
                 }
-            }
-        }, 0, delay)
+            }, 0, delay)
+        }
     }
 
     private fun playFeedbackSound() {
