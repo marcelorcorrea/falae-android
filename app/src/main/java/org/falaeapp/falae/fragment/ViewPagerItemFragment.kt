@@ -3,10 +3,8 @@ package org.falaeapp.falae.fragment
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
@@ -40,12 +38,20 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
     private var mMarginWidth: Int = 0
     private var currentItemSelectedFromScan = -1
     private lateinit var mGridLayout: GridLayout
-    private var mTimer: Timer? = null
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var settingsViewModel: SettingsViewModel
+    private var isScanModeEnabled: Boolean = false
     private var shouldPlayFeedbackSound: Boolean = false
     private var shouldCallNextPage: Boolean = false
     private var delay: Long = 0
+    private var mTimer: Timer? = null
+        get() {
+            if (field == null) {
+                field = Timer()
+            }
+            return field
+        }
+    private var timerTask: TimerTask? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +98,7 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         settingsViewModel.getScanMode().observe(this, Observer { result ->
             result?.let { pair ->
                 if (pair.first) {
+                    isScanModeEnabled = pair.first
                     delay = pair.second
                     doPageScan()
                 }
@@ -110,15 +117,6 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
 
     override fun onPauseFragment() {
         stopPageScan()
-    }
-
-    private fun stopPageScan() {
-        removeHighlightedItem(currentItemSelectedFromScan)
-        mTimer?.let {
-            it.purge()
-            it.cancel()
-        }
-        mTimer = null
     }
 
     private fun generateLayout(inflater: LayoutInflater, item: Item, layoutDimensions: Point): FrameLayout {
@@ -217,9 +215,8 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
 
     private fun doPageScan() {
         currentItemSelectedFromScan = -1
-        if (userVisibleHint) {
-            mTimer = Timer()
-            mTimer?.schedule(object : TimerTask() {
+        if (isScanModeEnabled && userVisibleHint) {
+            timerTask = object : TimerTask() {
                 override fun run() {
                     try {
                         currentItemSelectedFromScan++
@@ -241,8 +238,14 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
                         Log.e(javaClass.name, "ViewPagerItemFragment: ${e.message}")
                     }
                 }
-            }, 0, delay)
+            }
+            mTimer?.schedule(timerTask, 0, delay)
         }
+    }
+
+    private fun stopPageScan() {
+        removeHighlightedItem(currentItemSelectedFromScan)
+        timerTask?.cancel()
     }
 
     private fun playFeedbackSound() {
@@ -274,6 +277,15 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         } else {
             throw RuntimeException(context.toString() + " must implement ViewPagerItemFragmentListener")
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mTimer?.let {
+            it.purge()
+            it.cancel()
+        }
+        mTimer = null
     }
 
     interface ViewPagerItemFragmentListener {
