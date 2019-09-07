@@ -28,6 +28,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private lateinit var leftNavHolder: FrameLayout
     private lateinit var rightNavHolder: FrameLayout
     private lateinit var displayViewModel: DisplayViewModel
+    private var itemCurrentPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,22 +75,9 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 mPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                     override fun onPageSelected(position: Int) {
                         handleNavButtons()
+                        handleFragmentLifeCycle(position)
                     }
                 })
-                mPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-                    var currentPosition = 0
-
-                    override fun onPageSelected(newPosition: Int) {
-                        val fragmentToShow = mPagerAdapter.getItem(newPosition) as FragmentLifecycle
-                        fragmentToShow.onResumeFragment()
-
-                        val fragmentToHide = mPagerAdapter.getItem(currentPosition) as FragmentLifecycle
-                        fragmentToHide.onPauseFragment()
-
-                        currentPosition = newPosition
-                    }
-                })
-
                 if (shouldEnableNavButtons()) {
                     handleNavButtons()
                 }
@@ -127,6 +115,18 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 mPager.currentItem = ++currentItem
             }
         }
+    }
+
+    private fun handleFragmentLifeCycle(position: Int) {
+        val fragmentToShow = mPagerAdapter.getItem(position)
+        fragmentToShow.userVisibleHint = true
+        (fragmentToShow as FragmentLifecycle).onResumeFragment()
+
+        val fragmentToHide = mPagerAdapter.getItem(itemCurrentPosition)
+        userVisibleHint = false
+        (fragmentToHide as FragmentLifecycle).onPauseFragment()
+
+        itemCurrentPosition = position
     }
 
     private fun handleNavButtons() {

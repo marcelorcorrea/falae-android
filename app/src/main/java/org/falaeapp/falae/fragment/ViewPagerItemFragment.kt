@@ -59,14 +59,6 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         } ?: return
     }
 
-    override fun onResumeFragment() {
-        doPageScan()
-    }
-
-    override fun onPauseFragment() {
-        stopPageScan()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_view_pager_item, container, false)
@@ -109,6 +101,14 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
 
     override fun onPause() {
         super.onPause()
+        stopPageScan()
+    }
+
+    override fun onResumeFragment() {
+        doPageScan()
+    }
+
+    override fun onPauseFragment() {
         stopPageScan()
     }
 
@@ -214,17 +214,6 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         drawable.setColor(item.category.color())
         return drawable
     }
-
-    private fun getResizedDrawable(drawableId: Int, size: Int): Drawable {
-        val drawable: Drawable? = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            context?.resources?.getDrawable(drawableId)
-        } else {
-            context?.getDrawable(drawableId)
-        }
-        val bitmap = (drawable as BitmapDrawable).bitmap
-        return BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, size, size, true))
-    }
-
 
     private fun doPageScan() {
         currentItemSelectedFromScan = -1
