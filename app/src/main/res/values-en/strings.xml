@@ -44,9 +44,10 @@
     <string name="picasso_load_error">Could not load image. Please try to re-synchronize your account.</string>
     <string name="background_run">Falaê is running in background.</string>
     <string name="scan_mode_automatic_next_page">Automatic scrolling</string>
-    <string name="public_images_removed">Public images successfully removed!</string>
-    <string name="public_images_removed_error">An error occurred whie trying to remove public images.</string>
-    <string name="confirm_clear_cache">This will remove all synchronized public images. Are you sure you want to do this?</string>
+    <string name="images_removed">Images successfully removed!</string>
+    <string name="images_removed_error">An error occurred while trying to remove the images.</string>
+    <string name="confirm_clear_public_cache">This will remove all public images on this device. Are you sure you want to do this?</string>
+    <string name="confirm_clear_user_cache">This will remove all images from "My Items" on this device. Are you sure you want to do this?</string>
     <string name="clear_user_cache">Clear user cache</string>
     <string name="clear_public_cache">Clear public cache</string>
     <string name="cache">Cache</string>

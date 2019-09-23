@@ -3,10 +3,11 @@ package org.falaeapp.falae.room.converter
 import android.arch.persistence.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
 object MutableMapConverter {
     private val gson = Gson()
-    val typeOfHashMap = object : TypeToken<MutableMap<String, String?>>() {}.type
+    private val typeOfHashMap: Type = object : TypeToken<MutableMap<String, String?>>() {}.type
 
     @TypeConverter
     @JvmStatic

@@ -3,11 +3,14 @@ package org.falaeapp.falae.repository
 import android.arch.lifecycle.LiveData
 import android.content.Context
 import com.android.volley.AuthFailureError
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.falaeapp.falae.exception.UserNotFoundException
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.room.AppDatabase
 import org.falaeapp.falae.room.DownloadCacheDao
 import org.falaeapp.falae.service.FalaeWebPlatform
+import org.falaeapp.falae.service.FalaeWebPlatform.Companion.PUBLIC_CACHE_KEY
 import org.falaeapp.falae.storage.FileHandler
 import org.falaeapp.falae.storage.SharedPreferencesUtils
 import org.jetbrains.anko.doAsync
@@ -93,6 +96,16 @@ class UserRepository(val context: Context) {
         }
         // Update the shared preferences with the current version code
         sharedPreferences.storeInt(VERSION_CODE, currentVersionCode)
+    }
+
+    suspend fun clearUserCache(email: String) = withContext(Dispatchers.IO) {
+        downloadCacheDao.remove(email)
+        fileHandler.deleteUserFolder(context, email)
+    }
+
+    suspend fun clearPublicCache() = withContext(Dispatchers.IO) {
+        downloadCacheDao.remove(PUBLIC_CACHE_KEY)
+        fileHandler.deletePublicFolder(context)
     }
 
     companion object {

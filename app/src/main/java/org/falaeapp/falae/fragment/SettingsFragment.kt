@@ -7,21 +7,27 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.SeekBar
+import android.widget.Switch
+import android.widget.TextView
+import android.widget.Toast
 import org.falaeapp.falae.R
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.SettingsViewModel
+import org.falaeapp.falae.viewmodel.UserViewModel
 
 class SettingsFragment : Fragment() {
 
     private lateinit var seekBar: SeekBar
     private lateinit var seekBarValue: TextView
     private lateinit var settingsViewModel: SettingsViewModel
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsViewModel = ViewModelProviders.of(activity!!).get(SettingsViewModel::class.java)
-
+        userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -52,7 +58,22 @@ class SettingsFragment : Fragment() {
         settingsViewModel.isAutomaticNextPageEnabled.observe(this, Observer {
             it?.let { automaticNextPage.isChecked = it }
         })
-        automaticNextPage.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setAutomaticNextPageChecked(isChecked) }
+
+        userViewModel.clearCache.observe(this, Observer { event ->
+            event?.getContentIfNotHandled()?.let { result ->
+                val message = if (result)
+                    getString(R.string.images_removed)
+                else
+                    getString(R.string.images_removed_error)
+
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        })
+        automaticNextPage.setOnCheckedChangeListener { _, isChecked ->
+            settingsViewModel.setAutomaticNextPageChecked(
+                isChecked
+            )
+        }
 
         settingsViewModel.setSeekBarProgress(0)
 
@@ -67,61 +88,46 @@ class SettingsFragment : Fragment() {
         })
 
         seekBar.setOnSeekBarChangeListener(
-                object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                        val actualProgress = progress + 1
-                        setSeekBarText(actualProgress)
-                        settingsViewModel.setSeekBarProgress(actualProgress)
-                        val timeMillis: Long = (actualProgress * 500).toLong()
-                        settingsViewModel.setScanModeDuration(timeMillis)
-                    }
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    val actualProgress = progress + 1
+                    setSeekBarText(actualProgress)
+                    settingsViewModel.setSeekBarProgress(actualProgress)
+                    val timeMillis: Long = (actualProgress * 500).toLong()
+                    settingsViewModel.setScanModeDuration(timeMillis)
+                }
 
-                    override fun onStartTrackingTouch(seekBar: SeekBar) {
+                override fun onStartTrackingTouch(seekBar: SeekBar) {
+                }
 
-                    }
-
-                    override fun onStopTrackingTouch(seekBar: SeekBar) {
-
-                    }
-                })
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                }
+            })
         setHasOptionsMenu(true)
-        context?.let { context ->
-            val btClearUserCache = view.findViewById<Button>(R.id.bt_clear_user_cache)
-            btClearUserCache.setOnClickListener {
-                val dialog = Util.createDialog(context = context,
-                        message = getString(R.string.confirm_clear_cache),
-                        positiveText = getString(R.string.yes_option),
-                        positiveClick = {
-                            val message = if (true)
-                                getString(R.string.public_images_removed)
-                            else
-                                getString(R.string.public_images_removed_error)
-
-                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                        },
-                        negativeText = getString(R.string.no_option)
-                )
-                dialog.show()
+        val btClearUserCache = view.findViewById<Button>(R.id.bt_clear_user_cache)
+        btClearUserCache.setOnClickListener {
+            onClickCache(getString(R.string.confirm_clear_user_cache)) {
+                userViewModel.clearUserCache()
             }
-            val btClearPublicCache = view.findViewById<Button>(R.id.bt_clear_public_cache)
-            btClearPublicCache.setOnClickListener {
-                val dialog = Util.createDialog(context = context,
-                        message = getString(R.string.confirm_clear_cache),
-                        positiveText = getString(R.string.yes_option),
-                        positiveClick = {
-                            val message = if (true)
-                                getString(R.string.public_images_removed)
-                            else
-                                getString(R.string.public_images_removed_error)
-
-                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                        },
-                        negativeText = getString(R.string.no_option)
-                )
-                dialog.show()
+        }
+        val btClearPublicCache = view.findViewById<Button>(R.id.bt_clear_public_cache)
+        btClearPublicCache.setOnClickListener {
+            onClickCache(getString(R.string.confirm_clear_public_cache)) {
+                userViewModel.clearPublicCache()
             }
         }
         return view
+    }
+
+    private fun onClickCache(confirmMsg: String, onClick: () -> Unit) {
+        val dialog = Util.createDialog(
+            context = context!!,
+            message = confirmMsg,
+            positiveText = getString(R.string.yes_option),
+            positiveClick = onClick,
+            negativeText = getString(R.string.no_option)
+        )
+        dialog.show()
     }
 
     private fun calculateSeekBarPosition(progress: Int): Float {

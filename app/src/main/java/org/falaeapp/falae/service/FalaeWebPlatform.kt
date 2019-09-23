@@ -51,19 +51,21 @@ class FalaeWebPlatform(val context: Context) {
 
             val url = BuildConfig.BASE_URL + "/login.json"
             val gsonRequest = GsonRequest(url = url,
-                    clazz = User::class.java,
-                    jsonRequest = jsonRequest,
-                    listener = Response.Listener {
-                        onComplete(it, null)
-                    },
-                    errorListener = Response.ErrorListener {
-                        onComplete(null, it)
-                    })
+                clazz = User::class.java,
+                jsonRequest = jsonRequest,
+                listener = Response.Listener {
+                    onComplete(it, null)
+                },
+                errorListener = Response.ErrorListener {
+                    onComplete(null, it)
+                })
 
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Volley.newRequestQueue(context,
-                        HurlStack(null, TLSSocketFactory()))
-                        .add(gsonRequest)
+                Volley.newRequestQueue(
+                    context,
+                    HurlStack(null, TLSSocketFactory())
+                )
+                    .add(gsonRequest)
             } else {
                 Volley.newRequestQueue(context).add(gsonRequest)
             }
@@ -75,16 +77,21 @@ class FalaeWebPlatform(val context: Context) {
     private fun initExecutor() {
         if (executor == null || executor?.isTerminated == true) {
             executor = ThreadPoolExecutor(
-                    numberOfCores * 2,
-                    numberOfCores * 2,
-                    60L,
-                    TimeUnit.SECONDS,
-                    LinkedBlockingQueue()
+                numberOfCores * 2,
+                numberOfCores * 2,
+                60L,
+                TimeUnit.SECONDS,
+                LinkedBlockingQueue()
             )
         }
     }
 
-    fun downloadImages(user: User, downloadCacheDao: DownloadCacheDao, fileHandler: FileHandler, onSyncComplete: (user: User) -> Unit) {
+    fun downloadImages(
+        user: User,
+        downloadCacheDao: DownloadCacheDao,
+        fileHandler: FileHandler,
+        onSyncComplete: (user: User) -> Unit
+    ) {
         if (!hasNetworkConnection()) {
             return
         }
@@ -96,37 +103,37 @@ class FalaeWebPlatform(val context: Context) {
             if (it.isNotEmpty()) {
                 val imgSrc = "${BuildConfig.BASE_URL}$it"
                 val file = fileHandler.createImg(userFolder, user.name, imgSrc)
-                val userUri = userDownloadCache.sources[imgSrc]
-                        ?: download(file, user.authToken, user.name, imgSrc, userDownloadCache)
-                user.photo = userUri
+                val localUri = userDownloadCache.sources[imgSrc] ?: download(file, user.authToken, user.name, imgSrc)
+                storeInCache(localUri, imgSrc, userDownloadCache)
+                user.photo = localUri
             }
         }
         val allItems = user.spreadsheets
-                .flatMap { it.pages }
-                .flatMap { it.items }
+            .flatMap { it.pages }
+            .flatMap { it.items }
         val duplicatedItems = getDuplicatedItems(allItems)
         allItems.distinctBy { it.imgSrc }
-                .forEach { item: Item ->
-                    executor?.execute {
-                        val imgSrc = "${BuildConfig.BASE_URL}${item.imgSrc}"
-                        val folder: File
-                        val cache: DownloadCache
-                        if (item.private) {
-                            folder = userFolder
-                            cache = userDownloadCache
-                        } else {
-                            folder = publicFolder
-                            cache = publicDownloadCache
-                        }
-                        val file = fileHandler.createImg(folder, item.name, imgSrc)
-                        val uri = cache.sources[imgSrc]
-                                ?: download(file, user.authToken, item.name, imgSrc, cache)
-                        // Update imgSrc from duplicated items first
-                        duplicatedItems[item.imgSrc]?.forEach { it.imgSrc = uri }
-                        // Update imgSrc of iterated item
-                        item.imgSrc = uri
+            .forEach { item: Item ->
+                executor?.execute {
+                    val imgSrc = "${BuildConfig.BASE_URL}${item.imgSrc}"
+                    val folder: File
+                    val cache: DownloadCache
+                    if (item.private) {
+                        folder = userFolder
+                        cache = userDownloadCache
+                    } else {
+                        folder = publicFolder
+                        cache = publicDownloadCache
                     }
+                    val file = fileHandler.createImg(folder, item.name, imgSrc)
+                    val localUri = cache.sources[imgSrc] ?: download(file, user.authToken, item.name, imgSrc)
+                    storeInCache(localUri, imgSrc, cache)
+                    // Update imgSrc from duplicated items first
+                    duplicatedItems[item.imgSrc]?.forEach { it.imgSrc = localUri }
+                    // Update imgSrc of iterated item
+                    item.imgSrc = localUri
                 }
+            }
         executor?.shutdown()
         try {
             executor?.awaitTermination(java.lang.Long.MAX_VALUE, TimeUnit.NANOSECONDS)
@@ -139,8 +146,22 @@ class FalaeWebPlatform(val context: Context) {
         onSyncComplete(user)
     }
 
-    private fun download(imgReference: File, token: String, name: String, imgSrc: String, cache: DownloadCache): String {
+    private fun storeInCache(localUri: String, imgSrc: String, cache: DownloadCache) {
+        if (localUri.isNotEmpty() && !cache.sources.containsKey(imgSrc)) {
+            cache.sources[imgSrc] = localUri
+        } else {
+            cache.sources.remove(imgSrc)
+        }
+    }
+
+    private fun download(
+        imgReference: File,
+        token: String,
+        name: String,
+        imgSrc: String
+    ): String {
         val url = URL(imgSrc)
+        println("Downloading item: $name - $imgSrc")
         Log.d(this.javaClass.name, "Downloading item: $name - $imgSrc")
         try {
             with(url.openConnection()) {
@@ -149,13 +170,10 @@ class FalaeWebPlatform(val context: Context) {
                 setRequestProperty("Authorization", "Token $token")
                 connect()
                 inputStream.toFile(imgReference.absolutePath)
-                val uri = Uri.fromFile(imgReference).toString()
-                cache.sources[imgSrc] = uri
-                return uri
+                return Uri.fromFile(imgReference).toString()
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
-            cache.sources.remove(imgSrc)
         }
         return ""
     }
@@ -174,9 +192,8 @@ class FalaeWebPlatform(val context: Context) {
     }
 
     private fun loadCache(downloadCacheDao: DownloadCacheDao, key: String) =
-            downloadCacheDao.findByName(key)
-                    ?: DownloadCache(name = key, sources = mutableMapOf())
-
+        downloadCacheDao.findByName(key)
+            ?: DownloadCache(name = key, sources = mutableMapOf())
 
     private fun saveOrUpdateCache(downloadCacheDao: DownloadCacheDao, cache: DownloadCache) {
         Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
@@ -197,8 +214,8 @@ class FalaeWebPlatform(val context: Context) {
     }
 
     private fun isConnected(networkInfo: NetworkInfo): Boolean =
-            (networkInfo.type == ConnectivityManager.TYPE_WIFI ||
-                    networkInfo.type == ConnectivityManager.TYPE_MOBILE) && networkInfo.isConnected
+        (networkInfo.type == ConnectivityManager.TYPE_WIFI ||
+            networkInfo.type == ConnectivityManager.TYPE_MOBILE) && networkInfo.isConnected
 
     companion object {
 

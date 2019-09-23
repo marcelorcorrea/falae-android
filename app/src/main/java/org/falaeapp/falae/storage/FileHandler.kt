@@ -9,8 +9,6 @@ import java.io.File
  */
 class FileHandler {
 
-    private val PUBLIC_IMAGES_PATH = "public_images"
-
     fun createPublicFolder(context: Context?): File {
         val folder = File(context?.filesDir, PUBLIC_IMAGES_PATH)
         if (folder.exists().not()) {
@@ -33,8 +31,12 @@ class FileHandler {
     }
 
     fun deleteUserFolder(context: Context, folderName: String) =
-            File(context.filesDir, folderName).deleteRecursively()
+        File(context.filesDir, folderName).deleteRecursively()
 
     fun deletePublicFolder(context: Context) =
-            File(context.filesDir, PUBLIC_IMAGES_PATH).deleteRecursively()
+        File(context.filesDir, PUBLIC_IMAGES_PATH).deleteRecursively()
+
+    companion object {
+        private const val PUBLIC_IMAGES_PATH = "public_images"
+    }
 }

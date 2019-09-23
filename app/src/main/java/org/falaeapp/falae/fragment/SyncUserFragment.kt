@@ -61,7 +61,7 @@ class SyncUserFragment : Fragment() {
         })
         pDialog = ProgressDialog(context)
         pDialog?.apply {
-            setMessage(context?.getString(R.string.synchronize_message))
+            setMessage(context.getString(R.string.synchronize_message))
             isIndeterminate = false
             setCancelable(false)
         }
