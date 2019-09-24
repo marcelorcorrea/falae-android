@@ -123,7 +123,7 @@ class SyncUserFragment : Fragment() {
         if (cancel) {
             focusView?.requestFocus()
         } else {
-            userViewModel.login(email, password)
+            userViewModel.synchronizeUser(email, password)
             pDialog?.show()
         }
     }

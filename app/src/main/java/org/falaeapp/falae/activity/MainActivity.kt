@@ -114,8 +114,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         title = item.title
         mDrawer.closeDrawer(GravityCompat.START)
 
-        val id = item.itemId
-        when (id) {
+        when (val id = item.itemId) {
             R.id.add_user -> {
                 fragment = SyncUserFragment.newInstance()
                 tag = SyncUserFragment::class.java.simpleName

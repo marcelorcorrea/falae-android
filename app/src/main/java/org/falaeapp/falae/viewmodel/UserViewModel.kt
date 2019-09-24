@@ -2,7 +2,6 @@ package org.falaeapp.falae.viewmodel
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +10,6 @@ import kotlinx.coroutines.launch
 import org.falaeapp.falae.Event
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.repository.UserRepository
-import org.jetbrains.anko.doAsync
 
 class UserViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
 
@@ -20,44 +18,64 @@ class UserViewModel(application: Application) : AndroidViewModel(application), C
     override val coroutineContext = Dispatchers.Main + viewModelJob
 
     private val userRepository: UserRepository = UserRepository(application)
-    val users: LiveData<List<User>>
-    var currentUser: LiveData<User> = MutableLiveData()
+    var users = MutableLiveData<List<User>>()
+    var currentUser: MutableLiveData<User> = MutableLiveData()
     val reposResult = MutableLiveData<Event<Pair<User?, Exception?>>>()
     val lastConnectedUserId: MutableLiveData<Long> = MutableLiveData()
     val clearCache = MutableLiveData<Event<Boolean>>()
 
     init {
-        users = userRepository.getAllUsers()
+        launch {
+            getAllUsers()
+        }
     }
 
     fun loadLastConnectedUser() {
-        lastConnectedUserId.postValue(userRepository.getLastConnectedUserId())
+        launch {
+            lastConnectedUserId.postValue(userRepository.getLastConnectedUserId())
+        }
     }
 
     fun loadUser(userId: Long) {
-        userRepository.saveLastConnectedUserId(userId)
-        currentUser = userRepository.getUser(userId)
+        launch {
+            userRepository.saveLastConnectedUserId(userId)
+            currentUser.value = userRepository.getUser(userId)
+        }
     }
 
-    fun login(email: String, password: String) {
-        userRepository.login(email, password) { user, error ->
-            user?.let {
-                lastConnectedUserId.postValue(user.id.toLong())
+    fun synchronizeUser(email: String, password: String) {
+        launch {
+            try {
+                var user = userRepository.login(email, password)
+                user = userRepository.downloadImages(user)
+                val userId = userRepository.saveOrUpdateUser(user)
+                userRepository.saveLastConnectedUserId(userId)
+                lastConnectedUserId.postValue(userId)
+                getAllUsers()
+                reposResult.postValue(Event(Pair(user, null)))
+            } catch (exception: Exception) {
+                reposResult.postValue(Event(Pair(null, exception)))
             }
-            reposResult.postValue(Event(Pair(user, error)))
         }
     }
 
     fun removeUser() {
-        currentUser.value?.let {
-            doAsync {
-                userRepository.remove(it)
+        currentUser.value?.let { user ->
+            launch {
+                userRepository.remove(user)
+                getAllUsers()
             }
         }
     }
 
+    private suspend fun getAllUsers() {
+        users.value = userRepository.getAllUsers()
+    }
+
     fun handleNewVersion(versionCode: Int) {
-        userRepository.handleNewVersion(versionCode)
+        launch {
+            userRepository.handleNewVersion(versionCode)
+        }
     }
 
     fun clearUserCache() {

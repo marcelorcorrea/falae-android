@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
@@ -35,57 +36,22 @@ class SettingsFragment : Fragment() {
         val scanMode = view.findViewById<Switch>(R.id.scan_mode)
         val feedbackSound = view.findViewById<Switch>(R.id.feedback_sound)
         val automaticNextPage = view.findViewById<Switch>(R.id.automatic_next_page)
-
         seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
         seekBar = view.findViewById(R.id.seekBar) as SeekBar
-
 
         settingsViewModel.loadScan()
         settingsViewModel.loadSeekBarProgress()
         settingsViewModel.loadFeedbackSound()
         settingsViewModel.loadAutomaticNextPage()
 
-        settingsViewModel.isScanModeEnabled.observe(this, Observer {
-            it?.let { scanMode.isChecked = it }
-        })
         scanMode.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setScanModeChecked(isChecked) }
-
-        settingsViewModel.isFeedbackSoundEnabled.observe(this, Observer {
-            it?.let { feedbackSound.isChecked = it }
-        })
         feedbackSound.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setFeedbackSoundChecked(isChecked) }
-
-        settingsViewModel.isAutomaticNextPageEnabled.observe(this, Observer {
-            it?.let { automaticNextPage.isChecked = it }
-        })
-
-        userViewModel.clearCache.observe(this, Observer { event ->
-            event?.getContentIfNotHandled()?.let { result ->
-                val message = if (result)
-                    getString(R.string.images_removed)
-                else
-                    getString(R.string.images_removed_error)
-
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
-        })
         automaticNextPage.setOnCheckedChangeListener { _, isChecked ->
             settingsViewModel.setAutomaticNextPageChecked(
                 isChecked
             )
         }
-
         settingsViewModel.setSeekBarProgress(0)
-
-        settingsViewModel.seekBarProgress.observe(this, Observer { sk ->
-            sk?.let {
-                val seekBarProgress = if (it == 0) 1 else it
-                seekBar.post {
-                    setSeekBarText(seekBarProgress)
-                    seekBar.progress = it - 1
-                }
-            }
-        })
 
         seekBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
@@ -103,7 +69,6 @@ class SettingsFragment : Fragment() {
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
                 }
             })
-        setHasOptionsMenu(true)
         val btClearUserCache = view.findViewById<Button>(R.id.bt_clear_user_cache)
         btClearUserCache.setOnClickListener {
             onClickCache(getString(R.string.confirm_clear_user_cache)) {
@@ -116,7 +81,64 @@ class SettingsFragment : Fragment() {
                 userViewModel.clearPublicCache()
             }
         }
+        setHasOptionsMenu(true)
+
+        observeScanMode(scanMode)
+        observeFeedbackSound(feedbackSound)
+        observeAutomaticNextPage(automaticNextPage)
+        observeClearCache()
+        observeSeekBarProgress()
+        observeCurrentUser(view)
         return view
+    }
+
+    private fun observeCurrentUser(view: View) {
+        userViewModel.currentUser.observe(activity!!, Observer { user ->
+            if (user != null && user.isSampleUser()) {
+                val cacheLayout = view.findViewById<RelativeLayout>(R.id.cache_layout)
+                cacheLayout.visibility = View.INVISIBLE
+            }
+        })
+    }
+
+    private fun observeSeekBarProgress() {
+        settingsViewModel.seekBarProgress.observe(this, Observer { sk ->
+            sk?.let {
+                val seekBarProgress = if (it == 0) 1 else it
+                seekBar.post {
+                    setSeekBarText(seekBarProgress)
+                    seekBar.progress = it - 1
+                }
+            }
+        })
+    }
+
+    private fun observeClearCache() {
+        userViewModel.clearCache.observe(this, Observer { event ->
+            event?.getContentIfNotHandled()?.let { result ->
+                val message =
+                    if (result) getString(R.string.images_removed) else getString(R.string.images_removed_error)
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun observeAutomaticNextPage(automaticNextPage: Switch) {
+        settingsViewModel.isAutomaticNextPageEnabled.observe(this, Observer {
+            it?.let { automaticNextPage.isChecked = it }
+        })
+    }
+
+    private fun observeFeedbackSound(feedbackSound: Switch) {
+        settingsViewModel.isFeedbackSoundEnabled.observe(this, Observer {
+            it?.let { feedbackSound.isChecked = it }
+        })
+    }
+
+    private fun observeScanMode(scanMode: Switch) {
+        settingsViewModel.isScanModeEnabled.observe(this, Observer {
+            it?.let { scanMode.isChecked = it }
+        })
     }
 
     private fun onClickCache(confirmMsg: String, onClick: () -> Unit) {

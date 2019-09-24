@@ -7,11 +7,15 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.Volley
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.TLSSocketFactory
+import org.falaeapp.falae.exception.NoNetworkConnectionException
 import org.falaeapp.falae.model.DownloadCache
 import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.model.User
@@ -24,23 +28,13 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.net.URL
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class FalaeWebPlatform(val context: Context) {
 
-    private val numberOfCores: Int = Runtime.getRuntime().availableProcessors()
-    private var executor: ThreadPoolExecutor? = null
-    private lateinit var userDownloadCache: DownloadCache
-    private lateinit var publicDownloadCache: DownloadCache
-
-    init {
-        initExecutor()
-    }
-
-    fun login(email: String, password: String, onComplete: (User?, VolleyError?) -> Unit) {
-        initExecutor()
+    suspend fun login(email: String, password: String): User = suspendCoroutine { continuation ->
         try {
             val credentials = JSONObject()
             credentials.put("email", email)
@@ -50,108 +44,90 @@ class FalaeWebPlatform(val context: Context) {
             jsonRequest.put("user", credentials)
 
             val url = BuildConfig.BASE_URL + "/login.json"
-            val gsonRequest = GsonRequest(url = url,
+            val request = GsonRequest(url = url,
                 clazz = User::class.java,
                 jsonRequest = jsonRequest,
-                listener = Response.Listener {
-                    onComplete(it, null)
+                listener = Response.Listener { response ->
+                    continuation.resume(response)
                 },
                 errorListener = Response.ErrorListener {
-                    onComplete(null, it)
+                    continuation.resumeWithException(it)
                 })
-
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Volley.newRequestQueue(
                     context,
                     HurlStack(null, TLSSocketFactory())
-                )
-                    .add(gsonRequest)
+                ).add(request)
             } else {
-                Volley.newRequestQueue(context).add(gsonRequest)
+                Volley.newRequestQueue(context).add(request)
             }
         } catch (e: JSONException) {
-            e.printStackTrace()
+            Log.e(javaClass.name, "Error while parsing response: ${e.message}")
+            continuation.resumeWithException(e)
         }
     }
 
-    private fun initExecutor() {
-        if (executor == null || executor?.isTerminated == true) {
-            executor = ThreadPoolExecutor(
-                numberOfCores * 2,
-                numberOfCores * 2,
-                60L,
-                TimeUnit.SECONDS,
-                LinkedBlockingQueue()
-            )
-        }
-    }
-
-    fun downloadImages(
+    suspend fun downloadImages(
         user: User,
         downloadCacheDao: DownloadCacheDao,
-        fileHandler: FileHandler,
-        onSyncComplete: (user: User) -> Unit
-    ) {
+        fileHandler: FileHandler
+    ): User = withContext(Dispatchers.IO) {
         if (!hasNetworkConnection()) {
-            return
+            throw NoNetworkConnectionException("Could not detect any network connection.")
         }
-        userDownloadCache = loadCache(downloadCacheDao, user.email)
-        publicDownloadCache = loadCache(downloadCacheDao, PUBLIC_CACHE_KEY)
+        val userDownloadCache = loadCache(downloadCacheDao, user.email)
+        val publicDownloadCache = loadCache(downloadCacheDao, PUBLIC_CACHE_KEY)
         val publicFolder = fileHandler.createPublicFolder(context)
         val userFolder = fileHandler.createUserFolder(context, user.email)
-        user.photo?.let {
-            if (it.isNotEmpty()) {
-                val imgSrc = "${BuildConfig.BASE_URL}$it"
-                val file = fileHandler.createImg(userFolder, user.name, imgSrc)
-                val localUri = userDownloadCache.sources[imgSrc] ?: download(file, user.authToken, user.name, imgSrc)
-                storeInCache(localUri, imgSrc, userDownloadCache)
-                user.photo = localUri
-            }
-        }
-        val allItems = user.spreadsheets
-            .flatMap { it.pages }
-            .flatMap { it.items }
-        val duplicatedItems = getDuplicatedItems(allItems)
-        allItems.distinctBy { it.imgSrc }
-            .forEach { item: Item ->
-                executor?.execute {
-                    val imgSrc = "${BuildConfig.BASE_URL}${item.imgSrc}"
-                    val folder: File
-                    val cache: DownloadCache
-                    if (item.private) {
-                        folder = userFolder
-                        cache = userDownloadCache
-                    } else {
-                        folder = publicFolder
-                        cache = publicDownloadCache
-                    }
-                    val file = fileHandler.createImg(folder, item.name, imgSrc)
-                    val localUri = cache.sources[imgSrc] ?: download(file, user.authToken, item.name, imgSrc)
-                    storeInCache(localUri, imgSrc, cache)
-                    // Update imgSrc from duplicated items first
-                    duplicatedItems[item.imgSrc]?.forEach { it.imgSrc = localUri }
-                    // Update imgSrc of iterated item
-                    item.imgSrc = localUri
+
+        user.photo?.let { imgSrc ->
+            launch {
+                if (imgSrc.isNotEmpty()) {
+                    user.photo = fetchImage(imgSrc, user.name, fileHandler, userFolder, userDownloadCache, user)
                 }
             }
-        executor?.shutdown()
-        try {
-            executor?.awaitTermination(java.lang.Long.MAX_VALUE, TimeUnit.NANOSECONDS)
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
+        }
+        val allItems = user.getItemsFromAllSpreadsheets()
+        val repeatedItems = getRepeatedItems(allItems)
+        coroutineScope {
+            allItems.distinctBy { it.imgSrc }
+                .forEach { item: Item ->
+                    launch {
+                        val folder: File
+                        val cache: DownloadCache
+                        if (item.private) {
+                            folder = userFolder
+                            cache = userDownloadCache
+                        } else {
+                            folder = publicFolder
+                            cache = publicDownloadCache
+                        }
+                        val localUri = fetchImage(item.imgSrc, item.name, fileHandler, folder, cache, user)
+                        // Update imgSrc from duplicated items first
+                        repeatedItems[item.imgSrc]?.forEach { it.imgSrc = localUri }
+                        // Update imgSrc of iterated item
+                        item.imgSrc = localUri
+                    }
+                }
         }
         saveOrUpdateCache(downloadCacheDao, userDownloadCache)
         saveOrUpdateCache(downloadCacheDao, publicDownloadCache)
-
-        onSyncComplete(user)
+        user
     }
 
-    private fun storeInCache(localUri: String, imgSrc: String, cache: DownloadCache) {
-        if (localUri.isNotEmpty() && !cache.sources.containsKey(imgSrc)) {
-            cache.sources[imgSrc] = localUri
-        } else {
-            cache.sources.remove(imgSrc)
-        }
+    private fun fetchImage(
+        relativeImgPath: String,
+        imgName: String,
+        fileHandler: FileHandler,
+        folder: File,
+        cache: DownloadCache,
+        user: User
+    ): String {
+        val imgSrc = "${BuildConfig.BASE_URL}${relativeImgPath}"
+        val file = fileHandler.createImg(folder, imgName, imgSrc)
+        val localUri = cache.sources[imgSrc] ?: download(file, user.authToken, imgName, imgSrc)
+        cache.store(imgSrc, localUri)
+        return localUri
     }
 
     private fun download(
@@ -178,10 +154,10 @@ class FalaeWebPlatform(val context: Context) {
         return ""
     }
 
-    private fun getDuplicatedItems(list: List<Item>): Map<String, MutableList<Item>> {
+    private fun getRepeatedItems(items: List<Item>): Map<String, MutableList<Item>> {
         val itemsMap = mutableMapOf<String, MutableList<Item>>()
         val uniqueItems = HashSet<String>()
-        list.forEach { item ->
+        items.forEach { item ->
             if (!uniqueItems.add(item.imgSrc)) {
                 val listItem = itemsMap[item.imgSrc] ?: mutableListOf()
                 listItem.add(item)
@@ -192,17 +168,17 @@ class FalaeWebPlatform(val context: Context) {
     }
 
     private fun loadCache(downloadCacheDao: DownloadCacheDao, key: String) =
-        downloadCacheDao.findByName(key)
-            ?: DownloadCache(name = key, sources = mutableMapOf())
+        downloadCacheDao.findByName(key) ?: DownloadCache(name = key, sources = mutableMapOf())
 
-    private fun saveOrUpdateCache(downloadCacheDao: DownloadCacheDao, cache: DownloadCache) {
-        Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
-        if (!downloadCacheDao.cacheExists(cache.name)) {
-            downloadCacheDao.insert(cache)
-        } else {
-            downloadCacheDao.update(cache)
+    private suspend fun saveOrUpdateCache(downloadCacheDao: DownloadCacheDao, cache: DownloadCache) =
+        withContext(Dispatchers.IO) {
+            Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
+            if (!downloadCacheDao.cacheExists(cache.name)) {
+                downloadCacheDao.insert(cache)
+            } else {
+                downloadCacheDao.update(cache)
+            }
         }
-    }
 
     private fun hasNetworkConnection(): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

@@ -1,6 +1,5 @@
 package org.falaeapp.falae.repository
 
-import android.arch.lifecycle.LiveData
 import android.content.Context
 import com.android.volley.AuthFailureError
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +12,7 @@ import org.falaeapp.falae.service.FalaeWebPlatform
 import org.falaeapp.falae.service.FalaeWebPlatform.Companion.PUBLIC_CACHE_KEY
 import org.falaeapp.falae.storage.FileHandler
 import org.falaeapp.falae.storage.SharedPreferencesUtils
-import org.jetbrains.anko.doAsync
+import java.io.IOException
 
 class UserRepository(val context: Context) {
     private val userModelDao = AppDatabase.getInstance(context).userModelDao()
@@ -22,71 +21,57 @@ class UserRepository(val context: Context) {
     private val fileHandler: FileHandler = FileHandler()
     private val sharedPreferences: SharedPreferencesUtils = SharedPreferencesUtils(context.applicationContext)
 
-    fun getAllUsers(): LiveData<List<User>> {
-        return userModelDao.getAllUsers()
+    suspend fun getAllUsers(): List<User> = withContext(Dispatchers.IO) {
+        userModelDao.getAllUsers()
     }
 
-    fun login(email: String, password: String, onComplete: (User?, Exception?) -> Unit) {
-        falaeWebPlatform.login(email, password) { user, error ->
-            error?.let { e ->
-                doAsync {
-                    val exception: Exception = if (e is AuthFailureError) {
-                        if (userModelDao.findByEmail(email) == null) {
-                            UserNotFoundException()
-                        } else {
-                            e
-                        }
-                    } else {
-                        Exception(e)
-                    }
-                    onComplete(null, exception)
-                }
-            } ?: run {
-                doAsync {
-                    falaeWebPlatform.downloadImages(user!!, downloadCacheDao, fileHandler) { u ->
-                        val id = userModelDao.findByEmail(u.email)?.let { result ->
-                            u.id = result.id
-                            userModelDao.update(u)
-                            u.id.toLong()
-                        } ?: run {
-                            userModelDao.insert(u)
-                        }
-                        saveLastConnectedUserId(id)
-                        user.id = id.toInt()
-                        onComplete(user, null)
-                    }
-                }
-            }
+    suspend fun getUser(userId: Long): User = withContext(Dispatchers.IO) {
+        userModelDao.findById(userId)
+    }
+
+    suspend fun saveOrUpdateUser(user: User): Long = withContext(Dispatchers.IO) {
+        userModelDao.findByEmail(user.email)?.let { result ->
+            user.id = result.id
+            userModelDao.update(user)
+            user.id.toLong()
+        } ?: run {
+            userModelDao.insert(user)
         }
     }
 
-    fun remove(user: User) {
+    suspend fun remove(user: User) = withContext(Dispatchers.IO) {
         userModelDao.remove(user)
         downloadCacheDao.remove(user.email)
         fileHandler.deleteUserFolder(context, user.email)
         sharedPreferences.remove(LAST_CONNECTED_USER)
     }
 
-    fun getUser(userId: Long): LiveData<User> {
-        return userModelDao.findById(userId)
+    suspend fun clearUserCache(email: String): Boolean = withContext(Dispatchers.IO) {
+        downloadCacheDao.remove(email)
+        fileHandler.deleteUserFolder(context, email)
     }
 
-    fun saveLastConnectedUserId(userId: Long) {
+    suspend fun clearPublicCache(): Boolean = withContext(Dispatchers.IO) {
+        downloadCacheDao.remove(PUBLIC_CACHE_KEY)
+        fileHandler.deletePublicFolder(context)
+    }
+
+    suspend fun saveLastConnectedUserId(userId: Long) = withContext(Dispatchers.IO) {
         sharedPreferences.storeLong(LAST_CONNECTED_USER, userId)
     }
 
-    fun getLastConnectedUserId(): Long {
-        return sharedPreferences.getLong(LAST_CONNECTED_USER, 1L)
+    suspend fun getLastConnectedUserId(): Long = withContext(Dispatchers.IO) {
+        sharedPreferences.getLong(LAST_CONNECTED_USER, 1L)
     }
 
-    fun handleNewVersion(currentVersionCode: Int) {
+    suspend fun handleNewVersion(currentVersionCode: Int) = withContext(Dispatchers.IO) {
         val doesntExist = -1
         // Get saved version code
         val storedVersionCode = sharedPreferences.getInt(VERSION_CODE, doesntExist)
         // Check for first run or upgrade
         when {
             currentVersionCode == storedVersionCode -> // This is just a normal run
-                return
+                return@withContext
             storedVersionCode == doesntExist -> {
                 // TODO This is a new install (or the user cleared the shared preferences)
             }
@@ -98,14 +83,25 @@ class UserRepository(val context: Context) {
         sharedPreferences.storeInt(VERSION_CODE, currentVersionCode)
     }
 
-    suspend fun clearUserCache(email: String) = withContext(Dispatchers.IO) {
-        downloadCacheDao.remove(email)
-        fileHandler.deleteUserFolder(context, email)
+    suspend fun login(email: String, password: String): User = withContext(Dispatchers.IO) {
+        try {
+            falaeWebPlatform.login(email, password)
+        } catch (exception: Exception) {
+            val error: Exception = if (exception is AuthFailureError && userModelDao.findByEmail(email) == null) {
+                UserNotFoundException()
+            } else {
+                exception
+            }
+            throw error
+        }
     }
 
-    suspend fun clearPublicCache() = withContext(Dispatchers.IO) {
-        downloadCacheDao.remove(PUBLIC_CACHE_KEY)
-        fileHandler.deletePublicFolder(context)
+    suspend fun downloadImages(user: User): User = withContext(Dispatchers.IO) {
+        try {
+            falaeWebPlatform.downloadImages(user, downloadCacheDao, fileHandler)
+        } catch (ex: IOException) {
+            throw ex
+        }
     }
 
     companion object {

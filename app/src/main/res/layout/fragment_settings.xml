@@ -1,144 +1,145 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/default_horizontal_margin">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/default_horizontal_margin">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_vertical_margin"
-                android:background="@drawable/border"
-                android:orientation="vertical"
-                android:padding="15dp">
-
-                <Switch
-                    android:id="@+id/scan_mode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/default_horizontal_margin"
-                    android:layout_marginTop="@dimen/default_vertical_margin"
-                    android:layout_marginRight="@dimen/default_horizontal_margin"
-                    android:layout_marginBottom="@dimen/default_vertical_margin"
-                    android:gravity="start"
-                    android:switchPadding="@dimen/small_horizontal_margin"
-                    android:text="@string/scan_mode"
-                    android:textColor="@color/darkGreen" />
+                    android:layout_marginTop="@dimen/small_vertical_margin"
+                    android:background="@drawable/border"
+                    android:orientation="vertical"
+                    android:padding="15dp">
 
                 <Switch
-                    android:id="@+id/feedback_sound"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/default_horizontal_margin"
-                    android:layout_marginRight="@dimen/default_horizontal_margin"
-                    android:layout_marginBottom="@dimen/default_vertical_margin"
-                    android:gravity="start"
-                    android:switchPadding="@dimen/small_horizontal_margin"
-                    android:text="@string/feedback_sound"
-                    android:textColor="@color/darkGreen" />
+                        android:id="@+id/scan_mode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/default_horizontal_margin"
+                        android:layout_marginTop="@dimen/default_vertical_margin"
+                        android:layout_marginRight="@dimen/default_horizontal_margin"
+                        android:layout_marginBottom="@dimen/default_vertical_margin"
+                        android:gravity="start"
+                        android:switchPadding="@dimen/small_horizontal_margin"
+                        android:text="@string/scan_mode"
+                        android:textColor="@color/darkGreen"/>
 
                 <Switch
-                    android:id="@+id/automatic_next_page"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/default_horizontal_margin"
-                    android:layout_marginRight="@dimen/default_horizontal_margin"
-                    android:layout_marginBottom="@dimen/default_vertical_margin"
-                    android:gravity="start"
-                    android:switchPadding="@dimen/small_horizontal_margin"
-                    android:text="@string/scan_mode_automatic_next_page"
-                    android:textColor="@color/darkGreen" />
+                        android:id="@+id/feedback_sound"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/default_horizontal_margin"
+                        android:layout_marginRight="@dimen/default_horizontal_margin"
+                        android:layout_marginBottom="@dimen/default_vertical_margin"
+                        android:gravity="start"
+                        android:switchPadding="@dimen/small_horizontal_margin"
+                        android:text="@string/feedback_sound"
+                        android:textColor="@color/darkGreen"/>
+
+                <Switch
+                        android:id="@+id/automatic_next_page"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/default_horizontal_margin"
+                        android:layout_marginRight="@dimen/default_horizontal_margin"
+                        android:layout_marginBottom="@dimen/default_vertical_margin"
+                        android:gravity="start"
+                        android:switchPadding="@dimen/small_horizontal_margin"
+                        android:text="@string/scan_mode_automatic_next_page"
+                        android:textColor="@color/darkGreen"/>
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/default_horizontal_margin"
-                    android:layout_marginLeft="@dimen/default_horizontal_margin"
-                    android:layout_marginBottom="@dimen/default_horizontal_margin"
-                    android:gravity="start"
-                    android:text="@string/scan_mode_duration" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/default_horizontal_margin"
+                        android:layout_marginLeft="@dimen/default_horizontal_margin"
+                        android:layout_marginBottom="@dimen/default_horizontal_margin"
+                        android:gravity="start"
+                        android:text="@string/scan_mode_duration"/>
 
                 <TextView
-                    android:id="@+id/seekbar_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center" />
+                        android:id="@+id/seekbar_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"/>
 
                 <SeekBar
-                    android:id="@+id/seekBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/default_horizontal_margin"
-                    android:layout_marginLeft="@dimen/default_horizontal_margin"
-                    android:layout_marginEnd="@dimen/big_horizontal_margin"
-                    android:layout_marginRight="@dimen/big_horizontal_margin"
-                    android:max="19"
-                    android:progress="0" />
+                        android:id="@+id/seekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="@dimen/default_horizontal_margin"
+                        android:layout_marginLeft="@dimen/default_horizontal_margin"
+                        android:layout_marginEnd="@dimen/big_horizontal_margin"
+                        android:layout_marginRight="@dimen/big_horizontal_margin"
+                        android:max="19"
+                        android:progress="0"/>
             </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="@dimen/default_horizontal_margin"
-                android:layout_marginLeft="@dimen/default_horizontal_margin"
-                android:background="@color/white"
-                android:text="@string/scan_mode"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/default_text_size" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="@dimen/default_horizontal_margin"
+                    android:layout_marginLeft="@dimen/default_horizontal_margin"
+                    android:background="@color/white"
+                    android:text="@string/scan_mode"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/default_text_size"/>
         </RelativeLayout>
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="@dimen/default_horizontal_margin">
+                android:id="@+id/cache_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/default_horizontal_margin">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_vertical_margin"
-                android:background="@drawable/border"
-                android:orientation="horizontal"
-                android:padding="15dp">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/small_vertical_margin"
+                    android:background="@drawable/border"
+                    android:orientation="horizontal"
+                    android:padding="15dp">
 
                 <Button
-                    android:id="@+id/bt_clear_user_cache"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="@dimen/tiny_horizontal_margin"
-                    android:layout_marginRight="@dimen/tiny_horizontal_margin"
-                    android:layout_weight="1"
-                    android:text="@string/clear_user_cache" />
+                        android:id="@+id/bt_clear_user_cache"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/tiny_horizontal_margin"
+                        android:layout_marginRight="@dimen/tiny_horizontal_margin"
+                        android:layout_weight="1"
+                        android:text="@string/clear_user_cache"/>
 
                 <Button
-                    android:id="@+id/bt_clear_public_cache"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/clear_public_cache" />
+                        android:id="@+id/bt_clear_public_cache"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:text="@string/clear_public_cache"/>
             </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="@dimen/default_horizontal_margin"
-                android:layout_marginLeft="@dimen/default_horizontal_margin"
-                android:background="@color/white"
-                android:text="@string/cache"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/default_text_size" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="@dimen/default_horizontal_margin"
+                    android:layout_marginLeft="@dimen/default_horizontal_margin"
+                    android:background="@color/white"
+                    android:text="@string/cache"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/default_text_size"/>
         </RelativeLayout>
     </LinearLayout>
 </ScrollView>
