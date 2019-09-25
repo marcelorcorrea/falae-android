@@ -1,18 +1,18 @@
 package org.falaeapp.falae.fragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.viewpager.widget.ViewPager
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.ItemPagerAdapter
 import org.falaeapp.falae.viewmodel.DisplayViewModel
@@ -32,7 +32,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +52,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                     view.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
                 mPager = view.findViewById(R.id.pager) as ViewPager
-                val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065)!!.toInt()
+                val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065).toInt()
                 leftNav.layoutParams.width = navHoldersSize
                 leftNav.layoutParams.height = navHoldersSize
                 rightNav.layoutParams.width = navHoldersSize
@@ -157,12 +157,12 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private fun shouldDisableRightButton(): Boolean = isPagerAdapterInitialized() &&
             mPager.currentItem >= mPagerAdapter.count - 1
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is PageFragmentListener) {
             mPageFragmentListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement PageFragmentListener")
+            throw RuntimeException("$context must implement PageFragmentListener")
         }
     }
 

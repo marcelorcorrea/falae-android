@@ -1,7 +1,5 @@
 package org.falaeapp.falae.fragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
@@ -9,9 +7,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
-import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayout
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,13 +16,20 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
+import androidx.gridlayout.widget.GridLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.Category
 import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 import org.falaeapp.falae.viewmodel.SettingsViewModel
-import java.util.*
+import java.util.ArrayList
+import java.util.Timer
+import java.util.TimerTask
 
 class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
     private var mItems: List<Item> = emptyList()
@@ -55,10 +57,10 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
-        settingsViewModel = ViewModelProviders.of(activity!!).get(SettingsViewModel::class.java)
+        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
+        settingsViewModel = ViewModelProvider(activity!!).get(SettingsViewModel::class.java)
         arguments?.let { arguments ->
-            mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
+            mItems = arguments.getParcelableArrayList(ITEMS_PARAM) ?: emptyList()
             mColumns = arguments.getInt(COLUMNS_PARAM)
             mRows = arguments.getInt(ROWS_PARAM)
             mMarginWidth = arguments.getInt(MARGIN_WIDTH)
@@ -270,12 +272,12 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         }
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is ViewPagerItemFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement ViewPagerItemFragmentListener")
+            throw RuntimeException("$context must implement ViewPagerItemFragmentListener")
         }
     }
 

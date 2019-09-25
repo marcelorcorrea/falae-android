@@ -1,7 +1,7 @@
 package org.falaeapp.falae.util
 
 import android.content.Context
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import org.falaeapp.falae.R
 
 object Util {

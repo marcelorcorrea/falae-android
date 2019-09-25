@@ -1,11 +1,8 @@
 package org.falaeapp.falae.fragment
 
 import android.app.ProgressDialog
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +13,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.android.volley.AuthFailureError
 import org.falaeapp.falae.R
 import org.falaeapp.falae.exception.UserNotFoundException
@@ -33,7 +33,7 @@ class SyncUserFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
         userViewModel.reposResult.observe(this, Observer { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 result.second?.let { error ->
@@ -71,12 +71,12 @@ class SyncUserFragment : Fragment() {
         return view
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is SyncUserFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement SyncUserFragmentListener")
+            throw RuntimeException("$context must implement SyncUserFragmentListener")
         }
     }
 

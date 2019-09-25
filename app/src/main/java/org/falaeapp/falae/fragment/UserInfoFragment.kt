@@ -1,16 +1,16 @@
 package org.falaeapp.falae.fragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
@@ -23,8 +23,8 @@ class UserInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
-        onAttachFragment(parentFragment)
+        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        onAttachFragment(parentFragment!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

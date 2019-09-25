@@ -1,7 +1,7 @@
 package org.falaeapp.falae
 
 import android.content.res.Resources
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import com.google.gson.Gson
 import org.falaeapp.falae.model.User
 import java.io.File

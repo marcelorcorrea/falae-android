@@ -28,8 +28,8 @@ ext {
     runnerVersion = "1.0.1"
     rulesVersion = "1.0.1"
     espressoVersion = "3.0.1"
-    archLifecycleVersion = "1.1.1"
-    archRoomVersion = "1.1.1"
+    archLifecycleVersion = '2.0.0-beta01'
+    archRoomVersion = '2.0.0-beta01'
     anko_version = '0.10.5'
 }
 

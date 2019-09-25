@@ -2,11 +2,11 @@ package org.falaeapp.falae.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.ViewPager
+import com.google.android.material.tabs.TabLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,12 +31,12 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         return view
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is TabPagerFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement TabPagerFragment")
+            throw RuntimeException("$context must implement TabPagerFragment")
         }
     }
 

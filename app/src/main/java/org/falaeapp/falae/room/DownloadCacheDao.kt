@@ -1,6 +1,6 @@
 package org.falaeapp.falae.room
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import org.falaeapp.falae.model.DownloadCache
 
 @Dao
