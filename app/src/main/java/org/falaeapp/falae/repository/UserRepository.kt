@@ -83,6 +83,14 @@ class UserRepository(val context: Context) {
         sharedPreferences.storeInt(VERSION_CODE, currentVersionCode)
     }
 
+    suspend fun synchAccount(email: String, password: String): User = withContext(Dispatchers.IO) {
+        var user = login(email, password)
+        user = downloadImages(user)
+        val userId = saveOrUpdateUser(user)
+        saveLastConnectedUserId(userId)
+        user
+    }
+
     suspend fun login(email: String, password: String): User = withContext(Dispatchers.IO) {
         try {
             falaeWebPlatform.login(email, password)

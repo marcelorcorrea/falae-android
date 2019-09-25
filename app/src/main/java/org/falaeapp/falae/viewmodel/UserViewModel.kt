@@ -46,13 +46,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application), C
     fun synchronizeUser(email: String, password: String) {
         launch {
             try {
-                var user = userRepository.login(email, password)
-                user = userRepository.downloadImages(user)
-                val userId = userRepository.saveOrUpdateUser(user)
-                userRepository.saveLastConnectedUserId(userId)
-                lastConnectedUserId.postValue(userId)
-                getAllUsers()
+                val user = userRepository.synchAccount(email, password)
+                lastConnectedUserId.postValue(user.id.toLong())
                 reposResult.postValue(Event(Pair(user, null)))
+                getAllUsers()
             } catch (exception: Exception) {
                 reposResult.postValue(Event(Pair(null, exception)))
             }
