@@ -16,7 +16,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository: UserRepository = UserRepository(application)
     var users: LiveData<List<User>> = liveData {
         emitSource(userRepository.getAllUsers())
-        loadLastConnectedUser()
     }
     var currentUser: LiveData<User> = MutableLiveData()
     val reposResult = MutableLiveData<Event<Pair<User?, Exception?>>>()
