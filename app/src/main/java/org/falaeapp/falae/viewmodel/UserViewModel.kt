@@ -2,7 +2,9 @@ package org.falaeapp.falae.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.falaeapp.falae.Event
@@ -12,17 +14,14 @@ import org.falaeapp.falae.repository.UserRepository
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userRepository: UserRepository = UserRepository(application)
-    var users = MutableLiveData<List<User>>()
-    var currentUser: MutableLiveData<User> = MutableLiveData()
-    val reposResult = MutableLiveData<Event<Pair<User?, Exception?>>>()
-    val lastConnectedUserId: MutableLiveData<Long> = MutableLiveData()
-    val clearCache = MutableLiveData<Event<Boolean>>()
-
-    init {
-        viewModelScope.launch {
-            getAllUsers()
-        }
+    var users: LiveData<List<User>> = liveData {
+        emitSource(userRepository.getAllUsers())
+        loadLastConnectedUser()
     }
+    var currentUser: LiveData<User> = MutableLiveData()
+    val reposResult = MutableLiveData<Event<Pair<User?, Exception?>>>()
+    var lastConnectedUserId: MutableLiveData<Long> = MutableLiveData()
+    val clearCache = MutableLiveData<Event<Boolean>>()
 
     fun loadLastConnectedUser() {
         viewModelScope.launch {
@@ -32,18 +31,20 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadUser(userId: Long) {
         viewModelScope.launch {
+            currentUser = liveData {
+                val user = userRepository.getUser(userId)
+                emit(user)
+            }
             userRepository.saveLastConnectedUserId(userId)
-            currentUser.value = userRepository.getUser(userId)
         }
     }
 
     fun synchronizeUser(email: String, password: String) {
         viewModelScope.launch {
             try {
-                val user = userRepository.synchAccount(email, password)
+                val user = userRepository.syncAccount(email, password)
                 lastConnectedUserId.postValue(user.id.toLong())
                 reposResult.postValue(Event(Pair(user, null)))
-                getAllUsers()
             } catch (exception: Exception) {
                 reposResult.postValue(Event(Pair(null, exception)))
             }
@@ -54,13 +55,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         currentUser.value?.let { user ->
             viewModelScope.launch {
                 userRepository.remove(user)
-                getAllUsers()
             }
         }
-    }
-
-    private suspend fun getAllUsers() {
-        users.value = userRepository.getAllUsers()
     }
 
     fun handleNewVersion(versionCode: Int) {

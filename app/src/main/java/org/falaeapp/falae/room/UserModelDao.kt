@@ -1,5 +1,6 @@
 package org.falaeapp.falae.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -18,7 +19,7 @@ interface UserModelDao {
     fun findById(id: Long): User
 
     @Query("select * from User")
-    fun getAllUsers(): List<User>
+    fun getAllUsers(): LiveData<List<User>>
 
     @Insert(onConflict = REPLACE)
     fun insert(user: User): Long

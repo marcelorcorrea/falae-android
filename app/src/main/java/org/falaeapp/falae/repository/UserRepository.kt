@@ -1,6 +1,7 @@
 package org.falaeapp.falae.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import com.android.volley.AuthFailureError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,7 +22,7 @@ class UserRepository(val context: Context) {
     private val fileHandler: FileHandler = FileHandler()
     private val sharedPreferences: SharedPreferencesUtils = SharedPreferencesUtils(context.applicationContext)
 
-    suspend fun getAllUsers(): List<User> = withContext(Dispatchers.IO) {
+    suspend fun getAllUsers(): LiveData<List<User>> = withContext(Dispatchers.IO) {
         userModelDao.getAllUsers()
     }
 
@@ -29,7 +30,7 @@ class UserRepository(val context: Context) {
         userModelDao.findById(userId)
     }
 
-    suspend fun saveOrUpdateUser(user: User): Long = withContext(Dispatchers.IO) {
+    private suspend fun saveOrUpdateUser(user: User): Long = withContext(Dispatchers.IO) {
         userModelDao.findByEmail(user.email)?.let { result ->
             user.id = result.id
             userModelDao.update(user)
@@ -83,7 +84,7 @@ class UserRepository(val context: Context) {
         sharedPreferences.storeInt(VERSION_CODE, currentVersionCode)
     }
 
-    suspend fun synchAccount(email: String, password: String): User = withContext(Dispatchers.IO) {
+    suspend fun syncAccount(email: String, password: String): User = withContext(Dispatchers.IO) {
         var user = login(email, password)
         user = downloadImages(user)
         val userId = saveOrUpdateUser(user)
