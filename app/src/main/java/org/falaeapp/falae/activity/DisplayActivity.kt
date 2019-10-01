@@ -26,9 +26,11 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display)
 
-        val spreadSheet: SpreadSheet = intent.getParcelableExtra(SPREADSHEET)
+        val spreadSheet: SpreadSheet? = intent.getParcelableExtra(SPREADSHEET)
         displayViewModel = ViewModelProvider(this).get(DisplayViewModel::class.java)
-        displayViewModel.init(spreadSheet)
+        spreadSheet?.let {
+            displayViewModel.init(it)
+        }
 
         displayViewModel.pageToOpen.observe(this, Observer {
             it?.let { page ->

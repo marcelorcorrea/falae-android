@@ -60,7 +60,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
                 if (isPagerAdapterInitialized().not()) {
-                    displayViewModel.currentPage.observe(this@PageFragment, Observer {
+                    displayViewModel.currentPage.observe(viewLifecycleOwner, Observer {
                         it?.let { page ->
                             mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
                         }
