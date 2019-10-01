@@ -14,17 +14,23 @@ import org.falaeapp.falae.repository.UserRepository
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userRepository: UserRepository = UserRepository(application)
-    var users: LiveData<List<User>> = liveData {
+    val users: LiveData<List<User>> = liveData {
         emitSource(userRepository.getAllUsers())
     }
     var currentUser: LiveData<User> = MutableLiveData()
-    val reposResult = MutableLiveData<Event<Pair<User?, Exception?>>>()
-    var lastConnectedUserId: MutableLiveData<Long> = MutableLiveData()
-    val clearCache = MutableLiveData<Event<Boolean>>()
+
+    private val _reposResult = MutableLiveData<Event<Pair<User?, Exception?>>>()
+    val reposResult: LiveData<Event<Pair<User?, Exception?>>> = _reposResult
+
+    private var _lastConnectedUserId: MutableLiveData<Long> = MutableLiveData()
+    val lastConnectedUserId: LiveData<Long> = _lastConnectedUserId
+
+    private val _clearCache = MutableLiveData<Event<Boolean>>()
+    val clearCache: LiveData<Event<Boolean>> = _clearCache
 
     fun loadLastConnectedUser() {
         viewModelScope.launch {
-            lastConnectedUserId.postValue(userRepository.getLastConnectedUserId())
+            _lastConnectedUserId.postValue(userRepository.getLastConnectedUserId())
         }
     }
 
@@ -42,10 +48,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 val user = userRepository.syncAccount(email, password)
-                lastConnectedUserId.postValue(user.id.toLong())
-                reposResult.postValue(Event(Pair(user, null)))
+                _lastConnectedUserId.postValue(user.id.toLong())
+                _reposResult.postValue(Event(Pair(user, null)))
             } catch (exception: Exception) {
-                reposResult.postValue(Event(Pair(null, exception)))
+                _reposResult.postValue(Event(Pair(null, exception)))
             }
         }
     }
@@ -67,14 +73,14 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun clearUserCache() {
         currentUser.value?.let { user ->
             viewModelScope.launch {
-                clearCache.value = Event(userRepository.clearUserCache(user.email))
+                _clearCache.value = Event(userRepository.clearUserCache(user.email))
             }
         }
     }
 
     fun clearPublicCache() {
         viewModelScope.launch {
-            clearCache.value = Event(userRepository.clearPublicCache())
+            _clearCache.value = Event(userRepository.clearPublicCache())
         }
     }
 }

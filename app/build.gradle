@@ -2,7 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
     def RELEASE_PROPERTIES = "keys/release_keystore.properties"
 
     signingConfigs {

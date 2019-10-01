@@ -8,25 +8,33 @@ import org.falaeapp.falae.repository.SettingsRepository
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val settingsRepository: SettingsRepository = SettingsRepository(application)
-    var isScanModeEnabled: MutableLiveData<Boolean> = MutableLiveData()
-    var seekBarProgress: MutableLiveData<Int> = MutableLiveData()
-    var isFeedbackSoundEnabled: MutableLiveData<Boolean> = MutableLiveData()
-    var isAutomaticNextPageEnabled: MutableLiveData<Boolean> = MutableLiveData()
+
+    private val _isScanModeEnabled: MutableLiveData<Boolean> = MutableLiveData()
+    val isScanModeEnabled: LiveData<Boolean> = _isScanModeEnabled
+
+    private val _seekBarProgress: MutableLiveData<Int> = MutableLiveData()
+    val seekBarProgress: LiveData<Int> = _seekBarProgress
+
+    private val _isFeedbackSoundEnabled: MutableLiveData<Boolean> = MutableLiveData()
+    val isFeedbackSoundEnabled: LiveData<Boolean> = _isFeedbackSoundEnabled
+
+    private val _isAutomaticNextPageEnabled: MutableLiveData<Boolean> = MutableLiveData()
+    val isAutomaticNextPageEnabled: LiveData<Boolean> = _isAutomaticNextPageEnabled
 
     fun loadScan() {
-        isScanModeEnabled.value = settingsRepository.isScanModeEnabled()
+        _isScanModeEnabled.value = settingsRepository.isScanModeEnabled()
     }
 
     fun loadFeedbackSound() {
-        isFeedbackSoundEnabled.value = settingsRepository.isFeedbackSoundEnabled()
+        _isFeedbackSoundEnabled.value = settingsRepository.isFeedbackSoundEnabled()
     }
 
     fun loadAutomaticNextPage() {
-        isAutomaticNextPageEnabled.value = settingsRepository.isAutomaticNextPageEnabled()
+        _isAutomaticNextPageEnabled.value = settingsRepository.isAutomaticNextPageEnabled()
     }
 
     fun loadSeekBarProgress() {
-        seekBarProgress.value = settingsRepository.getSeekBarProgress()
+        _seekBarProgress.value = settingsRepository.getSeekBarProgress()
     }
 
     fun setScanModeChecked(checked: Boolean) {
