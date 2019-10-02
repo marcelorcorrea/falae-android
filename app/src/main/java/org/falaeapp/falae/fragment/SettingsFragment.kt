@@ -51,24 +51,22 @@ class SettingsFragment : Fragment() {
                 isChecked
             )
         }
-        settingsViewModel.setSeekBarProgress(0)
 
-        seekBar.setOnSeekBarChangeListener(
-            object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    val actualProgress = progress + 1
-                    setSeekBarText(actualProgress)
-                    settingsViewModel.setSeekBarProgress(actualProgress)
-                    val timeMillis: Long = (actualProgress * 500).toLong()
-                    settingsViewModel.setScanModeDuration(timeMillis)
-                }
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                val actualProgress = progress + 1
+                setSeekBarText(actualProgress)
+                settingsViewModel.setSeekBarProgress(actualProgress)
+                val timeMillis: Long = (actualProgress * 500).toLong()
+                settingsViewModel.setScanModeDuration(timeMillis)
+            }
 
-                override fun onStartTrackingTouch(seekBar: SeekBar) {
-                }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+            }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                }
-            })
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+            }
+        })
         val btClearUserCache = view.findViewById<Button>(R.id.bt_clear_user_cache)
         btClearUserCache.setOnClickListener {
             onClickCache(getString(R.string.confirm_clear_user_cache)) {
@@ -93,7 +91,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun observeCurrentUser(view: View) {
-        userViewModel.currentUser.observe(activity!!, Observer { user ->
+        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             if (user != null && user.isSampleUser()) {
                 val cacheLayout = view.findViewById<RelativeLayout>(R.id.cache_layout)
                 cacheLayout.visibility = View.INVISIBLE
@@ -102,7 +100,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun observeSeekBarProgress() {
-        settingsViewModel.seekBarProgress.observe(this, Observer { sk ->
+        settingsViewModel.seekBarProgress.observe(viewLifecycleOwner, Observer { sk ->
             sk?.let {
                 val seekBarProgress = if (it == 0) 1 else it
                 seekBar.post {
@@ -114,7 +112,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun observeClearCache() {
-        userViewModel.clearCache.observe(this, Observer { event ->
+        userViewModel.clearCache.observe(viewLifecycleOwner, Observer { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 val message =
                     if (result) getString(R.string.images_removed) else getString(R.string.images_removed_error)
@@ -124,19 +122,19 @@ class SettingsFragment : Fragment() {
     }
 
     private fun observeAutomaticNextPage(automaticNextPage: Switch) {
-        settingsViewModel.isAutomaticNextPageEnabled.observe(this, Observer {
+        settingsViewModel.isAutomaticNextPageEnabled.observe(viewLifecycleOwner, Observer {
             it?.let { automaticNextPage.isChecked = it }
         })
     }
 
     private fun observeFeedbackSound(feedbackSound: Switch) {
-        settingsViewModel.isFeedbackSoundEnabled.observe(this, Observer {
+        settingsViewModel.isFeedbackSoundEnabled.observe(viewLifecycleOwner, Observer {
             it?.let { feedbackSound.isChecked = it }
         })
     }
 
     private fun observeScanMode(scanMode: Switch) {
-        settingsViewModel.isScanModeEnabled.observe(this, Observer {
+        settingsViewModel.isScanModeEnabled.observe(viewLifecycleOwner, Observer {
             it?.let { scanMode.isChecked = it }
         })
     }

@@ -30,6 +30,7 @@ import org.falaeapp.falae.viewmodel.SettingsViewModel
 import java.util.ArrayList
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.math.roundToInt
 
 class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
     private var mItems: List<Item> = emptyList()
@@ -67,8 +68,10 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         } ?: return
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_view_pager_item, container, false)
         mGridLayout = view.findViewById(R.id.grid_layout) as GridLayout
         mGridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
@@ -82,28 +85,30 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
             mGridLayout.addView(layout)
             layout
         }
-        settingsViewModel.getFeedbackSound().observe(this, Observer { result ->
-            result?.let {
-                shouldPlayFeedbackSound = it
-            }
-        })
-        settingsViewModel.getAutomaticNextPage().observe(this, Observer { result ->
-            result?.let {
-                shouldCallNextPage = it
-            }
-        })
+        observeFeedbackSound()
+        observeAutomaticNextPage()
+        observeScanMode()
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-        settingsViewModel.getScanMode().observe(this, Observer { result ->
-            result?.let { pair ->
-                if (pair.first) {
-                    isScanModeEnabled = pair.first
-                    delay = pair.second
-                    doPageScan()
-                }
+    private fun observeAutomaticNextPage() {
+        settingsViewModel.shouldEnableAutomaticNextPage().observe(viewLifecycleOwner, Observer { result ->
+            shouldCallNextPage = result
+        })
+    }
+
+    private fun observeFeedbackSound() {
+        settingsViewModel.shouldEnableFeedbackSound().observe(viewLifecycleOwner, Observer { result ->
+            shouldPlayFeedbackSound = result
+        })
+    }
+
+    private fun observeScanMode() {
+        settingsViewModel.shouldEnableScanMode().observe(viewLifecycleOwner, Observer { pair ->
+            isScanModeEnabled = pair.first
+            if (isScanModeEnabled) {
+                delay = pair.second
+                doPageScan()
             }
         })
     }
@@ -136,13 +141,9 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         }
         frameLayout.setOnClickListener {
             var itemSelected = item
-            settingsViewModel.getScanMode().observe(this, Observer { result ->
-                result?.let { pair ->
-                    if (pair.first) {
-                        itemSelected = mItems[currentItemSelectedFromScan]
-                    }
-                }
-            })
+            if (isScanModeEnabled) {
+                itemSelected = mItems[currentItemSelectedFromScan]
+            }
             onItemClicked(itemSelected)
         }
         name.text = item.name
@@ -159,12 +160,12 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
             if (item.imgSrc.isNotEmpty()) {
                 if (imageSize > 0 && context != null) {
                     Picasso.get()
-                            .load(item.imgSrc)
-                            .placeholder(R.drawable.ic_image_black_48dp)
-                            .error(R.drawable.ic_broken_image_black_48dp)
-                            .resize(imageSize, imageSize)
-                            .centerCrop()
-                            .into(imageView)
+                        .load(item.imgSrc)
+                        .placeholder(R.drawable.ic_image_black_48dp)
+                        .error(R.drawable.ic_broken_image_black_48dp)
+                        .resize(imageSize, imageSize)
+                        .centerCrop()
+                        .into(imageView)
                 }
             } else {
                 Toast.makeText(context, getString(R.string.picasso_load_error), Toast.LENGTH_SHORT).show()
@@ -186,8 +187,8 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
     private fun calculateLayoutDimensions(): Point {
         val metrics = DisplayMetrics()
         activity?.windowManager?.defaultDisplay?.getMetrics(metrics)
-        val widthDimension = Math.round(((metrics.widthPixels - mMarginWidth) / mColumns).toFloat())
-        val heightDimension = Math.round((metrics.heightPixels / mRows).toFloat())
+        val widthDimension = ((metrics.widthPixels - mMarginWidth) / mColumns).toFloat().roundToInt()
+        val heightDimension = (metrics.heightPixels / mRows).toFloat().roundToInt()
         return Point(widthDimension, heightDimension)
     }
 
@@ -258,7 +259,8 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
 
     private fun highlightCurrentItem() {
         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
-            mItemsLayout[currentItemSelectedFromScan].foreground = context?.resources?.getDrawable(R.drawable.pressed_color)
+            mItemsLayout[currentItemSelectedFromScan].foreground =
+                context?.resources?.getDrawable(R.drawable.pressed_color)
         }
     }
 
@@ -304,7 +306,6 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         private const val COLUMNS_PARAM = "columns"
         private const val ROWS_PARAM = "rows"
         private const val MARGIN_WIDTH = "marginWidth"
-        private const val CURRENT_SELECTED_ITEM_INDEX = "currentSelectedItemIndex"
 
         fun newInstance(items: ArrayList<Item>, columns: Int, rows: Int, width: Int): ViewPagerItemFragment {
             val fragment = ViewPagerItemFragment()
