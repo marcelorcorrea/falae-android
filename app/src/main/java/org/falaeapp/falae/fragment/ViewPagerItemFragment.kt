@@ -32,7 +32,7 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.math.roundToInt
 
-class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
+class ViewPagerItemFragment : Fragment() {
     private var mItems: List<Item> = emptyList()
     private var mItemsLayout: List<FrameLayout> = emptyList()
     private lateinit var mListener: ViewPagerItemFragmentListener
@@ -87,7 +87,6 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         }
         observeFeedbackSound()
         observeAutomaticNextPage()
-        observeScanMode()
         return view
     }
 
@@ -113,16 +112,13 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        observeScanMode()
+    }
+
     override fun onPause() {
         super.onPause()
-        stopPageScan()
-    }
-
-    override fun onResumeFragment() {
-        doPageScan()
-    }
-
-    override fun onPauseFragment() {
         stopPageScan()
     }
 

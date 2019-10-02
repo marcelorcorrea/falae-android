@@ -19,7 +19,6 @@ import org.falaeapp.falae.viewmodel.DisplayViewModel
 
 class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
-
     private lateinit var mPageFragmentListener: PageFragmentListener
     private lateinit var mPager: ViewPager
     private lateinit var mPagerAdapter: ItemPagerAdapter
@@ -28,15 +27,16 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private lateinit var leftNavHolder: FrameLayout
     private lateinit var rightNavHolder: FrameLayout
     private lateinit var displayViewModel: DisplayViewModel
-    private var itemCurrentPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_page, container, false)
         leftNav = view.findViewById(R.id.left_nav) as ImageView
         rightNav = view.findViewById(R.id.right_nav) as ImageView
@@ -75,7 +75,6 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 mPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                     override fun onPageSelected(position: Int) {
                         handleNavButtons()
-                        handleFragmentLifeCycle(position)
                     }
                 })
                 if (shouldEnableNavButtons()) {
@@ -94,7 +93,8 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 rightNavHolder.setOnClickListener {
                     var tab = mPager.currentItem
                     if (isPagerAdapterInitialized() &&
-                            mPagerAdapter.count > 1 && tab != mPagerAdapter.count - 1) {
+                        mPagerAdapter.count > 1 && tab != mPagerAdapter.count - 1
+                    ) {
                         speak(getString(R.string.next))
                     }
                     tab++
@@ -117,20 +117,6 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
         }
     }
 
-    private fun handleFragmentLifeCycle(position: Int) {
-        val fragmentToShow = mPagerAdapter.getItem(position)
-        // When user changes the page by sliding the screen, userVisibleHint doesn't change.
-        // So we manually set the userVisibleHint
-        fragmentToShow.userVisibleHint = true
-        (fragmentToShow as FragmentLifecycle).onResumeFragment()
-
-        val fragmentToHide = mPagerAdapter.getItem(itemCurrentPosition)
-        fragmentToHide.userVisibleHint = false
-        (fragmentToHide as FragmentLifecycle).onPauseFragment()
-
-        itemCurrentPosition = position
-    }
-
     private fun handleNavButtons() {
         enableNavButtons()
         if (shouldDisableLeftNavButton()) {
@@ -149,13 +135,13 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private fun isPagerAdapterInitialized(): Boolean = this::mPagerAdapter.isInitialized
 
     private fun shouldEnableNavButtons(): Boolean = isPagerAdapterInitialized() &&
-            mPagerAdapter.count > 1
+        mPagerAdapter.count > 1
 
     private fun shouldDisableLeftNavButton(): Boolean = isPagerAdapterInitialized() &&
-            mPager.currentItem == 0
+        mPager.currentItem == 0
 
     private fun shouldDisableRightButton(): Boolean = isPagerAdapterInitialized() &&
-            mPager.currentItem >= mPagerAdapter.count - 1
+        mPager.currentItem >= mPagerAdapter.count - 1
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -185,10 +171,4 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
             return PageFragment()
         }
     }
-
-}
-
-interface FragmentLifecycle {
-    fun onPauseFragment()
-    fun onResumeFragment()
 }

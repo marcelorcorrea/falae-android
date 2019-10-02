@@ -1,19 +1,19 @@
 package org.falaeapp.falae.adapter
 
+import android.util.SparseArray
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import android.util.SparseArray
-import android.view.ViewGroup
 import org.falaeapp.falae.fragment.ViewPagerItemFragment
 import org.falaeapp.falae.model.Page
 import java.lang.ref.WeakReference
-import java.util.*
+import java.util.ArrayList
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-
-class ItemPagerAdapter(fm: FragmentManager, private val page: Page, private val marginWidth: Int) : FragmentStatePagerAdapter(fm) {
+class ItemPagerAdapter(fm: FragmentManager, private val page: Page, private val marginWidth: Int) :
+    FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private val pageCount: Int
     private val fragmentReferences = SparseArray<WeakReference<Fragment>>()
 
@@ -27,7 +27,8 @@ class ItemPagerAdapter(fm: FragmentManager, private val page: Page, private val 
             val itemsPerPage = page.columns * page.rows
             val fromIndex = position * itemsPerPage
             val subList = items.subList(fromIndex, min(fromIndex + itemsPerPage, items.size))
-            val newInstance: Fragment = ViewPagerItemFragment.newInstance(ArrayList(subList), page.columns, page.rows, marginWidth)
+            val newInstance: Fragment =
+                ViewPagerItemFragment.newInstance(ArrayList(subList), page.columns, page.rows, marginWidth)
             fragmentReferences.put(position, WeakReference(newInstance))
             newInstance
         }
