@@ -125,7 +125,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
         (fragmentToShow as FragmentLifecycle).onResumeFragment()
 
         val fragmentToHide = mPagerAdapter.getItem(itemCurrentPosition)
-        userVisibleHint = false
+        fragmentToHide.userVisibleHint = false
         (fragmentToHide as FragmentLifecycle).onPauseFragment()
 
         itemCurrentPosition = position
