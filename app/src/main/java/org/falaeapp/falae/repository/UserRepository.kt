@@ -92,7 +92,7 @@ class UserRepository(val context: Context) {
         user
     }
 
-    suspend fun login(email: String, password: String): User = withContext(Dispatchers.IO) {
+    private suspend fun login(email: String, password: String): User = withContext(Dispatchers.IO) {
         try {
             falaeWebPlatform.login(email, password)
         } catch (exception: Exception) {
@@ -105,7 +105,7 @@ class UserRepository(val context: Context) {
         }
     }
 
-    suspend fun downloadImages(user: User): User = withContext(Dispatchers.IO) {
+    private suspend fun downloadImages(user: User): User = withContext(Dispatchers.IO) {
         try {
             falaeWebPlatform.downloadImages(user, downloadCacheDao, fileHandler)
         } catch (ex: IOException) {

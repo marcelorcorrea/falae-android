@@ -47,9 +47,7 @@ class SettingsFragment : Fragment() {
         scanMode.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setScanModeChecked(isChecked) }
         feedbackSound.setOnCheckedChangeListener { _, isChecked -> settingsViewModel.setFeedbackSoundChecked(isChecked) }
         automaticNextPage.setOnCheckedChangeListener { _, isChecked ->
-            settingsViewModel.setAutomaticNextPageChecked(
-                isChecked
-            )
+            settingsViewModel.setAutomaticNextPageChecked(isChecked)
         }
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

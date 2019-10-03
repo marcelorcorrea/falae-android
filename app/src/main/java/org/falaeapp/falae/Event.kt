@@ -5,18 +5,28 @@ package org.falaeapp.falae
  */
 open class Event<out T>(private val content: T) {
 
-    var hasBeenHandled = false
-        private set // Allow external read but not write
+    private var hasBeenHandled = false
 
     /**
      * Returns the content and prevents its use again.
      */
     fun getContentIfNotHandled(): T? {
-        return if (hasBeenHandled || content is Unit) {
+        return if (hasBeenHandled) {
             null
         } else {
             hasBeenHandled = true
             content
+        }
+    }
+
+    /**
+     * Returns the content if the event is not Unit type.
+     */
+    fun getContentIfNotEmpty(): T? {
+        return if (content is Unit) {
+            null
+        } else {
+            getContentIfNotHandled()
         }
     }
 

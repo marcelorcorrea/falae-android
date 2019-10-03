@@ -18,7 +18,7 @@ class DisplayViewModel(application: Application) : AndroidViewModel(application)
         liveData(Dispatchers.Default) {
             val page = currentSpreadSheet.pages.find { it.name == linkTo }
             page?.apply {
-                initialPage = isInitialPage(page)
+                initialPage = isInitialPage(this)
                 emit(this)
             }
         }
@@ -33,7 +33,7 @@ class DisplayViewModel(application: Application) : AndroidViewModel(application)
 
     fun init(spreadSheet: SpreadSheet) {
         currentSpreadSheet = spreadSheet
-        spreadSheet.initialPage?.let {
+        currentSpreadSheet.initialPage?.let {
             openPage(it)
         }
     }
@@ -42,7 +42,7 @@ class DisplayViewModel(application: Application) : AndroidViewModel(application)
         linkToPage.value = linkTo
     }
 
-    private fun isInitialPage(page: Page?) = page?.name == currentSpreadSheet.initialPage
+    private fun isInitialPage(page: Page) = page.name == currentSpreadSheet.initialPage
 
     fun setCurrentPage(page: Page) {
         newPage.value = page

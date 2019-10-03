@@ -16,7 +16,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val scanModeEnabled: MutableLiveData<Event<Any>> = MutableLiveData()
     val isScanModeEnabled: LiveData<Boolean> = scanModeEnabled.switchMap { event ->
-        event?.getContentIfNotHandled()?.let { checked ->
+        event?.getContentIfNotEmpty()?.let { checked ->
             viewModelScope.launch {
                 settingsRepository.saveEnableScanMode(checked as Boolean)
             }
@@ -28,7 +28,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val feedbackSoundEnabled: MutableLiveData<Event<Any>> = MutableLiveData()
     val isFeedbackSoundEnabled: LiveData<Boolean> = feedbackSoundEnabled.switchMap { event ->
-        event?.getContentIfNotHandled()?.let { checked ->
+        event?.getContentIfNotEmpty()?.let { checked ->
             viewModelScope.launch {
                 settingsRepository.saveEnableFeedbackSound(checked as Boolean)
             }
@@ -40,7 +40,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val automaticNextPageEnabled: MutableLiveData<Event<Any>> = MutableLiveData()
     val isAutomaticNextPageEnabled: LiveData<Boolean> = automaticNextPageEnabled.switchMap { event ->
-        event?.getContentIfNotHandled()?.let { checked ->
+        event?.getContentIfNotEmpty()?.let { checked ->
             viewModelScope.launch {
                 settingsRepository.saveEnableAutomaticNextPage(checked as Boolean)
             }
@@ -52,7 +52,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val progressSeekBar: MutableLiveData<Event<Any>> = MutableLiveData()
     val seekBarProgress: LiveData<Int> = progressSeekBar.switchMap { event ->
-        event?.getContentIfNotHandled()?.let { progress ->
+        event?.getContentIfNotEmpty()?.let { progress ->
             viewModelScope.launch {
                 settingsRepository.saveSeekBarProgress(progress as Int)
             }

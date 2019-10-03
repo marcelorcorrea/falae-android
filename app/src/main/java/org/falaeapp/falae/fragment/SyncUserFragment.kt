@@ -34,7 +34,7 @@ class SyncUserFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
-        userViewModel.reposResult.observe(this, Observer { event ->
+        userViewModel.syncAccountResponse.observe(this, Observer { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 result.second?.let { error ->
                     onError(error)
