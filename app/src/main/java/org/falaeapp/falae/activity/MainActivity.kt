@@ -63,6 +63,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
 
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
+        observeUsers()
+        observeLastConnectedUser()
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            ProviderInstaller.installIfNeededAsync(this, this)
+        }
+    }
+
+    private fun observeLastConnectedUser() {
+        userViewModel.lastConnectedUserId.observe(this, Observer {
+            it?.let { lastConnectedUserId ->
+                openUserItem(lastConnectedUserId)
+            }
+        })
+    }
+
+    private fun observeUsers() {
         userViewModel.users.observe(this, Observer<List<User>> { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
             users?.reversed()?.forEach {
@@ -70,15 +87,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             userViewModel.loadLastConnectedUser()
         })
-        userViewModel.lastConnectedUserId.observe(this, Observer {
-            it?.let { lastConnectedUserId ->
-                openUserItem(lastConnectedUserId)
-            }
-        })
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            ProviderInstaller.installIfNeededAsync(this, this)
-        }
     }
 
     private fun openUserItem(userId: Long) {
