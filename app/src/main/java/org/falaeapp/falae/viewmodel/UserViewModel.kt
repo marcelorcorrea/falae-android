@@ -56,10 +56,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun loadUser(userId: Long) {
         currentUser = liveData {
             val user = userRepository.getUser(userId)
-            emit(user)
-        }
-        viewModelScope.launch {
             userRepository.saveLastConnectedUserId(userId)
+            emit(user)
         }
     }
 
