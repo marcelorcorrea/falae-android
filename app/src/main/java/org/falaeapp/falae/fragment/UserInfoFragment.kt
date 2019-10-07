@@ -27,8 +27,10 @@ class UserInfoFragment : Fragment() {
         onAttachFragment(parentFragment!!)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_user_info, container, false)
         val imageView = view.findViewById(R.id.user_photo) as ImageView
@@ -46,17 +48,17 @@ class UserInfoFragment : Fragment() {
             placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
         }
 
-        userViewModel.currentUser.observe(activity!!, Observer { user ->
+        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.apply {
-                photo?.let {linkPhoto ->
+                photo?.let { linkPhoto ->
                     if (linkPhoto.isNotEmpty() && context != null) {
                         Picasso.get()
-                                .load(linkPhoto)
-                                .placeholder(placeHolderImage!!)
-                                .error(brokenImage!!)
-                                .transform(CropCircleTransformation())
-                                .memoryPolicy(MemoryPolicy.NO_CACHE)
-                                .into(imageView)
+                            .load(linkPhoto)
+                            .placeholder(placeHolderImage!!)
+                            .error(brokenImage!!)
+                            .transform(CropCircleTransformation())
+                            .memoryPolicy(MemoryPolicy.NO_CACHE)
+                            .into(imageView)
                     }
                 }
                 userName.text = name

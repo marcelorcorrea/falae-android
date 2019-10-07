@@ -30,7 +30,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     private val lastConnectedUserIdEvent: MutableLiveData<Event<Any>> = MutableLiveData()
     val lastConnectedUserId: LiveData<Long> = lastConnectedUserIdEvent.switchMap { event ->
         liveData {
-            event?.getContentIfNotEmpty()?.let { userId ->
+            event?.getContentIfAny()?.let { userId ->
                 emit(userId as Long)
             } ?: run {
                 emit(userRepository.getLastConnectedUserId())
@@ -41,7 +41,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     private val clearCacheEvent = MutableLiveData<Event<Any>>()
     val clearCache: LiveData<Event<Boolean>> = clearCacheEvent.switchMap { event ->
         liveData {
-            event?.getContentIfNotEmpty()?.let { email ->
+            event?.getContentIfAny()?.let { email ->
                 emit(Event(userRepository.clearUserCache(email as String)))
             } ?: run {
                 emit(Event(userRepository.clearPublicCache()))

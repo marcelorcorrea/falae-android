@@ -14,9 +14,9 @@ import org.falaeapp.falae.repository.SettingsRepository
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val settingsRepository: SettingsRepository = SettingsRepository(application)
 
-    private val scanModeEnabled: MutableLiveData<Event<Any>> = MutableLiveData()
-    val isScanModeEnabled: LiveData<Boolean> = scanModeEnabled.switchMap { event ->
-        event?.getContentIfNotEmpty()?.let { checked ->
+    private val scanModeEnabledEvent: MutableLiveData<Event<Any>> = MutableLiveData()
+    val isScanModeEnabled: LiveData<Boolean> = scanModeEnabledEvent.switchMap { event ->
+        event?.getContentIfAny()?.let { checked ->
             viewModelScope.launch {
                 settingsRepository.saveEnableScanMode(checked as Boolean)
             }
@@ -26,9 +26,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private val feedbackSoundEnabled: MutableLiveData<Event<Any>> = MutableLiveData()
-    val isFeedbackSoundEnabled: LiveData<Boolean> = feedbackSoundEnabled.switchMap { event ->
-        event?.getContentIfNotEmpty()?.let { checked ->
+    private val feedbackSoundEnabledEvent: MutableLiveData<Event<Any>> = MutableLiveData()
+    val isFeedbackSoundEnabled: LiveData<Boolean> = feedbackSoundEnabledEvent.switchMap { event ->
+        event?.getContentIfAny()?.let { checked ->
             viewModelScope.launch {
                 settingsRepository.saveEnableFeedbackSound(checked as Boolean)
             }
@@ -38,9 +38,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private val automaticNextPageEnabled: MutableLiveData<Event<Any>> = MutableLiveData()
-    val isAutomaticNextPageEnabled: LiveData<Boolean> = automaticNextPageEnabled.switchMap { event ->
-        event?.getContentIfNotEmpty()?.let { checked ->
+    private val automaticNextPageEnabledEvent: MutableLiveData<Event<Any>> = MutableLiveData()
+    val isAutomaticNextPageEnabled: LiveData<Boolean> = automaticNextPageEnabledEvent.switchMap { event ->
+        event?.getContentIfAny()?.let { checked ->
             viewModelScope.launch {
                 settingsRepository.saveEnableAutomaticNextPage(checked as Boolean)
             }
@@ -50,9 +50,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private val progressSeekBar: MutableLiveData<Event<Any>> = MutableLiveData()
-    val seekBarProgress: LiveData<Int> = progressSeekBar.switchMap { event ->
-        event?.getContentIfNotEmpty()?.let { progress ->
+    private val seekBarProgressEvent: MutableLiveData<Event<Any>> = MutableLiveData()
+    val seekBarProgress: LiveData<Int> = seekBarProgressEvent.switchMap { event ->
+        event?.getContentIfAny()?.let { progress ->
             viewModelScope.launch {
                 settingsRepository.saveSeekBarProgress(progress as Int)
             }
@@ -63,35 +63,35 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun loadScan() {
-        scanModeEnabled.value = Event(Unit)
+        scanModeEnabledEvent.value = Event(Unit)
     }
 
     fun loadFeedbackSound() {
-        feedbackSoundEnabled.value = Event(Unit)
+        feedbackSoundEnabledEvent.value = Event(Unit)
     }
 
     fun loadAutomaticNextPage() {
-        automaticNextPageEnabled.value = Event(Unit)
+        automaticNextPageEnabledEvent.value = Event(Unit)
     }
 
     fun loadSeekBarProgress() {
-        progressSeekBar.value = Event(Unit)
+        seekBarProgressEvent.value = Event(Unit)
     }
 
     fun setScanModeChecked(checked: Boolean) {
-        scanModeEnabled.value = Event(checked)
+        scanModeEnabledEvent.value = Event(checked)
     }
 
     fun setFeedbackSoundChecked(checked: Boolean) {
-        feedbackSoundEnabled.value = Event(checked)
+        feedbackSoundEnabledEvent.value = Event(checked)
     }
 
     fun setAutomaticNextPageChecked(checked: Boolean) {
-        automaticNextPageEnabled.value = Event(checked)
+        automaticNextPageEnabledEvent.value = Event(checked)
     }
 
     fun setSeekBarProgress(progress: Int) {
-        progressSeekBar.value = Event(progress)
+        seekBarProgressEvent.value = Event(progress)
     }
 
     fun setScanModeDuration(timeMillis: Long) {

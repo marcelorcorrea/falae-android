@@ -61,7 +61,7 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        userViewModel.currentUser.observe(activity!!, Observer { user ->
+        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             if (user != null && !user.isSampleUser()) {
                 inflater.inflate(R.menu.board_menu, menu)
             }
@@ -92,8 +92,6 @@ class SpreadSheetFragment : Fragment() {
     }
 
     companion object {
-
-        private const val USER_PARAM = "userParam"
 
         fun newInstance(): SpreadSheetFragment {
             return SpreadSheetFragment()

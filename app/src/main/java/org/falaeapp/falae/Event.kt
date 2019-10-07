@@ -22,7 +22,7 @@ open class Event<out T>(private val content: T) {
     /**
      * Returns the content if the event is not Unit type.
      */
-    fun getContentIfNotEmpty(): T? {
+    fun getContentIfAny(): T? {
         return if (content is Unit) {
             null
         } else {
