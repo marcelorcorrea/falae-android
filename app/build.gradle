@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'org.jetbrains.kotlin.android.extensions'
+androidExtensions {
+    experimental = true
+}
 
 android {
     compileOptions {
@@ -57,35 +62,30 @@ android {
         }
     }
 }
-apply plugin: 'org.jetbrains.kotlin.android.extensions'
-apply plugin: 'kotlin-kapt'
-androidExtensions {
-    experimental = true
-}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'commons-io:commons-io:20030203.000550'
-    implementation "com.android.support:design:$rootProject.supportLibVersion"
+    implementation "com.android.support:design:29.0.0"
+    implementation "com.android.support:appcompat-v7:29.0.0"
+    implementation "com.android.support:recyclerview-v7:29.0.0"
+    implementation "com.android.support:support-v4:29.0.0"
+    implementation "com.android.support:gridlayout-v7:29.0.0"
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.android.volley:volley:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation "com.android.support:gridlayout-v7:$rootProject.supportLibVersion"
     implementation 'jp.wasabeef:picasso-transformations:2.1.2'
     implementation 'com.google.android.gms:play-services-base:17.1.0'
-    implementation "com.android.support:appcompat-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support:support-v4:$rootProject.supportLibVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0-alpha05"
     implementation "androidx.room:room-runtime:2.2.0-rc01"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha05'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0-alpha05'
-    kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.archLifecycleVersion"
-    kapt "androidx.room:room-compiler:$rootProject.archRoomVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha05"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0-alpha05"
+    kapt "androidx.lifecycle:lifecycle-compiler:2.2.0-alpha05"
+    kapt "androidx.room:room-compiler:2.2.0-rc01"
     testImplementation 'junit:junit:4.13-beta-3'
     testImplementation 'org.hamcrest:hamcrest-library:2.1'
     testImplementation 'junit:junit:4.13-beta-3'
