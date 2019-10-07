@@ -22,6 +22,9 @@ class SettingsFragment : Fragment() {
 
     private lateinit var seekBar: SeekBar
     private lateinit var seekBarValue: TextView
+    private lateinit var scanMode: Switch
+    private lateinit var feedbackSound: Switch
+    private lateinit var automaticNextPage: Switch
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var userViewModel: UserViewModel
 
@@ -33,9 +36,9 @@ class SettingsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
-        val scanMode = view.findViewById<Switch>(R.id.scan_mode)
-        val feedbackSound = view.findViewById<Switch>(R.id.feedback_sound)
-        val automaticNextPage = view.findViewById<Switch>(R.id.automatic_next_page)
+        scanMode = view.findViewById(R.id.scan_mode)
+        feedbackSound = view.findViewById(R.id.feedback_sound)
+        automaticNextPage = view.findViewById(R.id.automatic_next_page)
         seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
         seekBar = view.findViewById(R.id.seekBar) as SeekBar
 
@@ -79,9 +82,9 @@ class SettingsFragment : Fragment() {
         }
         setHasOptionsMenu(true)
 
-        observeScanMode(scanMode)
-        observeFeedbackSound(feedbackSound)
-        observeAutomaticNextPage(automaticNextPage)
+        observeScanMode()
+        observeFeedbackSound()
+        observeAutomaticNextPage()
         observeClearCache()
         observeSeekBarProgress()
         observeCurrentUser(view)
@@ -119,21 +122,24 @@ class SettingsFragment : Fragment() {
         })
     }
 
-    private fun observeAutomaticNextPage(automaticNextPage: Switch) {
-        settingsViewModel.isAutomaticNextPageEnabled.observe(viewLifecycleOwner, Observer {
-            it?.let { automaticNextPage.isChecked = it }
+    private fun observeAutomaticNextPage() {
+        settingsViewModel.isAutomaticNextPageEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
+            automaticNextPage.isChecked = isEnabled
         })
     }
 
-    private fun observeFeedbackSound(feedbackSound: Switch) {
-        settingsViewModel.isFeedbackSoundEnabled.observe(viewLifecycleOwner, Observer {
-            it?.let { feedbackSound.isChecked = it }
+    private fun observeFeedbackSound() {
+        settingsViewModel.isFeedbackSoundEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
+            feedbackSound.isChecked = isEnabled
         })
     }
 
-    private fun observeScanMode(scanMode: Switch) {
-        settingsViewModel.isScanModeEnabled.observe(viewLifecycleOwner, Observer {
-            it?.let { scanMode.isChecked = it }
+    private fun observeScanMode() {
+        settingsViewModel.isScanModeEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
+            scanMode.isChecked = isEnabled
+            automaticNextPage.isEnabled = isEnabled
+            feedbackSound.isEnabled = isEnabled
+            seekBar.isEnabled = isEnabled
         })
     }
 
