@@ -46,7 +46,7 @@
     <string name="images_removed">Imagens removidas com sucesso!</string>
     <string name="images_removed_error">Ocorreu um erro ao tentar remover as imagens</string>
     <string name="confirm_clear_public_cache">Isso fará com que todas as imagens públicas sejam removidas neste dispositivo. Tem certeza que deseja fazer isso?</string>
-    <string name="confirm_clear_user_cache">Isso fará com que todas as imagens do menu "meus itens" sejam removidas neste dispositivo. Tem certeza que deseja fazer isso?</string>
+    <string name="confirm_clear_user_cache">Isso fará com que todas as imagens do menu "meus itens" sejam removidas neste dispositivo. Você precisará sincronizar sua conta novamente. Tem certeza que deseja fazer isso?</string>
     <string name="clear_user_cache">Limpar cache do usuário</string>
     <string name="clear_public_cache">Limpar cache público</string>
     <string name="cache">Cache</string>
