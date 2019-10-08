@@ -137,7 +137,6 @@ class FalaeWebPlatform(val context: Context) {
         imgSrc: String
     ): String {
         val url = URL(imgSrc)
-        println("Downloading item: $name - $imgSrc")
         Log.d(this.javaClass.name, "Downloading item: $name - $imgSrc")
         try {
             with(url.openConnection()) {
