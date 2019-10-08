@@ -43,4 +43,12 @@
     <string name="picasso_load_error">Não foi possível carregar a imagem. Por favor tente re-sincronizar sua conta.</string>
     <string name="background_run">Falaê está rodando em plano de fundo.</string>
     <string name="scan_mode_automatic_next_page">Mudança de página automática</string>
+    <string name="images_removed">Imagens removidas com sucesso!</string>
+    <string name="images_removed_error">Ocorreu um erro ao tentar remover as imagens.</string>
+    <string name="confirm_clear_public_cache">Isso fará com que todas imagens públicas, compartilhadas entre diferentes usuários, sejam removidas deste dispositivo. Tem certeza que deseja fazer isso?</string>
+    <string name="confirm_clear_user_cache">Isso fará com que todas suas imagens privadas do menu "Meus Itens" sejam removidas deste dispositivo. Você precisará sincronizar sua conta novamente. Tem certeza que deseja fazer isso?</string>
+    <string name="clear_user_cache">Limpar cache do usuário</string>
+    <string name="clear_public_cache">Limpar cache público</string>
+    <string name="cache">Cache</string>
+    <string name="clear_cache">Limpar Cache</string>
 </resources>

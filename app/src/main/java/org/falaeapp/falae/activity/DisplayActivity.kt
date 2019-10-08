@@ -1,14 +1,14 @@
 package org.falaeapp.falae.activity
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
-import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import org.falaeapp.falae.R
 import org.falaeapp.falae.fragment.PageFragment
 import org.falaeapp.falae.fragment.ViewPagerItemFragment
@@ -17,7 +17,8 @@ import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.service.TextToSpeechService
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 
-class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, ViewPagerItemFragment.ViewPagerItemFragmentListener {
+class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
+    ViewPagerItemFragment.ViewPagerItemFragmentListener {
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var mediaPlayer: MediaPlayer
 
@@ -25,9 +26,11 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display)
 
-        val spreadSheet: SpreadSheet = intent.getParcelableExtra(SPREADSHEET)
-        displayViewModel = ViewModelProviders.of(this).get(DisplayViewModel::class.java)
-        displayViewModel.init(spreadSheet)
+        val spreadSheet: SpreadSheet? = intent.getParcelableExtra(SPREADSHEET)
+        displayViewModel = ViewModelProvider(this).get(DisplayViewModel::class.java)
+        spreadSheet?.let {
+            displayViewModel.init(it)
+        }
 
         displayViewModel.pageToOpen.observe(this, Observer {
             it?.let { page ->
@@ -43,10 +46,12 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener, 
         val fragment = PageFragment.newInstance()
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager
-                .beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out,
-                        android.R.anim.fade_in, android.R.anim.fade_out)
-                .replace(R.id.page_container, fragment)
+            .beginTransaction()
+            .setCustomAnimations(
+                android.R.anim.fade_in, android.R.anim.fade_out,
+                android.R.anim.fade_in, android.R.anim.fade_out
+            )
+            .replace(R.id.page_container, fragment)
         if (addToBackStack) {
             fragmentTransaction.addToBackStack(page.name)
         } else if (fragmentManager.backStackEntryCount > 0) {

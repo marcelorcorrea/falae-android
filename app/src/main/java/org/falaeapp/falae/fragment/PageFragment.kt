@@ -1,24 +1,23 @@
 package org.falaeapp.falae.fragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.viewpager.widget.ViewPager
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.ItemPagerAdapter
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 
 class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
-
 
     private lateinit var mPageFragmentListener: PageFragmentListener
     private lateinit var mPager: ViewPager
@@ -28,15 +27,16 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private lateinit var leftNavHolder: FrameLayout
     private lateinit var rightNavHolder: FrameLayout
     private lateinit var displayViewModel: DisplayViewModel
-    private var itemCurrentPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_page, container, false)
         leftNav = view.findViewById(R.id.left_nav) as ImageView
         rightNav = view.findViewById(R.id.right_nav) as ImageView
@@ -52,7 +52,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                     view.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
                 mPager = view.findViewById(R.id.pager) as ViewPager
-                val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065)!!.toInt()
+                val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065).toInt()
                 leftNav.layoutParams.width = navHoldersSize
                 leftNav.layoutParams.height = navHoldersSize
                 rightNav.layoutParams.width = navHoldersSize
@@ -60,10 +60,8 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
                 if (isPagerAdapterInitialized().not()) {
-                    displayViewModel.currentPage.observe(this@PageFragment, Observer {
-                        it?.let { page ->
-                            mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
-                        }
+                    displayViewModel.currentPage.observe(viewLifecycleOwner, Observer { page ->
+                        mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
                     })
                 }
                 if (::mPager.isInitialized && isPagerAdapterInitialized()) {
@@ -75,7 +73,6 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 mPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                     override fun onPageSelected(position: Int) {
                         handleNavButtons()
-                        handleFragmentLifeCycle(position)
                     }
                 })
                 if (shouldEnableNavButtons()) {
@@ -94,7 +91,8 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 rightNavHolder.setOnClickListener {
                     var tab = mPager.currentItem
                     if (isPagerAdapterInitialized() &&
-                            mPagerAdapter.count > 1 && tab != mPagerAdapter.count - 1) {
+                        mPagerAdapter.count > 1 && tab != mPagerAdapter.count - 1
+                    ) {
                         speak(getString(R.string.next))
                     }
                     tab++
@@ -117,20 +115,6 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
         }
     }
 
-    private fun handleFragmentLifeCycle(position: Int) {
-        val fragmentToShow = mPagerAdapter.getItem(position)
-        // When user changes the page by sliding the screen, userVisibleHint doesn't change.
-        // So we manually set the userVisibleHint
-        fragmentToShow.userVisibleHint = true
-        (fragmentToShow as FragmentLifecycle).onResumeFragment()
-
-        val fragmentToHide = mPagerAdapter.getItem(itemCurrentPosition)
-        userVisibleHint = false
-        (fragmentToHide as FragmentLifecycle).onPauseFragment()
-
-        itemCurrentPosition = position
-    }
-
     private fun handleNavButtons() {
         enableNavButtons()
         if (shouldDisableLeftNavButton()) {
@@ -149,20 +133,20 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private fun isPagerAdapterInitialized(): Boolean = this::mPagerAdapter.isInitialized
 
     private fun shouldEnableNavButtons(): Boolean = isPagerAdapterInitialized() &&
-            mPagerAdapter.count > 1
+        mPagerAdapter.count > 1
 
     private fun shouldDisableLeftNavButton(): Boolean = isPagerAdapterInitialized() &&
-            mPager.currentItem == 0
+        mPager.currentItem == 0
 
     private fun shouldDisableRightButton(): Boolean = isPagerAdapterInitialized() &&
-            mPager.currentItem >= mPagerAdapter.count - 1
+        mPager.currentItem >= mPagerAdapter.count - 1
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is PageFragmentListener) {
             mPageFragmentListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement PageFragmentListener")
+            throw RuntimeException("$context must implement PageFragmentListener")
         }
     }
 
@@ -185,10 +169,4 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
             return PageFragment()
         }
     }
-
-}
-
-interface FragmentLifecycle {
-    fun onPauseFragment()
-    fun onResumeFragment()
 }

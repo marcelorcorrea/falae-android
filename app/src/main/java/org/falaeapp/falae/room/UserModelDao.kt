@@ -1,10 +1,13 @@
 package org.falaeapp.falae.room
 
-import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.*
-import android.arch.persistence.room.OnConflictStrategy.REPLACE
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.Query
+import androidx.room.Update
 import org.falaeapp.falae.model.User
-
 
 @Dao
 interface UserModelDao {
@@ -13,7 +16,7 @@ interface UserModelDao {
     fun findByEmail(email: String): User?
 
     @Query("select * from User where id = :id")
-    fun findById(id: Long): LiveData<User>
+    fun findById(id: Long): User
 
     @Query("select * from User")
     fun getAllUsers(): LiveData<List<User>>

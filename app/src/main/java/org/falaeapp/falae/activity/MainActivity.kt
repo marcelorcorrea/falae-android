@@ -1,27 +1,27 @@
 package org.falaeapp.falae.activity
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.speech.tts.TextToSpeech
-import android.support.design.widget.NavigationView
-import android.support.v4.app.Fragment
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.MenuItem
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
+import com.google.android.material.navigation.NavigationView
 import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
 import org.falaeapp.falae.fragment.SettingsFragment
@@ -32,9 +32,9 @@ import org.falaeapp.falae.model.User
 import org.falaeapp.falae.viewmodel.UserViewModel
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-        TabPagerFragment.TabPagerFragmentListener,
-        SyncUserFragment.SyncUserFragmentListener,
-        ProviderInstaller.ProviderInstallListener {
+    TabPagerFragment.TabPagerFragmentListener,
+    SyncUserFragment.SyncUserFragmentListener,
+    ProviderInstaller.ProviderInstallListener {
 
     private lateinit var mDrawer: DrawerLayout
     private lateinit var mNavigationView: NavigationView
@@ -52,15 +52,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mDrawer = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
-                this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+            this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
         mDrawer.addDrawerListener(toggle)
         toggle.syncState()
         mDrawer.openDrawer(GravityCompat.START)
         mNavigationView = findViewById(R.id.nav_view)
         mNavigationView.setNavigationItemSelectedListener(this)
 
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
+        observeUsers()
+        observeLastConnectedUser()
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            ProviderInstaller.installIfNeededAsync(this, this)
+        }
+    }
+
+    private fun observeLastConnectedUser() {
+        userViewModel.lastConnectedUserId.observe(this, Observer {
+            it?.let { lastConnectedUserId ->
+                openUserItem(lastConnectedUserId)
+            }
+        })
+    }
+
+    private fun observeUsers() {
         userViewModel.users.observe(this, Observer<List<User>> { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
             users?.reversed()?.forEach {
@@ -68,15 +87,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             userViewModel.loadLastConnectedUser()
         })
-        userViewModel.lastConnectedUserId.observe(this, Observer {
-            it?.let { lastConnectedUserId ->
-                openUserItem(lastConnectedUserId)
-            }
-        })
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            ProviderInstaller.installIfNeededAsync(this, this)
-        }
     }
 
     private fun openUserItem(userId: Long) {
@@ -114,8 +124,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         title = item.title
         mDrawer.closeDrawer(GravityCompat.START)
 
-        val id = item.itemId
-        when (id) {
+        when (val id = item.itemId) {
             R.id.add_user -> {
                 fragment = SyncUserFragment.newInstance()
                 tag = SyncUserFragment::class.java.simpleName
@@ -140,10 +149,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun changeFragment(fragment: Fragment, tag: String) {
         supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left,
-                        R.anim.enter_from_left, R.anim.exit_to_right)
-                .replace(R.id.container, fragment, tag)
-                .commit()
+            .setCustomAnimations(
+                R.anim.enter_from_right, R.anim.exit_to_left,
+                R.anim.enter_from_left, R.anim.exit_to_right
+            )
+            .replace(R.id.container, fragment, tag)
+            .commit()
     }
 
     private fun openTTSLanguageSettings() {
@@ -166,9 +177,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onProviderInstallFailed(errorCode: Int, recoveryIntent: Intent?) {
         if (GoogleApiAvailability.getInstance().isUserResolvableError(errorCode)) {
             GoogleApiAvailability.getInstance().showErrorDialogFragment(
-                    this,
-                    errorCode,
-                    ERROR_DIALOG_REQUEST_CODE
+                this,
+                errorCode,
+                ERROR_DIALOG_REQUEST_CODE
             ) {
                 onProviderInstallerNotAvailable()
             }
@@ -177,8 +188,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int,
-                                  data: Intent?) {
+    override fun onActivityResult(
+        requestCode: Int, resultCode: Int,
+        data: Intent?
+    ) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ERROR_DIALOG_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_CANCELED)

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="org.falaeapp.falae.fragment.SpreadSheetFragment">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/spreadsheet_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

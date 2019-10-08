@@ -1,50 +1,52 @@
 package org.falaeapp.falae.repository
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.storage.SharedPreferencesUtils
 
 class SettingsRepository(val context: Context) {
     private val sharedPreferences: SharedPreferencesUtils = SharedPreferencesUtils(context.applicationContext)
 
-    fun isScanModeEnabled(): Boolean {
-        return sharedPreferences.getBoolean(SCAN_MODE)
+    suspend fun isScanModeEnabled(): Boolean = withContext(Dispatchers.IO) {
+        sharedPreferences.getBoolean(SCAN_MODE)
     }
 
-    fun isFeedbackSoundEnabled(): Boolean {
-        return sharedPreferences.getBoolean(FEEDBACK_SOUND)
+    suspend fun isFeedbackSoundEnabled(): Boolean = withContext(Dispatchers.IO) {
+        sharedPreferences.getBoolean(FEEDBACK_SOUND)
     }
 
-    fun isAutomaticNextPageEnabled(): Boolean {
-        return sharedPreferences.getBoolean(AUTOMATIC_NEXT_PAGE)
+    suspend fun isAutomaticNextPageEnabled(): Boolean = withContext(Dispatchers.IO) {
+        sharedPreferences.getBoolean(AUTOMATIC_NEXT_PAGE)
     }
 
-    fun saveEnableScanMode(checked: Boolean) {
+    suspend fun saveEnableScanMode(checked: Boolean) = withContext(Dispatchers.IO) {
         sharedPreferences.storeBoolean(SCAN_MODE, checked)
     }
 
-    fun saveEnableFeedbackSound(checked: Boolean) {
+    suspend fun saveEnableFeedbackSound(checked: Boolean) = withContext(Dispatchers.IO) {
         sharedPreferences.storeBoolean(FEEDBACK_SOUND, checked)
     }
 
-    fun saveEnableAutomaticNextPage(checked: Boolean) {
+    suspend fun saveEnableAutomaticNextPage(checked: Boolean) = withContext(Dispatchers.IO) {
         sharedPreferences.storeBoolean(AUTOMATIC_NEXT_PAGE, checked)
     }
 
-    fun saveSeekBarProgress(progress: Int) {
+    suspend fun saveSeekBarProgress(progress: Int) = withContext(Dispatchers.IO) {
         sharedPreferences.storeInt(SEEK_BAR_PROGRESS, progress)
     }
 
-    fun saveScanModeDuration(timeMillis: Long) {
+    suspend fun saveScanModeDuration(timeMillis: Long) = withContext(Dispatchers.IO) {
         sharedPreferences.storeLong(SCAN_MODE_DURATION, timeMillis)
     }
 
-    fun getSeekBarProgress(): Int {
-        return sharedPreferences.getInt(SEEK_BAR_PROGRESS)
+    suspend fun getSeekBarProgress(): Int = withContext(Dispatchers.IO) {
+        sharedPreferences.getInt(SEEK_BAR_PROGRESS)
     }
 
-    fun getScanModeDuration(): Long {
-        return sharedPreferences.getLong(SCAN_MODE_DURATION, 500L)
+    suspend fun getScanModeDuration(): Long = withContext(Dispatchers.IO) {
+        sharedPreferences.getLong(SCAN_MODE_DURATION, 500L)
     }
 
     companion object {
@@ -57,5 +59,4 @@ class SettingsRepository(val context: Context) {
 
         fun newInstance(): SettingsFragment = SettingsFragment()
     }
-
 }

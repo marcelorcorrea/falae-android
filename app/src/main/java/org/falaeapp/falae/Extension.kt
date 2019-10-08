@@ -1,6 +1,7 @@
 package org.falaeapp.falae
 
 import android.content.res.Resources
+import androidx.appcompat.app.AlertDialog
 import com.google.gson.Gson
 import org.falaeapp.falae.model.User
 import java.io.File
@@ -22,3 +23,12 @@ fun Resources.loadUser(name: String): User {
 
 fun InputStream.readText(charset: Charset = Charsets.UTF_8): String =
         bufferedReader(charset).use { it.readText() }
+
+fun AlertDialog.loadDefaultShowListener(resources: Resources) {
+    setOnShowListener {
+        val buttonPositive = getButton(AlertDialog.BUTTON_POSITIVE)
+        val buttonNegative = getButton(AlertDialog.BUTTON_NEGATIVE)
+        buttonPositive.setTextColor(resources.getColor(R.color.colorAccent))
+        buttonNegative.setTextColor(resources.getColor(R.color.colorAccent))
+    }
+}

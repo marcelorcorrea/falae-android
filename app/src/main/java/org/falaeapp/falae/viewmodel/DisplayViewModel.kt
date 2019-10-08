@@ -1,35 +1,50 @@
 package org.falaeapp.falae.viewmodel
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
+import kotlinx.coroutines.Dispatchers
 import org.falaeapp.falae.model.Page
 import org.falaeapp.falae.model.SpreadSheet
 
 class DisplayViewModel(application: Application) : AndroidViewModel(application) {
-    private var currentSpreadSheet: MutableLiveData<SpreadSheet> = MutableLiveData()
-    var pageToOpen: MutableLiveData<Page> = MutableLiveData()
-    var currentPage: MutableLiveData<Page> = MutableLiveData()
+    private lateinit var currentSpreadSheet: SpreadSheet
 
-    fun init(spreadSheet: SpreadSheet?) {
-        if (spreadSheet == null) {
-            return
+    private val linkToPage: MutableLiveData<String> = MutableLiveData()
+    val pageToOpen: LiveData<Page> = linkToPage.switchMap { linkTo ->
+        liveData(Dispatchers.Default) {
+            val page = currentSpreadSheet.pages.find { it.name == linkTo }
+            page?.apply {
+                initialPage = isInitialPage(this)
+                emit(this)
+            }
         }
-        currentSpreadSheet.value = spreadSheet
-        spreadSheet.initialPage?.let {
+    }
+
+    private val newPage: MutableLiveData<Page> = MutableLiveData()
+    val currentPage: LiveData<Page> = newPage.switchMap { page ->
+        liveData {
+            emit(page)
+        }
+    }
+
+    fun init(spreadSheet: SpreadSheet) {
+        currentSpreadSheet = spreadSheet
+        currentSpreadSheet.initialPage?.let {
             openPage(it)
         }
     }
 
     fun openPage(linkTo: String) {
-        val page = currentSpreadSheet.value?.pages?.find { it.name == linkTo }
-        page?.initialPage = isInitialPage(page)
-        pageToOpen.value = page
+        linkToPage.value = linkTo
     }
 
-    private fun isInitialPage(page: Page?) = page?.name == currentSpreadSheet.value?.initialPage
+    private fun isInitialPage(page: Page) = page.name == currentSpreadSheet.initialPage
 
     fun setCurrentPage(page: Page) {
-        currentPage.value = page
+        newPage.value = page
     }
 }

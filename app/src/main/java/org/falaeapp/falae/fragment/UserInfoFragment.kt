@@ -1,16 +1,16 @@
 package org.falaeapp.falae.fragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
@@ -23,12 +23,14 @@ class UserInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProviders.of(activity!!).get(UserViewModel::class.java)
-        onAttachFragment(parentFragment)
+        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        onAttachFragment(parentFragment!!)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_user_info, container, false)
         val imageView = view.findViewById(R.id.user_photo) as ImageView
@@ -46,17 +48,17 @@ class UserInfoFragment : Fragment() {
             placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
         }
 
-        userViewModel.currentUser.observe(activity!!, Observer { user ->
+        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.apply {
-                photo?.let {linkPhoto ->
+                photo?.let { linkPhoto ->
                     if (linkPhoto.isNotEmpty() && context != null) {
                         Picasso.get()
-                                .load(linkPhoto)
-                                .placeholder(placeHolderImage!!)
-                                .error(brokenImage!!)
-                                .transform(CropCircleTransformation())
-                                .memoryPolicy(MemoryPolicy.NO_CACHE)
-                                .into(imageView)
+                            .load(linkPhoto)
+                            .placeholder(placeHolderImage!!)
+                            .error(brokenImage!!)
+                            .transform(CropCircleTransformation())
+                            .memoryPolicy(MemoryPolicy.NO_CACHE)
+                            .into(imageView)
                     }
                 }
                 userName.text = name

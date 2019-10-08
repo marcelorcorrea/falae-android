@@ -1,7 +1,5 @@
 package org.falaeapp.falae.fragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
@@ -9,9 +7,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
-import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayout
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,15 +16,23 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
+import androidx.gridlayout.widget.GridLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.Category
 import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 import org.falaeapp.falae.viewmodel.SettingsViewModel
-import java.util.*
+import java.util.ArrayList
+import java.util.Timer
+import java.util.TimerTask
+import kotlin.math.roundToInt
 
-class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
+class ViewPagerItemFragment : Fragment() {
     private var mItems: List<Item> = emptyList()
     private var mItemsLayout: List<FrameLayout> = emptyList()
     private lateinit var mListener: ViewPagerItemFragmentListener
@@ -55,18 +58,20 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProviders.of(activity!!).get(DisplayViewModel::class.java)
-        settingsViewModel = ViewModelProviders.of(activity!!).get(SettingsViewModel::class.java)
+        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
+        settingsViewModel = ViewModelProvider(activity!!).get(SettingsViewModel::class.java)
         arguments?.let { arguments ->
-            mItems = arguments.getParcelableArrayList(ITEMS_PARAM)
+            mItems = arguments.getParcelableArrayList(ITEMS_PARAM) ?: emptyList()
             mColumns = arguments.getInt(COLUMNS_PARAM)
             mRows = arguments.getInt(ROWS_PARAM)
             mMarginWidth = arguments.getInt(MARGIN_WIDTH)
         } ?: return
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_view_pager_item, container, false)
         mGridLayout = view.findViewById(R.id.grid_layout) as GridLayout
         mGridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
@@ -80,42 +85,40 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
             mGridLayout.addView(layout)
             layout
         }
-        settingsViewModel.getFeedbackSound().observe(this, Observer { result ->
-            result?.let {
-                shouldPlayFeedbackSound = it
-            }
-        })
-        settingsViewModel.getAutomaticNextPage().observe(this, Observer { result ->
-            result?.let {
-                shouldCallNextPage = it
-            }
-        })
+        observeFeedbackSound()
+        observeAutomaticNextPage()
         return view
+    }
+
+    private fun observeAutomaticNextPage() {
+        settingsViewModel.shouldEnableAutomaticNextPage().observe(viewLifecycleOwner, Observer { result ->
+            shouldCallNextPage = result
+        })
+    }
+
+    private fun observeFeedbackSound() {
+        settingsViewModel.shouldEnableFeedbackSound().observe(viewLifecycleOwner, Observer { result ->
+            shouldPlayFeedbackSound = result
+        })
+    }
+
+    private fun observeScanMode() {
+        settingsViewModel.shouldEnableScanMode().observe(viewLifecycleOwner, Observer { pair ->
+            isScanModeEnabled = pair.first
+            if (isScanModeEnabled) {
+                delay = pair.second
+                doPageScan()
+            }
+        })
     }
 
     override fun onResume() {
         super.onResume()
-        settingsViewModel.getScanMode().observe(this, Observer { result ->
-            result?.let { pair ->
-                if (pair.first) {
-                    isScanModeEnabled = pair.first
-                    delay = pair.second
-                    doPageScan()
-                }
-            }
-        })
+        observeScanMode()
     }
 
     override fun onPause() {
         super.onPause()
-        stopPageScan()
-    }
-
-    override fun onResumeFragment() {
-        doPageScan()
-    }
-
-    override fun onPauseFragment() {
         stopPageScan()
     }
 
@@ -134,13 +137,9 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         }
         frameLayout.setOnClickListener {
             var itemSelected = item
-            settingsViewModel.getScanMode().observe(this, Observer { result ->
-                result?.let { pair ->
-                    if (pair.first) {
-                        itemSelected = mItems[currentItemSelectedFromScan]
-                    }
-                }
-            })
+            if (isScanModeEnabled) {
+                itemSelected = mItems[currentItemSelectedFromScan]
+            }
             onItemClicked(itemSelected)
         }
         name.text = item.name
@@ -157,12 +156,12 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
             if (item.imgSrc.isNotEmpty()) {
                 if (imageSize > 0 && context != null) {
                     Picasso.get()
-                            .load(item.imgSrc)
-                            .placeholder(R.drawable.ic_image_black_48dp)
-                            .error(R.drawable.ic_broken_image_black_48dp)
-                            .resize(imageSize, imageSize)
-                            .centerCrop()
-                            .into(imageView)
+                        .load(item.imgSrc)
+                        .placeholder(R.drawable.ic_image_black_48dp)
+                        .error(R.drawable.ic_broken_image_black_48dp)
+                        .resize(imageSize, imageSize)
+                        .centerCrop()
+                        .into(imageView)
                 }
             } else {
                 Toast.makeText(context, getString(R.string.picasso_load_error), Toast.LENGTH_SHORT).show()
@@ -184,8 +183,8 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
     private fun calculateLayoutDimensions(): Point {
         val metrics = DisplayMetrics()
         activity?.windowManager?.defaultDisplay?.getMetrics(metrics)
-        val widthDimension = Math.round(((metrics.widthPixels - mMarginWidth) / mColumns).toFloat())
-        val heightDimension = Math.round((metrics.heightPixels / mRows).toFloat())
+        val widthDimension = ((metrics.widthPixels - mMarginWidth) / mColumns).toFloat().roundToInt()
+        val heightDimension = (metrics.heightPixels / mRows).toFloat().roundToInt()
         return Point(widthDimension, heightDimension)
     }
 
@@ -256,7 +255,8 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
 
     private fun highlightCurrentItem() {
         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
-            mItemsLayout[currentItemSelectedFromScan].foreground = context?.resources?.getDrawable(R.drawable.pressed_color)
+            mItemsLayout[currentItemSelectedFromScan].foreground =
+                context?.resources?.getDrawable(R.drawable.pressed_color)
         }
     }
 
@@ -270,12 +270,12 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         }
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is ViewPagerItemFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement ViewPagerItemFragmentListener")
+            throw RuntimeException("$context must implement ViewPagerItemFragmentListener")
         }
     }
 
@@ -302,7 +302,6 @@ class ViewPagerItemFragment : Fragment(), FragmentLifecycle {
         private const val COLUMNS_PARAM = "columns"
         private const val ROWS_PARAM = "rows"
         private const val MARGIN_WIDTH = "marginWidth"
-        private const val CURRENT_SELECTED_ITEM_INDEX = "currentSelectedItemIndex"
 
         fun newInstance(items: ArrayList<Item>, columns: Int, rows: Int, width: Int): ViewPagerItemFragment {
             val fragment = ViewPagerItemFragment()

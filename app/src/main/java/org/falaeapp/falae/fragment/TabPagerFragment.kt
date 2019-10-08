@@ -2,14 +2,14 @@ package org.falaeapp.falae.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.SpreadSheet
 
@@ -18,8 +18,10 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
     private lateinit var mListener: TabPagerFragmentListener
     private lateinit var viewPager: ViewPager
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_tab_pager, container, false)
         viewPager = view.findViewById(R.id.viewpager) as ViewPager
         viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager, context)
@@ -31,12 +33,12 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         return view
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is TabPagerFragmentListener) {
             mListener = context
         } else {
-            throw RuntimeException(context!!.toString() + " must implement TabPagerFragment")
+            throw RuntimeException("$context must implement TabPagerFragment")
         }
     }
 
@@ -48,8 +50,10 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         fun displayActivity(spreadSheet: SpreadSheet)
     }
 
-    inner class CustomFragmentPagerAdapter(fm: FragmentManager, private val context: Context?) : FragmentStatePagerAdapter(fm) {
-        private val tabTitles = arrayOf(resources.getString(R.string.spreadsheets), resources.getString(R.string.user_info))
+    inner class CustomFragmentPagerAdapter(fm: FragmentManager, private val context: Context?) :
+        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        private val tabTitles =
+            arrayOf(resources.getString(R.string.spreadsheets), resources.getString(R.string.user_info))
 
         override fun getItem(position: Int): Fragment {
             return if (position == 0) {
