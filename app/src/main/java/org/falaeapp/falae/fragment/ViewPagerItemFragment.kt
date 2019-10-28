@@ -256,7 +256,7 @@ class ViewPagerItemFragment : Fragment() {
     private fun highlightCurrentItem() {
         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
             mItemsLayout[currentItemSelectedFromScan].foreground =
-                context?.resources?.getDrawable(R.drawable.pressed_color)
+                context?.resources?.getDrawable(R.drawable.highlight_scan_mode)
         }
     }
 
