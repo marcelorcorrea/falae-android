@@ -3,7 +3,7 @@
     <item android:drawable="@android:color/white"/>
     <item>
         <bitmap
-            android:src="@drawable/falaelogotipo_512x512"
+            android:src="@drawable/logofalae_copyrighted"
             android:gravity="center"/>
     </item>
 </layer-list>

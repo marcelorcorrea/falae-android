@@ -1,6 +1,7 @@
 package org.falaeapp.falae.activity
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -158,9 +159,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openTTSLanguageSettings() {
-        val installTts = Intent()
-        installTts.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
-        startActivity(installTts)
+        try {
+            val installTts = Intent()
+            installTts.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
+            startActivity(installTts)
+        } catch (ex: ActivityNotFoundException) {
+            Toast.makeText(this, getString(R.string.language_settings_not_available), Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun displayActivity(spreadSheet: SpreadSheet) {
