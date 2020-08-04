@@ -6,3 +6,5 @@
 /build
 /captures
 .externalNativeBuild
+keys/release_keystore.properties
+app/release
