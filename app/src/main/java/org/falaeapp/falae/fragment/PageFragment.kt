@@ -30,7 +30,8 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
+        displayViewModel = ViewModelProvider(activity!!, factory).get(DisplayViewModel::class.java)
     }
 
     override fun onCreateView(

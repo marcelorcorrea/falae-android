@@ -30,8 +30,9 @@ class SettingsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        settingsViewModel = ViewModelProvider(activity!!).get(SettingsViewModel::class.java)
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
+        settingsViewModel = ViewModelProvider(activity!!, factory).get(SettingsViewModel::class.java)
+        userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

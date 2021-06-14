@@ -61,7 +61,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView = findViewById(R.id.nav_view)
         mNavigationView.setNavigationItemSelectedListener(this)
 
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        userViewModel = ViewModelProvider(this, factory).get(UserViewModel::class.java)
 
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
         observeUsers()

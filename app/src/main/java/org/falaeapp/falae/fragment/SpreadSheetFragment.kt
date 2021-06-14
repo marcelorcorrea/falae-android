@@ -34,7 +34,8 @@ class SpreadSheetFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
         val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
+        userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.let {
                 spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->

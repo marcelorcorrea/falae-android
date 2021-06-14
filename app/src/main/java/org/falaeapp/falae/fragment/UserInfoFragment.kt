@@ -23,7 +23,8 @@ class UserInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
+        userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
         onAttachFragment(parentFragment!!)
     }
 

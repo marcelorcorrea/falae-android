@@ -58,8 +58,9 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
-        settingsViewModel = ViewModelProvider(activity!!).get(SettingsViewModel::class.java)
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
+        displayViewModel = ViewModelProvider(activity!!, factory).get(DisplayViewModel::class.java)
+        settingsViewModel = ViewModelProvider(activity!!, factory).get(SettingsViewModel::class.java)
         arguments?.let { arguments ->
             mItems = arguments.getParcelableArrayList(ITEMS_PARAM) ?: emptyList()
             mColumns = arguments.getInt(COLUMNS_PARAM)
