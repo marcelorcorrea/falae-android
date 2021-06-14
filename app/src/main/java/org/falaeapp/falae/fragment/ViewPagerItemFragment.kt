@@ -23,11 +23,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
+import org.falaeapp.falae.databinding.FragmentViewPagerItemBinding
 import org.falaeapp.falae.model.Category
 import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 import org.falaeapp.falae.viewmodel.SettingsViewModel
-import java.util.ArrayList
 import java.util.Timer
 import java.util.TimerTask
 import kotlin.math.roundToInt
@@ -55,6 +55,8 @@ class ViewPagerItemFragment : Fragment() {
             return field
         }
     private var timerTask: TimerTask? = null
+    private var _binding: FragmentViewPagerItemBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,8 +75,9 @@ class ViewPagerItemFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_view_pager_item, container, false)
-        mGridLayout = view.findViewById(R.id.grid_layout) as GridLayout
+        _binding = FragmentViewPagerItemBinding.inflate(inflater, container, false)
+        val view = binding.root
+        mGridLayout = binding.gridLayout
         mGridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
         mGridLayout.columnCount = mColumns
         mGridLayout.rowCount = mRows

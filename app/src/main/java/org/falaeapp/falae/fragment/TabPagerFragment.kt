@@ -9,27 +9,29 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
-import com.google.android.material.tabs.TabLayout
 import org.falaeapp.falae.R
+import org.falaeapp.falae.databinding.FragmentTabPagerBinding
 import org.falaeapp.falae.model.SpreadSheet
 
 class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentListener {
 
     private lateinit var mListener: TabPagerFragmentListener
     private lateinit var viewPager: ViewPager
+    private var _binding: FragmentTabPagerBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_tab_pager, container, false)
-        viewPager = view.findViewById(R.id.viewpager) as ViewPager
+        _binding = FragmentTabPagerBinding.inflate(inflater, container, false)
+        val view = binding.root
+        viewPager = binding.viewpager
         viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager, context)
         viewPager.offscreenPageLimit = OFFSCREEN_PAGE_LIMIT
 
         // Give the TabLayout the ViewPager
-        val tabLayout = view.findViewById(R.id.layout_tabs) as TabLayout
-        tabLayout.setupWithViewPager(viewPager)
+        binding.layoutTabs.setupWithViewPager(viewPager)
         return view
     }
 

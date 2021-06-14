@@ -2,13 +2,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:foreground="@drawable/highlight_fg_selector">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:foreground="@drawable/highlight_fg_selector"
+    tools:viewBindingIgnore="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                       android:id="@+id/item_layout"
-                                                       android:layout_width="match_parent"
-                                                       android:layout_height="wrap_content"
-                                                       android:layout_gravity="center_vertical|center_horizontal">
+        android:id="@+id/item_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal">
 
         <TextView
             android:id="@+id/item_name"

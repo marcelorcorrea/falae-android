@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.SpreadSheetAdapter
+import org.falaeapp.falae.databinding.FragmentSpreadSheetBinding
 import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.UserViewModel
@@ -24,6 +25,8 @@ class SpreadSheetFragment : Fragment() {
     private lateinit var mListener: SpreadSheetFragmentListener
     private lateinit var spreadSheetAdapter: SpreadSheetAdapter
     private lateinit var userViewModel: UserViewModel
+    private var _binding: FragmentSpreadSheetBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +35,8 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
-        val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
+        _binding = FragmentSpreadSheetBinding.inflate(inflater, container, false)
+        val view = binding.root
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
         userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
@@ -45,11 +48,11 @@ class SpreadSheetFragment : Fragment() {
                         Toast.makeText(activity, getString(R.string.no_initial_page), Toast.LENGTH_SHORT).show()
                     }
                 }
-                recyclerView.adapter = spreadSheetAdapter
+                binding.spreadsheetRecycler.adapter = spreadSheetAdapter
             }
         })
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        recyclerView.layoutManager = layoutManager
+        binding.spreadsheetRecycler.layoutManager = layoutManager
         return view
     }
 

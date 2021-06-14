@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
@@ -14,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.falaeapp.falae.R
+import org.falaeapp.falae.databinding.FragmentSettingsBinding
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.SettingsViewModel
 import org.falaeapp.falae.viewmodel.UserViewModel
@@ -27,6 +26,8 @@ class SettingsFragment : Fragment() {
     private lateinit var automaticNextPage: Switch
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var userViewModel: UserViewModel
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,12 +37,13 @@ class SettingsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_settings, container, false)
-        scanMode = view.findViewById(R.id.scan_mode)
-        feedbackSound = view.findViewById(R.id.feedback_sound)
-        automaticNextPage = view.findViewById(R.id.automatic_next_page)
-        seekBarValue = view.findViewById(R.id.seekbar_value) as TextView
-        seekBar = view.findViewById(R.id.seekBar) as SeekBar
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        val view = binding.root
+        scanMode = binding.scanMode
+        feedbackSound = binding.feedbackSound
+        automaticNextPage = binding.automaticNextPage
+        seekBarValue = binding.seekbarValue
+        seekBar = binding.seekBar
 
         settingsViewModel.loadScan()
         settingsViewModel.loadSeekBarProgress()
@@ -69,14 +71,12 @@ class SettingsFragment : Fragment() {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
             }
         })
-        val btClearUserCache = view.findViewById<Button>(R.id.bt_clear_user_cache)
-        btClearUserCache.setOnClickListener {
+        binding.btClearUserCache.setOnClickListener {
             onClickCache(getString(R.string.confirm_clear_user_cache)) {
                 userViewModel.clearUserCache()
             }
         }
-        val btClearPublicCache = view.findViewById<Button>(R.id.bt_clear_public_cache)
-        btClearPublicCache.setOnClickListener {
+        binding.btClearPublicCache.setOnClickListener {
             onClickCache(getString(R.string.confirm_clear_public_cache)) {
                 userViewModel.clearPublicCache()
             }
@@ -88,15 +88,14 @@ class SettingsFragment : Fragment() {
         observeAutomaticNextPage()
         observeClearCache()
         observeSeekBarProgress()
-        observeCurrentUser(view)
+        observeCurrentUser()
         return view
     }
 
-    private fun observeCurrentUser(view: View) {
+    private fun observeCurrentUser() {
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             if (user != null && user.isSampleUser()) {
-                val cacheLayout = view.findViewById<RelativeLayout>(R.id.cache_layout)
-                cacheLayout.visibility = View.INVISIBLE
+                binding.cacheLayout.visibility = View.INVISIBLE
             }
         })
     }

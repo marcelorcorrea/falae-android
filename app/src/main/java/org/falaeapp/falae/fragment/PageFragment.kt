@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.ItemPagerAdapter
+import org.falaeapp.falae.databinding.FragmentPageBinding
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 
 class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
@@ -27,6 +28,8 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private lateinit var leftNavHolder: FrameLayout
     private lateinit var rightNavHolder: FrameLayout
     private lateinit var displayViewModel: DisplayViewModel
+    private var _binding: FragmentPageBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +41,12 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_page, container, false)
-        leftNav = view.findViewById(R.id.left_nav) as ImageView
-        rightNav = view.findViewById(R.id.right_nav) as ImageView
-        leftNavHolder = view.findViewById(R.id.left_nav_holder) as FrameLayout
-        rightNavHolder = view.findViewById(R.id.right_nav_holder) as FrameLayout
+        _binding = FragmentPageBinding.inflate(inflater, container, false)
+        val view = binding.root
+        leftNav = binding.leftNav
+        rightNav = binding.rightNav
+        leftNavHolder = binding.leftNavHolder
+        rightNavHolder = binding.rightNavHolder
 
         val vto = view.viewTreeObserver
         vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -52,7 +56,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 } else {
                     view.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
-                mPager = view.findViewById(R.id.pager) as ViewPager
+                mPager = binding.pager
                 val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065).toInt()
                 leftNav.layoutParams.width = navHoldersSize
                 leftNav.layoutParams.height = navHoldersSize

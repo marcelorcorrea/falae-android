@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.android.volley.AuthFailureError
 import org.falaeapp.falae.R
+import org.falaeapp.falae.databinding.FragmentSyncUserBinding
 import org.falaeapp.falae.exception.UserNotFoundException
 import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.UserViewModel
@@ -30,6 +30,8 @@ class SyncUserFragment : Fragment() {
     private lateinit var mPasswordView: EditText
     private var pDialog: ProgressDialog? = null
     private lateinit var userViewModel: UserViewModel
+    private var _binding: FragmentSyncUserBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,9 +52,10 @@ class SyncUserFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_sync_user, container, false)
-        mEmailView = view.findViewById(R.id.email) as EditText
-        mPasswordView = view.findViewById(R.id.password) as EditText
+        _binding = FragmentSyncUserBinding.inflate(inflater, container, false)
+        val view = binding.root
+        mEmailView = binding.email
+        mPasswordView = binding.password
         mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
                 val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -68,7 +71,7 @@ class SyncUserFragment : Fragment() {
             isIndeterminate = false
             setCancelable(false)
         }
-        val mEmailSignInButton = view.findViewById(R.id.email_sign_in_button) as Button
+        val mEmailSignInButton = binding.emailSignInButton
         mEmailSignInButton.setOnClickListener { attemptLogin() }
         setHasOptionsMenu(true)
         return view

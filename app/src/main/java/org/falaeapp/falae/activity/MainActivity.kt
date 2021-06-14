@@ -25,6 +25,7 @@ import com.google.android.gms.security.ProviderInstaller
 import com.google.android.material.navigation.NavigationView
 import org.falaeapp.falae.BuildConfig
 import org.falaeapp.falae.R
+import org.falaeapp.falae.databinding.ActivityMainBinding
 import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.fragment.SyncUserFragment
 import org.falaeapp.falae.fragment.TabPagerFragment
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mDrawer: DrawerLayout
     private lateinit var mNavigationView: NavigationView
     private var doubleBackToExitPressedOnce: Boolean = false
+    private lateinit var binding: ActivityMainBinding
 
     private lateinit var userViewModel: UserViewModel
 
@@ -47,18 +49,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+        val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        mDrawer = findViewById(R.id.drawer_layout)
+        mDrawer = binding.drawerLayout
         val toggle = ActionBarDrawerToggle(
             this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         mDrawer.addDrawerListener(toggle)
         toggle.syncState()
         mDrawer.openDrawer(GravityCompat.START)
-        mNavigationView = findViewById(R.id.nav_view)
+        mNavigationView = binding.navView
         mNavigationView.setNavigationItemSelectedListener(this)
 
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
