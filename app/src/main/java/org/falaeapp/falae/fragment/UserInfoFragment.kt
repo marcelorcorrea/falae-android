@@ -49,7 +49,6 @@ class UserInfoFragment : Fragment() {
         }
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.apply {
-                println("USER is $this")
                 photo?.let { linkPhoto ->
                     if (linkPhoto.isNotEmpty() && context != null) {
                         Picasso.get()
