@@ -1,6 +1,6 @@
 # Falaê
 <p align="center">
-  <img src="https://github.com/marcelorcorrea/falae-android/blob/master/app/src/main/res/drawable-xxxhdpi/logofalae_01.png?raw=true" width="250" height="250">
+  <img src="https://github.com/marcelorcorrea/falae-android/blob/master/app/src/main/res/drawable-xxxhdpi/logofalae_copyrighted.png?raw=true" width="250" height="250">
 </p>
 
 
