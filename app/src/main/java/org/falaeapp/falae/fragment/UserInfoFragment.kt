@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
@@ -25,7 +25,7 @@ class UserInfoFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(activity!!, factory)[UserViewModel::class.java]
         onAttachFragment(parentFragment!!)
     }
 
@@ -33,38 +33,42 @@ class UserInfoFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentUserInfoBinding.inflate(inflater, container, false)
         val view = binding.root
 
         val brokenImage: Drawable?
         val placeHolderImage: Drawable?
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            brokenImage = context?.resources?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.resources?.getDrawable(R.drawable.ic_person_black_24dp)
-        } else {
-            brokenImage = context?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
-        }
-        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
-            user?.apply {
-                photo?.let { linkPhoto ->
-                    if (linkPhoto.isNotEmpty() && context != null) {
-                        Picasso.get()
-                            .load(linkPhoto)
-                            .placeholder(placeHolderImage!!)
-                            .error(brokenImage!!)
-                            .transform(CropCircleTransformation())
-                            .memoryPolicy(MemoryPolicy.NO_CACHE)
-                            .into(binding.userPhoto)
-                    }
-                }
-                binding.userName.text = name
-                binding.userInformation.text = profile
-                binding.userEmail.text = email
+        context?.let {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                brokenImage = ContextCompat.getDrawable(it, R.drawable.ic_broken_image_black_48dp)
+                placeHolderImage = ContextCompat.getDrawable(it, R.drawable.ic_person_black_24dp)
+            } else {
+                brokenImage = ContextCompat.getDrawable(it, R.drawable.ic_broken_image_black_48dp)
+                placeHolderImage = ContextCompat.getDrawable(it, R.drawable.ic_person_black_24dp)
             }
-        })
+            userViewModel.currentUser.observe(
+                viewLifecycleOwner
+            ) { user ->
+                user?.apply {
+                    photo?.let { linkPhoto ->
+                        if (linkPhoto.isNotEmpty() && context != null) {
+                            Picasso.get()
+                                .load(linkPhoto)
+                                .placeholder(placeHolderImage!!)
+                                .error(brokenImage!!)
+                                .transform(CropCircleTransformation())
+                                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                                .into(binding.userPhoto)
+                        }
+                    }
+                    binding.userName.text = name
+                    binding.userInformation.text = profile
+                    binding.userEmail.text = email
+                }
+            }
+        }
         return view
     }
 

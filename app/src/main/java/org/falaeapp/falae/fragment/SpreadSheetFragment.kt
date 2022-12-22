@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,8 +37,8 @@ class SpreadSheetFragment : Fragment() {
         _binding = FragmentSpreadSheetBinding.inflate(inflater, container, false)
         val view = binding.root
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
-        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
+        userViewModel = ViewModelProvider(activity!!, factory)[UserViewModel::class.java]
+        userViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             user?.let {
                 spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->
                     spreadSheet.initialPage?.let {
@@ -50,7 +49,7 @@ class SpreadSheetFragment : Fragment() {
                 }
                 binding.spreadsheetRecycler.adapter = spreadSheetAdapter
             }
-        })
+        }
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.spreadsheetRecycler.layoutManager = layoutManager
         return view
@@ -65,11 +64,13 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
+        userViewModel.currentUser.observe(
+            viewLifecycleOwner
+        ) { user ->
             if (user != null && !user.isSampleUser()) {
                 inflater.inflate(R.menu.board_menu, menu)
             }
-        })
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

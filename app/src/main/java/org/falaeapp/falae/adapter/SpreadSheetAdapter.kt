@@ -1,12 +1,11 @@
 package org.falaeapp.falae.adapter
 
 import android.content.Context
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
+import androidx.recyclerview.widget.RecyclerView
 import org.falaeapp.falae.R
 import org.falaeapp.falae.model.SpreadSheet
 
@@ -14,7 +13,11 @@ import org.falaeapp.falae.model.SpreadSheet
  * Created by marcelo on 4/18/17.
  */
 
-class SpreadSheetAdapter(private val context: Context?, private val spreadSheets: List<SpreadSheet>, private val onItemClick: (spreadSheet: SpreadSheet) -> Unit) : RecyclerView.Adapter<SpreadSheetAdapter.SpreadSheetViewHolder>() {
+class SpreadSheetAdapter(
+    private val context: Context?,
+    private val spreadSheets: List<SpreadSheet>,
+    private val onItemClick: (spreadSheet: SpreadSheet) -> Unit
+) : RecyclerView.Adapter<SpreadSheetAdapter.SpreadSheetViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpreadSheetViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.spreadsheet_item, parent, false)

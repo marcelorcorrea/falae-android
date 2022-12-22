@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Build
 import org.falaeapp.falae.service.TextToSpeechService
 
-
 /**
  * Created by corream on 29/05/2017.
  */

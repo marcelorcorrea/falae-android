@@ -73,9 +73,11 @@ class UserRepository(val context: Context) {
         when {
             currentVersionCode == storedVersionCode -> // This is just a normal run
                 return@withContext
+
             storedVersionCode == doesntExist -> {
                 // TODO This is a new install (or the user cleared the shared preferences)
             }
+
             currentVersionCode > storedVersionCode -> {
                 sharedPreferences.clear()
             }

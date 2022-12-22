@@ -10,7 +10,6 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import org.falaeapp.falae.R
@@ -34,13 +33,14 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        displayViewModel = ViewModelProvider(activity!!, factory).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(activity!!, factory)[DisplayViewModel::class.java]
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentPageBinding.inflate(inflater, container, false)
         val view = binding.root
         leftNav = binding.leftNav
@@ -65,9 +65,11 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
                 if (isPagerAdapterInitialized().not()) {
-                    displayViewModel.currentPage.observe(this@PageFragment, Observer { page ->
+                    displayViewModel.currentPage.observe(
+                        this@PageFragment
+                    ) { page ->
                         mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
-                    })
+                    }
                 }
                 if (::mPager.isInitialized && isPagerAdapterInitialized()) {
                     mPager.adapter = mPagerAdapter

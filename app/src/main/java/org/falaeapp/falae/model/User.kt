@@ -1,11 +1,11 @@
 package org.falaeapp.falae.model
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import org.falaeapp.falae.room.converter.SpreadSheetConverter
 
 /**
@@ -27,7 +27,13 @@ data class User(
     var photo: String? = ""
 ) : Parcelable {
     constructor() : this(
-        0, "", "", "", emptyList(), "", ""
+        0,
+        "",
+        "",
+        "",
+        emptyList(),
+        "",
+        ""
     )
 
     fun getItemsFromAllSpreadsheets(): List<Item> {

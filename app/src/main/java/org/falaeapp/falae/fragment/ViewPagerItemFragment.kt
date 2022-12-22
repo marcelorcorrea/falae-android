@@ -17,9 +17,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.gridlayout.widget.GridLayout
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
@@ -61,8 +61,8 @@ class ViewPagerItemFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        displayViewModel = ViewModelProvider(activity!!, factory).get(DisplayViewModel::class.java)
-        settingsViewModel = ViewModelProvider(activity!!, factory).get(SettingsViewModel::class.java)
+        displayViewModel = ViewModelProvider(activity!!, factory)[DisplayViewModel::class.java]
+        settingsViewModel = ViewModelProvider(activity!!, factory)[SettingsViewModel::class.java]
         arguments?.let { arguments ->
             mItems = arguments.getParcelableArrayList(ITEMS_PARAM) ?: emptyList()
             mColumns = arguments.getInt(COLUMNS_PARAM)
@@ -72,9 +72,10 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentViewPagerItemBinding.inflate(inflater, container, false)
         val view = binding.root
         mGridLayout = binding.gridLayout
@@ -95,25 +96,31 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     private fun observeAutomaticNextPage() {
-        settingsViewModel.shouldEnableAutomaticNextPage().observe(viewLifecycleOwner, Observer { result ->
+        settingsViewModel.shouldEnableAutomaticNextPage().observe(
+            viewLifecycleOwner
+        ) { result ->
             shouldCallNextPage = result
-        })
+        }
     }
 
     private fun observeFeedbackSound() {
-        settingsViewModel.shouldEnableFeedbackSound().observe(viewLifecycleOwner, Observer { result ->
+        settingsViewModel.shouldEnableFeedbackSound().observe(
+            viewLifecycleOwner
+        ) { result ->
             shouldPlayFeedbackSound = result
-        })
+        }
     }
 
     private fun observeScanMode() {
-        settingsViewModel.shouldEnableScanMode().observe(viewLifecycleOwner, Observer { pair ->
+        settingsViewModel.shouldEnableScanMode().observe(
+            viewLifecycleOwner
+        ) { pair ->
             isScanModeEnabled = pair.first
             if (isScanModeEnabled) {
                 delay = pair.second
                 doPageScan()
             }
-        })
+        }
     }
 
     override fun onResume() {
@@ -151,10 +158,12 @@ class ViewPagerItemFragment : Fragment() {
             val imageSize = calculateImageSize(layoutDimensions.x, layoutDimensions.y, name, imageView)
             if (item.category == Category.SUBJECT || item.category == Category.OTHER) {
                 name.setTextColor(Color.BLACK)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    linkPage.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_launch_black_48dp))
-                } else {
-                    linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
+                context?.let {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                        linkPage.setImageDrawable(ContextCompat.getDrawable(it, R.drawable.ic_launch_black_48dp))
+                    } else {
+                        linkPage.setImageDrawable(ContextCompat.getDrawable(it, R.drawable.ic_launch_black_48dp))
+                    }
                 }
             }
             if (item.imgSrc.isNotEmpty()) {
@@ -170,7 +179,7 @@ class ViewPagerItemFragment : Fragment() {
             } else {
                 Toast.makeText(context, getString(R.string.picasso_load_error), Toast.LENGTH_SHORT).show()
             }
-            if (item.linkTo != null && item.linkTo.isNotEmpty()) {
+            if (!item.linkTo.isNullOrEmpty()) {
                 linkPage.visibility = View.VISIBLE
             }
         }
@@ -179,7 +188,7 @@ class ViewPagerItemFragment : Fragment() {
 
     private fun onItemClicked(item: Item) {
         mListener.speak(item.speech)
-        if (item.linkTo != null && item.linkTo.isNotEmpty()) {
+        if (!item.linkTo.isNullOrEmpty()) {
             displayViewModel.openPage(item.linkTo)
         }
     }
@@ -258,9 +267,11 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     private fun highlightCurrentItem() {
-        if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
-            mItemsLayout[currentItemSelectedFromScan].foreground =
-                context?.resources?.getDrawable(R.drawable.highlight_scan_mode)
+        context?.let {
+            if (currentItemSelectedFromScan < mItemsLayout.size) {
+                mItemsLayout[currentItemSelectedFromScan].foreground =
+                    ContextCompat.getDrawable(it, R.drawable.highlight_scan_mode)
+            }
         }
     }
 
@@ -269,8 +280,10 @@ class ViewPagerItemFragment : Fragment() {
         if (previousItem < 0) {
             previousItem = mItemsLayout.size - 1
         }
-        if (context != null && previousItem < mItemsLayout.size) {
-            mItemsLayout[previousItem].foreground = context?.resources?.getDrawable(R.drawable.normal_color)
+        context?.let {
+            if (previousItem < mItemsLayout.size) {
+                mItemsLayout[previousItem].foreground = ContextCompat.getDrawable(it, R.drawable.normal_color)
+            }
         }
     }
 

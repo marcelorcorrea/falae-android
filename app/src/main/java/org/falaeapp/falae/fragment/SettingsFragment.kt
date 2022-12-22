@@ -5,11 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.falaeapp.falae.R
 import org.falaeapp.falae.databinding.FragmentSettingsBinding
@@ -21,9 +20,9 @@ class SettingsFragment : Fragment() {
 
     private lateinit var seekBar: SeekBar
     private lateinit var seekBarValue: TextView
-    private lateinit var scanMode: Switch
-    private lateinit var feedbackSound: Switch
-    private lateinit var automaticNextPage: Switch
+    private lateinit var scanMode: SwitchCompat
+    private lateinit var feedbackSound: SwitchCompat
+    private lateinit var automaticNextPage: SwitchCompat
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var userViewModel: UserViewModel
     private var _binding: FragmentSettingsBinding? = null
@@ -32,11 +31,11 @@ class SettingsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        settingsViewModel = ViewModelProvider(activity!!, factory).get(SettingsViewModel::class.java)
-        userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
+        settingsViewModel = ViewModelProvider(activity!!, factory)[SettingsViewModel::class.java]
+        userViewModel = ViewModelProvider(activity!!, factory)[UserViewModel::class.java]
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val view = binding.root
         scanMode = binding.scanMode
@@ -93,15 +92,19 @@ class SettingsFragment : Fragment() {
     }
 
     private fun observeCurrentUser() {
-        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
+        userViewModel.currentUser.observe(
+            viewLifecycleOwner
+        ) { user ->
             if (user != null && user.isSampleUser()) {
                 binding.cacheLayout.visibility = View.INVISIBLE
             }
-        })
+        }
     }
 
     private fun observeSeekBarProgress() {
-        settingsViewModel.seekBarProgress.observe(viewLifecycleOwner, Observer { sk ->
+        settingsViewModel.seekBarProgress.observe(
+            viewLifecycleOwner
+        ) { sk ->
             sk?.let {
                 val seekBarProgress = if (it == 0) 1 else it
                 seekBar.post {
@@ -109,38 +112,46 @@ class SettingsFragment : Fragment() {
                     seekBar.progress = it - 1
                 }
             }
-        })
+        }
     }
 
     private fun observeClearCache() {
-        userViewModel.clearCache.observe(viewLifecycleOwner, Observer { event ->
+        userViewModel.clearCache.observe(
+            viewLifecycleOwner
+        ) { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 val message =
                     if (result) getString(R.string.images_removed) else getString(R.string.images_removed_error)
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
-        })
+        }
     }
 
     private fun observeAutomaticNextPage() {
-        settingsViewModel.isAutomaticNextPageEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
+        settingsViewModel.isAutomaticNextPageEnabled.observe(
+            viewLifecycleOwner
+        ) { isEnabled ->
             automaticNextPage.isChecked = isEnabled
-        })
+        }
     }
 
     private fun observeFeedbackSound() {
-        settingsViewModel.isFeedbackSoundEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
+        settingsViewModel.isFeedbackSoundEnabled.observe(
+            viewLifecycleOwner
+        ) { isEnabled ->
             feedbackSound.isChecked = isEnabled
-        })
+        }
     }
 
     private fun observeScanMode() {
-        settingsViewModel.isScanModeEnabled.observe(viewLifecycleOwner, Observer { isEnabled ->
+        settingsViewModel.isScanModeEnabled.observe(
+            viewLifecycleOwner
+        ) { isEnabled ->
             scanMode.isChecked = isEnabled
             automaticNextPage.isEnabled = isEnabled
             feedbackSound.isEnabled = isEnabled
             seekBar.isEnabled = isEnabled
-        })
+        }
     }
 
     private fun onClickCache(confirmMsg: String, onClick: () -> Unit) {

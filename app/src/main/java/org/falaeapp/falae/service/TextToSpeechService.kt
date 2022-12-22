@@ -14,7 +14,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import java.util.*
 
-
 class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
 
     private lateinit var mTextToSpeech: TextToSpeech
@@ -29,10 +28,10 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
         super.onCreate()
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     private fun startForegroundService() {
-        val chan = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Foreground Service", NotificationManager.IMPORTANCE_NONE)
+        val chan =
+            NotificationChannel(NOTIFICATION_CHANNEL_ID, "Foreground Service", NotificationManager.IMPORTANCE_NONE)
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -40,11 +39,11 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
         val notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(android.R.drawable.arrow_up_float)
-                .setContentTitle(getString(org.falaeapp.falae.R.string.background_run))
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build()
+            .setSmallIcon(android.R.drawable.arrow_up_float)
+            .setContentTitle(getString(org.falaeapp.falae.R.string.background_run))
+            .setPriority(NotificationManager.IMPORTANCE_MIN)
+            .setCategory(Notification.CATEGORY_SERVICE)
+            .build()
         startForeground(2, notification)
     }
 

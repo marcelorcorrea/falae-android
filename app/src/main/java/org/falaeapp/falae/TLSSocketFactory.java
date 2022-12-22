@@ -1,5 +1,8 @@
 package org.falaeapp.falae;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -7,13 +10,9 @@ import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-
 public class TLSSocketFactory extends SSLSocketFactory {
 
-    private SSLSocketFactory internalSSLSocketFactory;
+    private final SSLSocketFactory internalSSLSocketFactory;
 
     public TLSSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
         SSLContext context = SSLContext.getInstance("TLS");
@@ -30,7 +29,7 @@ public class TLSSocketFactory extends SSLSocketFactory {
     public String[] getSupportedCipherSuites() {
         return internalSSLSocketFactory.getSupportedCipherSuites();
     }
-    
+
     @Override
     public Socket createSocket() throws IOException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket());
@@ -62,8 +61,8 @@ public class TLSSocketFactory extends SSLSocketFactory {
     }
 
     private Socket enableTLSOnSocket(Socket socket) {
-        if(socket != null && (socket instanceof SSLSocket)) {
-            ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.1", "TLSv1.2"});
+        if (socket instanceof SSLSocket) {
+            ((SSLSocket) socket).setEnabledProtocols(new String[]{"TLSv1.1", "TLSv1.2"});
         }
         return socket;
     }

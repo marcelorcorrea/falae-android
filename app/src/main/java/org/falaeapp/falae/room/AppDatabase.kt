@@ -34,7 +34,8 @@ abstract class AppDatabase : RoomDatabase() {
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
-                    AppDatabase::class.java, "falae.db"
+                    AppDatabase::class.java,
+                    "falae.db"
                 )
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {

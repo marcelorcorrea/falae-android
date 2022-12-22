@@ -17,7 +17,9 @@ import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.service.TextToSpeechService
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 
-class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
+class DisplayActivity :
+    AppCompatActivity(),
+    PageFragment.PageFragmentListener,
     ViewPagerItemFragment.ViewPagerItemFragmentListener {
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var mediaPlayer: MediaPlayer
@@ -33,13 +35,16 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
             displayViewModel.init(it)
         }
 
-        displayViewModel.pageToOpen.observe(this, Observer {
-            it?.let { page ->
-                changeFragment(page, page.initialPage.not())
-            } ?: run {
-                Toast.makeText(this, getString(R.string.page_not_found), Toast.LENGTH_SHORT).show()
+        displayViewModel.pageToOpen.observe(
+            this,
+            Observer {
+                it?.let { page ->
+                    changeFragment(page, page.initialPage.not())
+                } ?: run {
+                    Toast.makeText(this, getString(R.string.page_not_found), Toast.LENGTH_SHORT).show()
+                }
             }
-        })
+        )
         mediaPlayer = MediaPlayer.create(this, R.raw.click_sound)
     }
 
@@ -49,8 +54,10 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
         val fragmentTransaction = fragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                android.R.anim.fade_in, android.R.anim.fade_out,
-                android.R.anim.fade_in, android.R.anim.fade_out
+                android.R.anim.fade_in,
+                android.R.anim.fade_out,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
             )
             .replace(R.id.page_container, fragment)
         if (addToBackStack) {

@@ -8,7 +8,6 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import org.falaeapp.falae.fragment.ViewPagerItemFragment
 import org.falaeapp.falae.model.Page
 import java.lang.ref.WeakReference
-import java.util.ArrayList
 import kotlin.math.min
 import kotlin.math.roundToInt
 

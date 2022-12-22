@@ -18,7 +18,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
@@ -33,7 +32,9 @@ import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.viewmodel.UserViewModel
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+class MainActivity :
+    AppCompatActivity(),
+    NavigationView.OnNavigationItemSelectedListener,
     TabPagerFragment.TabPagerFragmentListener,
     SyncUserFragment.SyncUserFragmentListener,
     ProviderInstaller.ProviderInstallListener {
@@ -57,7 +58,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mDrawer = binding.drawerLayout
         val toggle = ActionBarDrawerToggle(
-            this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+            this,
+            mDrawer,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
         )
         mDrawer.addDrawerListener(toggle)
         toggle.syncState()
@@ -78,21 +83,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun observeLastConnectedUser() {
-        userViewModel.lastConnectedUserId.observe(this, Observer {
+        userViewModel.lastConnectedUserId.observe(
+            this
+        ) {
             it?.let { lastConnectedUserId ->
                 openUserItem(lastConnectedUserId)
             }
-        })
+        }
     }
 
     private fun observeUsers() {
-        userViewModel.users.observe(this, Observer<List<User>> { users ->
+        userViewModel.users.observe(
+            this
+        ) { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
             users?.reversed()?.forEach {
                 addUserToMenu(it)
             }
             userViewModel.loadLastConnectedUser()
-        })
+        }
     }
 
     private fun openUserItem(userId: Long) {
@@ -135,14 +144,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fragment = SyncUserFragment.newInstance()
                 tag = SyncUserFragment::class.java.simpleName
             }
+
             R.id.voice_item -> {
                 openTTSLanguageSettings()
                 return false
             }
+
             R.id.settings -> {
                 fragment = SettingsFragment.newInstance()
                 tag = SettingsFragment::class.java.simpleName
             }
+
             else -> {
                 userViewModel.loadUser(id.toLong())
                 fragment = TabPagerFragment.newInstance()
@@ -156,8 +168,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun changeFragment(fragment: Fragment, tag: String) {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
-                R.anim.enter_from_right, R.anim.exit_to_left,
-                R.anim.enter_from_left, R.anim.exit_to_right
+                R.anim.enter_from_right,
+                R.anim.exit_to_left,
+                R.anim.enter_from_left,
+                R.anim.exit_to_right
             )
             .replace(R.id.container, fragment, tag)
             .commit()
@@ -199,13 +213,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onActivityResult(
-        requestCode: Int, resultCode: Int,
+        requestCode: Int,
+        resultCode: Int,
         data: Intent?
     ) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ERROR_DIALOG_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_CANCELED)
+            if (resultCode == Activity.RESULT_CANCELED) {
                 onProviderInstallerNotAvailable()
+            }
         }
     }
 

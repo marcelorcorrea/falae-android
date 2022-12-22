@@ -2,7 +2,6 @@ package org.falaeapp.falae.storage
 
 import android.content.Context
 import android.content.SharedPreferences
-
 import org.falaeapp.falae.R
 
 /**
