@@ -1,9 +1,10 @@
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.util.Properties
 
-val kotlin_version: String by project
-val lifecycle_version: String by project
-val room_version: String by project
+val kotlinVersion: String by project
+val lifecycleVersion: String by project
+val roomVersion: String by project
 
 plugins {
     id("com.android.application")
@@ -14,15 +15,15 @@ plugins {
 
 android {
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures.viewBinding = true
-    val RELEASE_PROPERTIES = "keys/release_keystore.properties"
+    val releasePropertiesPath = "keys/release_keystore.properties"
 
     signingConfigs {
         create("release") {
-            val keystorePropertiesFile = rootProject.file(RELEASE_PROPERTIES)
+            val keystorePropertiesFile = rootProject.file(releasePropertiesPath)
             if (keystorePropertiesFile.exists()) {
                 val keystoreProperties = Properties()
                 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
@@ -30,6 +31,8 @@ android {
                 keyPassword = keystoreProperties.getProperty("keyPassword")
                 storeFile = file(keystoreProperties.getProperty("storeFile"))
                 storePassword = keystoreProperties.getProperty("storePassword")
+            } else {
+                throw FileNotFoundException("Release properties not found at this path: $keystorePropertiesFile")
             }
         }
         getByName("debug") {
@@ -39,62 +42,62 @@ android {
             keyPassword = "falaeapp"
         }
     }
-    compileSdkVersion(29)
+    compileSdk = 32
     defaultConfig {
         applicationId = "org.falaeapp.falae"
-        minSdkVersion(15)
-        targetSdkVersion(29)
+        minSdk = 15
+        targetSdk = 32
         versionCode = 17
         versionName = "1.0.17"
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
     }
     testBuildType = "debug"
     buildTypes {
-        getByName("debug") {
-            signingConfig = signingConfigs.getByName("debug")
-            buildConfigField("String", "BASE_URL", "https://10.0.2.2:3000")
-        }
-
-        getByName("release") {
+        release {
             signingConfig = signingConfigs.getByName("release")
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("String", "BASE_URL", "\"https://www.falaeapp.org\"")
         }
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("String", "BASE_URL", "https://10.0.2.2:3000")
+        }
     }
+    namespace = "org.falaeapp.falae"
 }
 
 repositories {
     google()
-    jcenter()
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
-    implementation("com.google.code.gson:gson:2.8.6")
-    implementation("commons-io:commons-io:20030203.000550")
-    implementation("com.android.support:design:29.0.0")
-    implementation("com.android.support:appcompat-v7:29.0.0")
-    implementation("com.android.support:recyclerview-v7:29.0.0")
-    implementation("com.android.support:support-v4:29.0.0")
-    implementation("com.android.support:gridlayout-v7:29.0.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.0.4")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
+    implementation("com.google.code.gson:gson:2.10")
+    implementation("commons-io:commons-io:2.11.0")
+    implementation("com.android.support:design:32.0.0")
+    implementation("com.android.support:appcompat-v7:32.0.0")
+    implementation("com.android.support:recyclerview-v7:32.0.0")
+    implementation("com.android.support:support-v4:32.0.0")
+    implementation("com.android.support:gridlayout-v7:32.0.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.squareup.picasso:picasso:2.71828")
-    implementation("com.android.volley:volley:1.2.0")
-    implementation("jp.wasabeef:picasso-transformations:2.1.2")
-    implementation("com.google.android.gms:play-services-base:17.6.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycle_version")
-    implementation("androidx.room:room-runtime:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
+    implementation("com.android.volley:volley:1.2.1")
+    implementation("jp.wasabeef:picasso-transformations:2.3.0")
+    implementation("com.google.android.gms:play-services-base:18.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
+    implementation("androidx.room:room-runtime:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.hamcrest:hamcrest-library:2.1")
-    testImplementation("org.mockito:mockito-core:2.27.0")
-    testImplementation("androidx.test.espresso:espresso-core:3.4.0-beta02")
+    testImplementation("org.hamcrest:hamcrest-library:2.2")
+    testImplementation("org.mockito:mockito-core:4.10.0")
+    testImplementation("androidx.test.espresso:espresso-core:3.5.0")
 }

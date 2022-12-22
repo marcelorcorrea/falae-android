@@ -13,7 +13,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.android.volley.AuthFailureError
 import org.falaeapp.falae.R
@@ -36,35 +35,38 @@ class SyncUserFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        userViewModel = ViewModelProvider(activity!!, factory).get(UserViewModel::class.java)
-        userViewModel.syncAccountResponse.observe(this, Observer { event ->
+        userViewModel = ViewModelProvider(activity!!, factory)[UserViewModel::class.java]
+        userViewModel.syncAccountResponse.observe(this) { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 result.second?.let { error ->
                     onError(error)
                 }
             }
             pDialog?.dismiss()
-        })
+        }
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentSyncUserBinding.inflate(inflater, container, false)
         val view = binding.root
         mEmailView = binding.email
         mPasswordView = binding.password
-        mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
-            if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
-                val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(mPasswordView.windowToken, 0)
-                attemptLogin()
-                return@OnEditorActionListener true
+        mPasswordView.setOnEditorActionListener(
+            TextView.OnEditorActionListener { _, id, _ ->
+                if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
+                    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(mPasswordView.windowToken, 0)
+                    attemptLogin()
+                    return@OnEditorActionListener true
+                }
+                false
             }
-            false
-        })
+        )
         pDialog = ProgressDialog(context)
         pDialog?.apply {
             setMessage(context.getString(R.string.synchronize_message))
@@ -166,15 +168,10 @@ class SyncUserFragment : Fragment() {
         }
     }
 
-    interface SyncUserFragmentListener {
-    }
+    interface SyncUserFragmentListener
 
     companion object {
 
-        private const val LOGIN_ENDPOINT = "/login.json"
-        private const val EMAIL_CREDENTIAL_FIELD = "email"
-        private const val PASSWORD_CREDENTIAL_FIELD = "password"
-        private const val USER_CREDENTIAL_FIELD = "user"
         private val VALID_EMAIL_REGEX =
             Pattern.compile("\\A[\\w+\\-.]+@[a-z\\d\\-.]+\\.[a-z]+\\z", Pattern.CASE_INSENSITIVE)
 

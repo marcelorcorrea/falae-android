@@ -6,7 +6,6 @@ import android.net.NetworkInfo
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import com.android.volley.Response
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.Volley
 import kotlinx.coroutines.Dispatchers
@@ -44,15 +43,17 @@ class FalaeWebPlatform(val context: Context) {
             jsonRequest.put("user", credentials)
 
             val url = BuildConfig.BASE_URL + "/login.json"
-            val request = GsonRequest(url = url,
+            val request = GsonRequest(
+                url = url,
                 clazz = User::class.java,
                 jsonRequest = jsonRequest,
-                listener = Response.Listener { response ->
+                listener = { response ->
                     continuation.resume(response)
                 },
-                errorListener = Response.ErrorListener {
+                errorListener = {
                     continuation.resumeWithException(it)
-                })
+                }
+            )
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Volley.newRequestQueue(
                     context,
@@ -123,7 +124,7 @@ class FalaeWebPlatform(val context: Context) {
         cache: DownloadCache,
         user: User
     ): String {
-        val imgSrc = "${BuildConfig.BASE_URL}${relativeImgPath}"
+        val imgSrc = "${BuildConfig.BASE_URL}$relativeImgPath"
         val file = fileHandler.createImg(folder, imgName, imgSrc)
         val localUri = cache.sources[imgSrc] ?: download(file, user.authToken, imgName, imgSrc)
         cache.store(imgSrc, localUri)
@@ -137,7 +138,6 @@ class FalaeWebPlatform(val context: Context) {
         imgSrc: String
     ): String {
         val url = URL(imgSrc)
-        println("Downloading item: $name - $imgSrc")
         Log.d(this.javaClass.name, "Downloading item: $name - $imgSrc")
         try {
             with(url.openConnection()) {
@@ -189,9 +189,11 @@ class FalaeWebPlatform(val context: Context) {
         }
     }
 
-    private fun isConnected(networkInfo: NetworkInfo): Boolean =
-        (networkInfo.type == ConnectivityManager.TYPE_WIFI ||
-            networkInfo.type == ConnectivityManager.TYPE_MOBILE) && networkInfo.isConnected
+    private fun isConnected(networkInfo: NetworkInfo?): Boolean =
+        (
+            networkInfo?.type == ConnectivityManager.TYPE_WIFI ||
+                networkInfo?.type == ConnectivityManager.TYPE_MOBILE
+            ) && networkInfo.isConnected
 
     companion object {
 
