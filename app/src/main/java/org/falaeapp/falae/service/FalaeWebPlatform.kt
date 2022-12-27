@@ -17,6 +17,8 @@ import org.falaeapp.falae.TLSSocketFactory
 import org.falaeapp.falae.exception.NoNetworkConnectionException
 import org.falaeapp.falae.model.DownloadCache
 import org.falaeapp.falae.model.Item
+import org.falaeapp.falae.model.Page
+import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.room.DownloadCacheDao
 import org.falaeapp.falae.storage.FileHandler
@@ -89,7 +91,7 @@ class FalaeWebPlatform(val context: Context) {
             }
         }
         val allItems = user.getItemsFromAllSpreadsheets()
-        val repeatedItems = getRepeatedItems(allItems)
+        val duplicatedItems = getDuplicatedItems(allItems)
         coroutineScope {
             allItems.distinctBy { it.imgSrc }
                 .forEach { item: Item ->
@@ -105,7 +107,7 @@ class FalaeWebPlatform(val context: Context) {
                         }
                         val localUri = fetchImage(item.imgSrc, item.name, fileHandler, folder, cache, user)
                         // Update imgSrc from duplicated items first
-                        repeatedItems[item.imgSrc]?.forEach { it.imgSrc = localUri }
+                        duplicatedItems[item.imgSrc]?.forEach { it.imgSrc = localUri }
                         // Update imgSrc of iterated item
                         item.imgSrc = localUri
                     }
@@ -154,7 +156,7 @@ class FalaeWebPlatform(val context: Context) {
         return ""
     }
 
-    private fun getRepeatedItems(items: List<Item>): Map<String, MutableList<Item>> {
+    private fun getDuplicatedItems(items: List<Item>): Map<String, MutableList<Item>> {
         val itemsMap = mutableMapOf<String, MutableList<Item>>()
         val uniqueItems = HashSet<String>()
         items.forEach { item ->
@@ -194,6 +196,101 @@ class FalaeWebPlatform(val context: Context) {
             networkInfo?.type == ConnectivityManager.TYPE_WIFI ||
                 networkInfo?.type == ConnectivityManager.TYPE_MOBILE
             ) && networkInfo.isConnected
+
+    suspend fun createSpreadSheet(name: String, user: User): SpreadSheet = withContext(Dispatchers.IO) {
+        if (!hasNetworkConnection()) {
+            throw NoNetworkConnectionException("Could not detect any network connection.")
+        }
+        val request = request(name, user)
+        return@withContext request
+    }
+
+    suspend fun request(name: String, user: User): SpreadSheet = suspendCoroutine { continuation ->
+        try {
+            val spreadsheet = JSONObject()
+            spreadsheet.put("name", name)
+
+            val userJson = JSONObject()
+            userJson.put("user_id", user.id)
+
+            val jsonRequest = JSONObject()
+            jsonRequest.put("spreadsheet", spreadsheet)
+
+            val url = BuildConfig.BASE_URL + "/users/1/spreadsheets.json"
+
+            val request = GsonRequest(
+                url = url,
+                clazz = SpreadSheet::class.java,
+                headers = mapOf("Authorization" to "Token ${user.authToken}"),
+                jsonRequest = jsonRequest,
+                listener = { response ->
+                    continuation.resume(response)
+                },
+                errorListener = {
+                    continuation.resumeWithException(it)
+                }
+            )
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                Volley.newRequestQueue(
+                    context,
+                    HurlStack(null, TLSSocketFactory())
+                ).add(request)
+            } else {
+                Volley.newRequestQueue(context).add(request)
+            }
+        } catch (e: JSONException) {
+            Log.e(javaClass.name, "Error while parsing response: ${e.message}")
+            continuation.resumeWithException(e)
+        }
+    }
+
+    suspend fun createPage(name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
+        withContext(Dispatchers.IO) {
+            if (!hasNetworkConnection()) {
+                throw NoNetworkConnectionException("Could not detect any network connection.")
+            }
+            val request = pageRequest(name, columnsSize, rowsSize, user)
+            return@withContext request
+        }
+
+    suspend fun pageRequest(name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
+        suspendCoroutine { continuation ->
+            try {
+                val page = JSONObject()
+                page.put("name", name)
+                page.put("columns", columnsSize)
+                page.put("rows", rowsSize)
+
+                val jsonRequest = JSONObject()
+                jsonRequest.put("page", page)
+
+                val url = BuildConfig.BASE_URL + "/users/1/spreadsheets/12/pages"
+
+                val request = GsonRequest(
+                    url = url,
+                    clazz = Page::class.java,
+                    headers = mapOf("Authorization" to "Token ${user.authToken}"),
+                    jsonRequest = jsonRequest,
+                    listener = { response ->
+                        continuation.resume(response)
+                    },
+                    errorListener = {
+                        continuation.resumeWithException(it)
+                    }
+                )
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                    Volley.newRequestQueue(
+                        context,
+                        HurlStack(null, TLSSocketFactory())
+                    ).add(request)
+                } else {
+                    Volley.newRequestQueue(context).add(request)
+                }
+            } catch (e: JSONException) {
+                Log.e(javaClass.name, "Error while parsing response: ${e.message}")
+                continuation.resumeWithException(e)
+            }
+        }
 
     companion object {
 

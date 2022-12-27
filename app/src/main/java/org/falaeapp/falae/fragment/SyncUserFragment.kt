@@ -34,8 +34,9 @@ class SyncUserFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        userViewModel = ViewModelProvider(activity!!, factory)[UserViewModel::class.java]
+        val currentActivity = requireActivity()
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(currentActivity.application)
+        userViewModel = ViewModelProvider(currentActivity, factory)[UserViewModel::class.java]
         userViewModel.syncAccountResponse.observe(this) { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 result.second?.let { error ->

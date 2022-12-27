@@ -1,5 +1,6 @@
 package org.falaeapp.falae.task
 
+import android.util.Log
 import com.android.volley.AuthFailureError
 import com.android.volley.NetworkResponse
 import com.android.volley.ParseError
@@ -48,6 +49,7 @@ class GsonRequest<T>(
         return try {
             val charSet = HttpHeaderParser.parseCharset(response.headers)
             val json = response.data.toString(charset(charSet))
+            Log.d(javaClass.name, json)
             Response.success(
                 gson.fromJson(json, clazz),
                 HttpHeaderParser.parseCacheHeaders(response)

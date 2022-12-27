@@ -26,10 +26,14 @@
     <string name="feedback_sound">Feedback auditivo</string>
     <string name="success_user_added">Usuário sincronizado com sucesso!</string>
     <string name="user_info">Perfil</string>
-    <string name="scan_mode_duration">Tempo de varredura (segundos) </string>
+    <string name="scan_mode_duration">Tempo de varredura (segundos)</string>
     <string name="page_not_found">A prancha não contém a página selecionada.</string>
-    <string name="download_failed">Um erro ocorreu ao baixar as imagens. Por favor verifique sua conexão com a internet.</string>
-    <string name="error_internet_access">Um erro ocorreu ao tentar conectar-se com o servidor. Por favor verifique sua conexão com a internet.</string>
+    <string name="download_failed">Um erro ocorreu ao baixar as imagens. Por favor verifique sua conexão com a
+        internet.
+    </string>
+    <string name="error_internet_access">Um erro ocorreu ao tentar conectar-se com o servidor. Por favor verifique sua
+        conexão com a internet.
+    </string>
     <string name="remove">Remover</string>
     <string name="removeUser">Remover Usuário</string>
     <string name="questionRemoveUser">Tem certeza que deseja remover este usuário?</string>
@@ -37,19 +41,36 @@
     <string name="no_option">Não</string>
     <string name="ok">OK</string>
     <string name="sampleboard">sampleboard.json</string>
-    <string name="provider_not_available">Não foi possível instalar módulos de segurança do Android. Portanto, não será possível sincronizar sua conta.</string>
+    <string name="provider_not_available">Não foi possível instalar módulos de segurança do Android. Portanto, não será
+        possível sincronizar sua conta.
+    </string>
     <string name="language_settings_not_available">Não foi possível abrir as configurações de linguagem.</string>
-    <string name="create_accout_msg">É necessário ter uma conta cadastrada na plataforma web. (https://www.falaeapp.com)</string>
+    <string name="create_accout_msg">É necessário ter uma conta cadastrada na plataforma web.
+        (https://www.falaeapp.com)
+    </string>
     <string name="no_initial_page">Não existe uma página inicial configurada para esta prancha.</string>
-    <string name="picasso_load_error">Não foi possível carregar a imagem. Por favor tente re-sincronizar sua conta.</string>
+    <string name="picasso_load_error">Não foi possível carregar a imagem. Por favor tente re-sincronizar sua conta.
+    </string>
     <string name="background_run">Falaê está rodando em plano de fundo.</string>
     <string name="scan_mode_automatic_next_page">Mudança de página automática</string>
     <string name="images_removed">Imagens removidas com sucesso!</string>
     <string name="images_removed_error">Ocorreu um erro ao tentar remover as imagens.</string>
-    <string name="confirm_clear_public_cache">Isso fará com que todas imagens públicas, compartilhadas entre diferentes usuários, sejam removidas deste dispositivo. Tem certeza que deseja fazer isso?</string>
-    <string name="confirm_clear_user_cache">Isso fará com que todas suas imagens privadas do menu "Meus Itens" sejam removidas deste dispositivo. Você precisará sincronizar sua conta novamente. Tem certeza que deseja fazer isso?</string>
+    <string name="confirm_clear_public_cache">Isso fará com que todas imagens públicas, compartilhadas entre diferentes
+        usuários, sejam removidas deste dispositivo. Tem certeza que deseja fazer isso?
+    </string>
+    <string name="confirm_clear_user_cache">Isso fará com que todas suas imagens privadas do menu "Meus Itens" sejam
+        removidas deste dispositivo. Você precisará sincronizar sua conta novamente. Tem certeza que deseja fazer isso?
+    </string>
     <string name="clear_user_cache">Limpar cache do usuário</string>
     <string name="clear_public_cache">Limpar cache público</string>
     <string name="cache">Cache</string>
     <string name="clear_cache">Limpar Cache</string>
+    <string name="save">Salvar</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="new_spreadsheet_label">Criar prancha</string>
+    <string name="new_page_label">Criar página</string>
+    <string name="columns">Colunas</string>
+    <string name="rows">Linhas</string>
+
+    <string name="name">Nome</string>
 </resources>

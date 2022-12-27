@@ -1,5 +1,6 @@
 package org.falaeapp.falae.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.falaeapp.falae.R
+import org.falaeapp.falae.activity.SpreadsheetActivity
 import org.falaeapp.falae.adapter.SpreadSheetAdapter
 import org.falaeapp.falae.databinding.FragmentSpreadSheetBinding
 import org.falaeapp.falae.model.SpreadSheet
@@ -29,15 +31,15 @@ class SpreadSheetFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        onAttachFragment(parentFragment!!)
+        onAttachFragment(requireParentFragment())
         setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSpreadSheetBinding.inflate(inflater, container, false)
         val view = binding.root
-        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        userViewModel = ViewModelProvider(activity!!, factory)[UserViewModel::class.java]
+        val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        userViewModel = ViewModelProvider(requireActivity(), factory)[UserViewModel::class.java]
         userViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             user?.let {
                 spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->
@@ -52,6 +54,11 @@ class SpreadSheetFragment : Fragment() {
         }
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.spreadsheetRecycler.layoutManager = layoutManager
+
+        val fab = binding.fab
+        fab.setOnClickListener {
+            startActivity(Intent(requireContext(), SpreadsheetActivity::class.java))
+        }
         return view
     }
 

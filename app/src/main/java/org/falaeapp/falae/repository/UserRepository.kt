@@ -1,11 +1,13 @@
 package org.falaeapp.falae.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.android.volley.AuthFailureError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.falaeapp.falae.exception.UserNotFoundException
+import org.falaeapp.falae.model.Page
 import org.falaeapp.falae.model.User
 import org.falaeapp.falae.room.AppDatabase
 import org.falaeapp.falae.room.DownloadCacheDao
@@ -113,6 +115,24 @@ class UserRepository(val context: Context) {
         } catch (ex: IOException) {
             throw ex
         }
+    }
+
+    suspend fun createSpreadSheet(name: String) = withContext(Dispatchers.IO) {
+        val user = login("marcelorcorrea@gmail.com", "123mudar")
+        // val lastConnectedUserId = getLastConnectedUserId()
+        // val user = getUser(lastConnectedUserId)
+        Log.d(javaClass.name, user.toString())
+        val createSpreadSheet = falaeWebPlatform.createSpreadSheet(name, user)
+        Log.d(javaClass.name, createSpreadSheet.toString())
+        createSpreadSheet
+    }
+
+    suspend fun createPage(name: String, columnsSize: Int, rowsSize: Int): Page = withContext(Dispatchers.IO) {
+        val user = login("marcelorcorrea@gmail.com", "123mudar")
+        Log.d(javaClass.name, user.toString())
+        val createdPage = falaeWebPlatform.createPage(name, columnsSize, rowsSize, user)
+        Log.d(javaClass.name, createdPage.toString())
+        createdPage
     }
 
     companion object {

@@ -53,4 +53,10 @@
     <string name="clear_public_cache">Clear public cache</string>
     <string name="cache">Cache</string>
     <string name="clear_cache">Clear Cache</string>
+    <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="new_spreadsheet_label">Create spreadsheet</string>
+    <string name="new_page_label">Create page</string>
+    <string name="columns">Columns</string>
+    <string name="rows">Rows</string>
 </resources>

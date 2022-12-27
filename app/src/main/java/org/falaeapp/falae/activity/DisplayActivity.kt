@@ -30,7 +30,7 @@ class DisplayActivity :
 
         val spreadSheet: SpreadSheet? = intent.getParcelableExtra(SPREADSHEET)
         val factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        displayViewModel = ViewModelProvider(this, factory).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(this, factory)[DisplayViewModel::class.java]
         spreadSheet?.let {
             displayViewModel.init(it)
         }

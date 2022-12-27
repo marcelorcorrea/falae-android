@@ -45,7 +45,7 @@ android {
     compileSdk = 32
     defaultConfig {
         applicationId = "org.falaeapp.falae"
-        minSdk = 15
+        minSdk = 19
         targetSdk = 32
         versionCode = 17
         versionName = "1.0.17"
@@ -62,10 +62,13 @@ android {
         }
         debug {
             signingConfig = signingConfigs.getByName("debug")
-            buildConfigField("String", "BASE_URL", "https://10.0.2.2:3000")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:3000\"")
         }
     }
     namespace = "org.falaeapp.falae"
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 repositories {
@@ -95,6 +98,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
     implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("com.google.android.material:material:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     kapt("androidx.room:room-compiler:$roomVersion")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.hamcrest:hamcrest-library:2.2")

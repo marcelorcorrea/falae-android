@@ -13,14 +13,18 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name=".activity.MainActivity"
-                android:screenOrientation="landscape"
-                android:windowSoftInputMode="stateHidden"
+                android:name=".activity.SpreadsheetActivity"
+                android:exported="false"
                 android:theme="@style/AppTheme"/>
         <activity
+                android:name=".activity.MainActivity"
+                android:screenOrientation="landscape"
+                android:theme="@style/AppTheme"
+                android:windowSoftInputMode="stateHidden"/>
+        <activity
                 android:name=".activity.SplashActivity"
-                android:theme="@style/SplashTheme"
-                android:exported="true">
+                android:exported="true"
+                android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
