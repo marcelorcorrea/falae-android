@@ -210,13 +210,10 @@ class FalaeWebPlatform(val context: Context) {
             val spreadsheet = JSONObject()
             spreadsheet.put("name", name)
 
-            val userJson = JSONObject()
-            userJson.put("user_id", user.id)
-
             val jsonRequest = JSONObject()
             jsonRequest.put("spreadsheet", spreadsheet)
 
-            val url = BuildConfig.BASE_URL + "/users/1/spreadsheets.json"
+            val url = BuildConfig.BASE_URL + "/users/${user.userId}/spreadsheets.json"
 
             val request = GsonRequest(
                 url = url,
@@ -244,16 +241,16 @@ class FalaeWebPlatform(val context: Context) {
         }
     }
 
-    suspend fun createPage(name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
+    suspend fun createPage(spreadsheetId: Long, name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
         withContext(Dispatchers.IO) {
             if (!hasNetworkConnection()) {
                 throw NoNetworkConnectionException("Could not detect any network connection.")
             }
-            val request = pageRequest(name, columnsSize, rowsSize, user)
+            val request = pageRequest(spreadsheetId, name, columnsSize, rowsSize, user)
             return@withContext request
         }
 
-    suspend fun pageRequest(name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
+    suspend fun pageRequest(spreadsheetId: Long, name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
         suspendCoroutine { continuation ->
             try {
                 val page = JSONObject()
@@ -264,7 +261,8 @@ class FalaeWebPlatform(val context: Context) {
                 val jsonRequest = JSONObject()
                 jsonRequest.put("page", page)
 
-                val url = BuildConfig.BASE_URL + "/users/1/spreadsheets/12/pages"
+                val url = BuildConfig.BASE_URL + "/users/${user.userId}/spreadsheets/$spreadsheetId/pages.json"
+                Log.d(javaClass.name, "Pages.json Url: $url")
 
                 val request = GsonRequest(
                     url = url,

@@ -127,13 +127,14 @@ class UserRepository(val context: Context) {
         createSpreadSheet
     }
 
-    suspend fun createPage(name: String, columnsSize: Int, rowsSize: Int): Page = withContext(Dispatchers.IO) {
-        val user = login("marcelorcorrea@gmail.com", "123mudar")
-        Log.d(javaClass.name, user.toString())
-        val createdPage = falaeWebPlatform.createPage(name, columnsSize, rowsSize, user)
-        Log.d(javaClass.name, createdPage.toString())
-        createdPage
-    }
+    suspend fun createPage(spreadsheetId: Long, name: String, columnsSize: Int, rowsSize: Int): Page =
+        withContext(Dispatchers.IO) {
+            val user = login("marcelorcorrea@gmail.com", "123mudar")
+            Log.d(javaClass.name, user.toString())
+            val createdPage = falaeWebPlatform.createPage(spreadsheetId, name, columnsSize, rowsSize, user)
+            Log.d(javaClass.name, createdPage.toString())
+            createdPage
+        }
 
     companion object {
         private const val LAST_CONNECTED_USER = "LastConnectedUser"

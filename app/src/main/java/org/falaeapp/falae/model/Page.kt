@@ -9,6 +9,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Page(
+    val id: Long,
     val name: String,
     val items: List<Item> = emptyList(),
     val columns: Int,

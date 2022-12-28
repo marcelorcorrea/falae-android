@@ -9,6 +9,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SpreadSheet(
+    val id: Long,
     val name: String,
     val initialPage: String?,
     val pages: List<Page>

@@ -101,7 +101,7 @@ class CreatePageFragment : Fragment() {
             focusView = mPageName
             cancel = true
         } else if (TextUtils.isEmpty(columnsSize)) {
-            mColumnsSize.error = getString(R.string.error_invalid_email)
+            mColumnsSize.error = getString(R.string.error_field_required)
             focusView = mColumnsSize
             cancel = true
         } else if (TextUtils.isEmpty(rowsSize)) {

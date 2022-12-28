@@ -49,11 +49,18 @@ class SpreadsheetViewModel(application: Application) : AndroidViewModel(applicat
 
     fun createPage(pageName: String, columnsSize: Int, rowsSize: Int) {
         viewModelScope.launch {
-            try {
-                val createdPage = userRepository.createPage(pageName, columnsSize, rowsSize)
-                createdPageEvent.value = Event(Pair(createdPage, null))
-            } catch (exception: Exception) {
-                createdSpreadsheetEvent.value = Event(Pair(null, exception))
+            createdSpreadsheetEvent.value?.peekContent()?.first?.let {
+                try {
+                    val createdPage = userRepository.createPage(
+                        it.id,
+                        pageName,
+                        columnsSize,
+                        rowsSize
+                    )
+                    createdPageEvent.value = Event(Pair(createdPage, null))
+                } catch (exception: Exception) {
+                    createdSpreadsheetEvent.value = Event(Pair(null, exception))
+                }
             }
         }
     }

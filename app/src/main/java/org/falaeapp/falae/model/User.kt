@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 import org.falaeapp.falae.room.converter.SpreadSheetConverter
 
@@ -24,7 +25,9 @@ data class User(
     @TypeConverters(SpreadSheetConverter::class)
     var spreadsheets: List<SpreadSheet> = emptyList(),
     var profile: String? = "",
-    var photo: String? = ""
+    var photo: String? = "",
+    @SerializedName("id")
+    var userId: Long = 0
 ) : Parcelable {
     constructor() : this(
         0,
