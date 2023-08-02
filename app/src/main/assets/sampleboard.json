@@ -5,10 +5,12 @@
   "photoSrc": "file:///android_asset/demo/mostrar.png",
   "spreadsheets": [
     {
+      "id": 1,
       "initialPage": "Principal",
       "name": "Prancha de amostra",
       "pages": [
         {
+          "id": 1,
           "name": "Principal",
           "columns": 6,
           "rows": 3,
@@ -129,6 +131,7 @@
           ]
         },
         {
+          "id": 2,
           "name": "PaginaComer",
           "columns": 5,
           "rows": 3,
@@ -227,6 +230,7 @@
           ]
         },
         {
+          "id": 3,
           "name": "PaginaEstar",
           "columns": 5,
           "rows": 3,
@@ -325,6 +329,7 @@
           ]
         },
         {
+          "id": 4,
           "name": "PaginaBeber",
           "columns": 3,
           "rows": 3,

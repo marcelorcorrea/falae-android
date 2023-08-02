@@ -9,11 +9,8 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.android.volley.AuthFailureError
 import org.falaeapp.falae.R
 import org.falaeapp.falae.databinding.FragmentCreatePageBinding
-import org.falaeapp.falae.exception.UserNotFoundException
-import org.falaeapp.falae.util.Util
 import org.falaeapp.falae.viewmodel.SpreadsheetViewModel
 
 class CreatePageFragment : Fragment() {
@@ -46,45 +43,26 @@ class CreatePageFragment : Fragment() {
         mRowsSize = binding.rowSize
 
         binding.buttonSavePage.setOnClickListener {
-            attemptCreatePage()
+            attemptToCreatePage()
         }
-        sharedViewModel.createdSpreadsheetResponse.observe(viewLifecycleOwner) { event ->
+        sharedViewModel.createdPageResponse.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 result.second?.let { error ->
                     onError(error)
                 } ?: run {
                     Toast.makeText(context, "Página criada com sucesso!", Toast.LENGTH_LONG).show()
+                    requireActivity().finish()
                 }
             }
         }
     }
 
     private fun onError(error: Exception) {
-        if (error is AuthFailureError) {
-            handleError(error)
-        } else {
-            Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG).show()
-            error.printStackTrace()
-        }
+        Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG).show()
+        error.printStackTrace()
     }
 
-    private fun handleError(error: AuthFailureError) {
-        context?.let { context ->
-            if (error is UserNotFoundException) {
-                Util.createDialog(
-                    context = context,
-                    positiveText = getString(R.string.ok),
-                    message = getString(R.string.create_accout_msg)
-                )
-                    .show()
-            } else {
-                mPageName.error = getString(R.string.error_internet_access)
-                mPageName.requestFocus()
-            }
-        }
-    }
-
-    private fun attemptCreatePage() {
+    private fun attemptToCreatePage() {
         mPageName.error = null
         mColumnsSize.error = null
         mRowsSize.error = null

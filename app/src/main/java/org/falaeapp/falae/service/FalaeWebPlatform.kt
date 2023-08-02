@@ -197,15 +197,10 @@ class FalaeWebPlatform(val context: Context) {
                 networkInfo?.type == ConnectivityManager.TYPE_MOBILE
             ) && networkInfo.isConnected
 
-    suspend fun createSpreadSheet(name: String, user: User): SpreadSheet = withContext(Dispatchers.IO) {
+    suspend fun createSpreadSheet(name: String, user: User): SpreadSheet = suspendCoroutine { continuation ->
         if (!hasNetworkConnection()) {
             throw NoNetworkConnectionException("Could not detect any network connection.")
         }
-        val request = request(name, user)
-        return@withContext request
-    }
-
-    suspend fun request(name: String, user: User): SpreadSheet = suspendCoroutine { continuation ->
         try {
             val spreadsheet = JSONObject()
             spreadsheet.put("name", name)
@@ -213,7 +208,7 @@ class FalaeWebPlatform(val context: Context) {
             val jsonRequest = JSONObject()
             jsonRequest.put("spreadsheet", spreadsheet)
 
-            val url = BuildConfig.BASE_URL + "/users/${user.userId}/spreadsheets.json"
+            val url = BuildConfig.BASE_URL + "/users/${user.id}/spreadsheets.json"
 
             val request = GsonRequest(
                 url = url,
@@ -242,16 +237,10 @@ class FalaeWebPlatform(val context: Context) {
     }
 
     suspend fun createPage(spreadsheetId: Long, name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
-        withContext(Dispatchers.IO) {
+        suspendCoroutine { continuation ->
             if (!hasNetworkConnection()) {
                 throw NoNetworkConnectionException("Could not detect any network connection.")
             }
-            val request = pageRequest(spreadsheetId, name, columnsSize, rowsSize, user)
-            return@withContext request
-        }
-
-    suspend fun pageRequest(spreadsheetId: Long, name: String, columnsSize: Int, rowsSize: Int, user: User): Page =
-        suspendCoroutine { continuation ->
             try {
                 val page = JSONObject()
                 page.put("name", name)
@@ -261,7 +250,7 @@ class FalaeWebPlatform(val context: Context) {
                 val jsonRequest = JSONObject()
                 jsonRequest.put("page", page)
 
-                val url = BuildConfig.BASE_URL + "/users/${user.userId}/spreadsheets/$spreadsheetId/pages.json"
+                val url = BuildConfig.BASE_URL + "/users/${user.id}/spreadsheets/$spreadsheetId/pages.json"
                 Log.d(javaClass.name, "Pages.json Url: $url")
 
                 val request = GsonRequest(
