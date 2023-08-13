@@ -6,7 +6,6 @@ import android.net.NetworkInfo
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import com.android.volley.Response
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.Volley
 import kotlinx.coroutines.Dispatchers
@@ -44,19 +43,21 @@ class FalaeWebPlatform(val context: Context) {
             jsonRequest.put("user", credentials)
 
             val url = BuildConfig.BASE_URL + "/login.json"
-            val request = GsonRequest(url = url,
+            val request = GsonRequest(
+                url = url,
                 clazz = User::class.java,
                 jsonRequest = jsonRequest,
-                listener = Response.Listener { response ->
+                listener = { response ->
                     continuation.resume(response)
                 },
-                errorListener = Response.ErrorListener {
+                errorListener = {
                     continuation.resumeWithException(it)
-                })
+                },
+            )
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Volley.newRequestQueue(
                     context,
-                    HurlStack(null, TLSSocketFactory())
+                    HurlStack(null, TLSSocketFactory()),
                 ).add(request)
             } else {
                 Volley.newRequestQueue(context).add(request)
@@ -70,7 +71,7 @@ class FalaeWebPlatform(val context: Context) {
     suspend fun downloadImages(
         user: User,
         downloadCacheDao: DownloadCacheDao,
-        fileHandler: FileHandler
+        fileHandler: FileHandler,
     ): User = withContext(Dispatchers.IO) {
         if (!hasNetworkConnection()) {
             throw NoNetworkConnectionException("Could not detect any network connection.")
@@ -83,7 +84,14 @@ class FalaeWebPlatform(val context: Context) {
         user.photo?.let { imgSrc ->
             launch {
                 if (imgSrc.isNotEmpty()) {
-                    user.photo = fetchImage(imgSrc, user.name, fileHandler, userFolder, userDownloadCache, user)
+                    user.photo = fetchImage(
+                        imgSrc,
+                        user.name,
+                        fileHandler,
+                        userFolder,
+                        userDownloadCache,
+                        user,
+                    )
                 }
             }
         }
@@ -102,7 +110,8 @@ class FalaeWebPlatform(val context: Context) {
                             folder = publicFolder
                             cache = publicDownloadCache
                         }
-                        val localUri = fetchImage(item.imgSrc, item.name, fileHandler, folder, cache, user)
+                        val localUri =
+                            fetchImage(item.imgSrc, item.name, fileHandler, folder, cache, user)
                         // Update imgSrc from duplicated items first
                         repeatedItems[item.imgSrc]?.forEach { it.imgSrc = localUri }
                         // Update imgSrc of iterated item
@@ -121,9 +130,9 @@ class FalaeWebPlatform(val context: Context) {
         fileHandler: FileHandler,
         folder: File,
         cache: DownloadCache,
-        user: User
+        user: User,
     ): String {
-        val imgSrc = "${BuildConfig.BASE_URL}${relativeImgPath}"
+        val imgSrc = "${BuildConfig.BASE_URL}$relativeImgPath"
         val file = fileHandler.createImg(folder, imgName, imgSrc)
         val localUri = cache.sources[imgSrc] ?: download(file, user.authToken, imgName, imgSrc)
         cache.store(imgSrc, localUri)
@@ -134,7 +143,7 @@ class FalaeWebPlatform(val context: Context) {
         imgReference: File,
         token: String,
         name: String,
-        imgSrc: String
+        imgSrc: String,
     ): String {
         val url = URL(imgSrc)
         println("Downloading item: $name - $imgSrc")
@@ -170,7 +179,10 @@ class FalaeWebPlatform(val context: Context) {
     private fun loadCache(downloadCacheDao: DownloadCacheDao, key: String) =
         downloadCacheDao.findByName(key) ?: DownloadCache(name = key, sources = mutableMapOf())
 
-    private suspend fun saveOrUpdateCache(downloadCacheDao: DownloadCacheDao, cache: DownloadCache) =
+    private suspend fun saveOrUpdateCache(
+        downloadCacheDao: DownloadCacheDao,
+        cache: DownloadCache,
+    ) =
         withContext(Dispatchers.IO) {
             Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
             if (!downloadCacheDao.cacheExists(cache.name)) {
@@ -189,9 +201,11 @@ class FalaeWebPlatform(val context: Context) {
         }
     }
 
-    private fun isConnected(networkInfo: NetworkInfo): Boolean =
-        (networkInfo.type == ConnectivityManager.TYPE_WIFI ||
-            networkInfo.type == ConnectivityManager.TYPE_MOBILE) && networkInfo.isConnected
+    private fun isConnected(networkInfo: NetworkInfo?): Boolean =
+        (
+                networkInfo?.type == ConnectivityManager.TYPE_WIFI ||
+                        networkInfo?.type == ConnectivityManager.TYPE_MOBILE
+                ) && networkInfo.isConnected
 
     companion object {
 

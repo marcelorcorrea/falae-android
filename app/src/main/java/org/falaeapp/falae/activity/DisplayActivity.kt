@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import org.falaeapp.falae.R
 import org.falaeapp.falae.fragment.PageFragment
@@ -17,7 +16,9 @@ import org.falaeapp.falae.model.SpreadSheet
 import org.falaeapp.falae.service.TextToSpeechService
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 
-class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
+class DisplayActivity :
+    AppCompatActivity(),
+    PageFragment.PageFragmentListener,
     ViewPagerItemFragment.ViewPagerItemFragmentListener {
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var mediaPlayer: MediaPlayer
@@ -32,13 +33,16 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
             displayViewModel.init(it)
         }
 
-        displayViewModel.pageToOpen.observe(this, Observer {
+        displayViewModel.pageToOpen.observe(
+            this,
+        ) {
             it?.let { page ->
                 changeFragment(page, page.initialPage.not())
             } ?: run {
-                Toast.makeText(this, getString(R.string.page_not_found), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.page_not_found), Toast.LENGTH_SHORT)
+                    .show()
             }
-        })
+        }
         mediaPlayer = MediaPlayer.create(this, R.raw.click_sound)
     }
 
@@ -48,10 +52,11 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
         val fragmentTransaction = fragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                android.R.anim.fade_in, android.R.anim.fade_out,
-                android.R.anim.fade_in, android.R.anim.fade_out
-            )
-            .replace(R.id.page_container, fragment)
+                android.R.anim.fade_in,
+                android.R.anim.fade_out,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out,
+            ).replace(R.id.page_container, fragment)
         if (addToBackStack) {
             fragmentTransaction.addToBackStack(page.name)
         } else if (fragmentManager.backStackEntryCount > 0) {

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,26 +26,34 @@ class SpreadSheetFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        onAttachFragment(parentFragment!!)
+        onAttachFragment(requireParentFragment())
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
         val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
-        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
+        userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+        userViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             user?.let {
                 spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->
                     spreadSheet.initialPage?.let {
                         mListener.displayActivity(spreadSheet)
                     } ?: run {
-                        Toast.makeText(activity, getString(R.string.no_initial_page), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            activity,
+                            getString(R.string.no_initial_page),
+                            Toast.LENGTH_SHORT,
+                        ).show()
                     }
                 }
                 recyclerView.adapter = spreadSheetAdapter
             }
-        })
+        }
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
         return view
@@ -61,11 +68,11 @@ class SpreadSheetFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
+        userViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             if (user != null && !user.isSampleUser()) {
                 inflater.inflate(R.menu.board_menu, menu)
             }
-        })
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -78,7 +85,7 @@ class SpreadSheetFragment : Fragment() {
                         message = getString(R.string.questionRemoveUser),
                         positiveText = getString(R.string.yes_option),
                         positiveClick = { userViewModel.removeUser() },
-                        negativeText = getString(R.string.no_option)
+                        negativeText = getString(R.string.no_option),
                     ).show()
                 }
                 return true

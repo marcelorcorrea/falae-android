@@ -14,7 +14,7 @@ data class DownloadCache(
     var id: Int = 0,
     val name: String,
     @TypeConverters(MutableMapConverter::class)
-    val sources: MutableMap<String, String>
+    val sources: MutableMap<String, String>,
 ) {
 
     fun store(key: String, value: String) {

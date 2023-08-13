@@ -35,14 +35,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     private val automaticNextPageEnabledEvent: MutableLiveData<Event<Any>> = MutableLiveData()
-    val isAutomaticNextPageEnabled: LiveData<Boolean> = automaticNextPageEnabledEvent.switchMap { event ->
-        liveData {
-            event?.getContentIfAny()?.let { checked ->
-                settingsRepository.saveEnableAutomaticNextPage(checked as Boolean)
+    val isAutomaticNextPageEnabled: LiveData<Boolean> =
+        automaticNextPageEnabledEvent.switchMap { event ->
+            liveData {
+                event?.getContentIfAny()?.let { checked ->
+                    settingsRepository.saveEnableAutomaticNextPage(checked as Boolean)
+                }
+                emit(settingsRepository.isAutomaticNextPageEnabled())
             }
-            emit(settingsRepository.isAutomaticNextPageEnabled())
         }
-    }
 
     private val seekBarProgressEvent: MutableLiveData<Event<Any>> = MutableLiveData()
     val seekBarProgress: LiveData<Int> = seekBarProgressEvent.switchMap { event ->

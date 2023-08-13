@@ -10,7 +10,6 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import org.falaeapp.falae.R
@@ -30,12 +29,13 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(requireActivity())[DisplayViewModel::class.java]
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_page, container, false)
         leftNav = view.findViewById(R.id.left_nav) as ImageView
@@ -60,9 +60,9 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
                 if (isPagerAdapterInitialized().not()) {
-                    displayViewModel.currentPage.observe(this@PageFragment, Observer { page ->
+                    displayViewModel.currentPage.observe(viewLifecycleOwner) { page ->
                         mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
-                    })
+                    }
                 }
                 if (::mPager.isInitialized && isPagerAdapterInitialized()) {
                     mPager.adapter = mPagerAdapter
@@ -133,13 +133,13 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private fun isPagerAdapterInitialized(): Boolean = this::mPagerAdapter.isInitialized
 
     private fun shouldEnableNavButtons(): Boolean = isPagerAdapterInitialized() &&
-        mPagerAdapter.count > 1
+            mPagerAdapter.count > 1
 
     private fun shouldDisableLeftNavButton(): Boolean = isPagerAdapterInitialized() &&
-        mPager.currentItem == 0
+            mPager.currentItem == 0
 
     private fun shouldDisableRightButton(): Boolean = isPagerAdapterInitialized() &&
-        mPager.currentItem >= mPagerAdapter.count - 1
+            mPager.currentItem >= mPagerAdapter.count - 1
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

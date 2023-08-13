@@ -6,17 +6,19 @@ import org.falaeapp.falae.R
 
 object Util {
 
-    fun createDialog(context: Context,
-                     title: String = "",
-                     message: String,
-                     neutralText: String = "",
-                     neutral: () -> Unit = {},
-                     positiveText: String = "",
-                     positiveClick: () -> Unit = {},
-                     negativeText: String = "",
-                     negativeClick: () -> Unit = {}): AlertDialog {
+    fun createDialog(
+        context: Context,
+        title: String = "",
+        message: String,
+        neutralText: String = "",
+        neutral: () -> Unit = {},
+        positiveText: String = "",
+        positiveClick: () -> Unit = {},
+        negativeText: String = "",
+        negativeClick: () -> Unit = {},
+    ): AlertDialog {
         val builder = AlertDialog.Builder(context)
-                .setMessage(message)
+            .setMessage(message)
         if (title.isNotEmpty()) {
             builder.setTitle(title)
         }
@@ -24,7 +26,6 @@ object Util {
             builder.setNeutralButton(neutralText) { dialog, _ ->
                 neutral()
                 dialog.dismiss()
-
             }
         }
         if (negativeText.isNotEmpty()) {
@@ -48,5 +49,4 @@ object Util {
         }
         return alertDialog
     }
-
 }

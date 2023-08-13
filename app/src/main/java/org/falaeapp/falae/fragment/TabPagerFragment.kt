@@ -19,12 +19,13 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
     private lateinit var viewPager: ViewPager
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_tab_pager, container, false)
         viewPager = view.findViewById(R.id.viewpager) as ViewPager
-        viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager, context)
+        viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager)
         viewPager.offscreenPageLimit = OFFSCREEN_PAGE_LIMIT
 
         // Give the TabLayout the ViewPager
@@ -50,10 +51,13 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         fun displayActivity(spreadSheet: SpreadSheet)
     }
 
-    inner class CustomFragmentPagerAdapter(fm: FragmentManager, private val context: Context?) :
+    inner class CustomFragmentPagerAdapter(fm: FragmentManager) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         private val tabTitles =
-            arrayOf(resources.getString(R.string.spreadsheets), resources.getString(R.string.user_info))
+            arrayOf(
+                resources.getString(R.string.spreadsheets),
+                resources.getString(R.string.user_info),
+            )
 
         override fun getItem(position: Int): Fragment {
             return if (position == 0) {

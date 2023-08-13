@@ -21,11 +21,12 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     var currentUser: LiveData<User> = MutableLiveData()
 
     private val syncAccountEvent = MutableLiveData<Event<Pair<User?, Exception?>>>()
-    val syncAccountResponse: LiveData<Event<Pair<User?, Exception?>>> = syncAccountEvent.switchMap { event ->
-        liveData {
-            emit(event)
+    val syncAccountResponse: LiveData<Event<Pair<User?, Exception?>>> =
+        syncAccountEvent.switchMap { event ->
+            liveData {
+                emit(event)
+            }
         }
-    }
 
     private val lastConnectedUserIdEvent: MutableLiveData<Event<Any>> = MutableLiveData()
     val lastConnectedUserId: LiveData<Long> = lastConnectedUserIdEvent.switchMap { event ->

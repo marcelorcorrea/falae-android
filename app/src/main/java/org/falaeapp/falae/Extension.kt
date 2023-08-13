@@ -22,7 +22,7 @@ fun Resources.loadUser(name: String): User {
 }
 
 fun InputStream.readText(charset: Charset = Charsets.UTF_8): String =
-        bufferedReader(charset).use { it.readText() }
+    bufferedReader(charset).use { it.readText() }
 
 fun AlertDialog.loadDefaultShowListener(resources: Resources) {
     setOnShowListener {

@@ -7,7 +7,8 @@ import org.falaeapp.falae.fragment.SettingsFragment
 import org.falaeapp.falae.storage.SharedPreferencesUtils
 
 class SettingsRepository(val context: Context) {
-    private val sharedPreferences: SharedPreferencesUtils = SharedPreferencesUtils(context.applicationContext)
+    private val sharedPreferences: SharedPreferencesUtils =
+        SharedPreferencesUtils(context.applicationContext)
 
     suspend fun isScanModeEnabled(): Boolean = withContext(Dispatchers.IO) {
         sharedPreferences.getBoolean(SCAN_MODE)

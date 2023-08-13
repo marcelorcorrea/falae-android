@@ -73,9 +73,11 @@ class UserRepository(val context: Context) {
         when {
             currentVersionCode == storedVersionCode -> // This is just a normal run
                 return@withContext
+
             storedVersionCode == doesntExist -> {
                 // TODO This is a new install (or the user cleared the shared preferences)
             }
+
             currentVersionCode > storedVersionCode -> {
                 sharedPreferences.clear()
             }
@@ -96,11 +98,12 @@ class UserRepository(val context: Context) {
         try {
             falaeWebPlatform.login(email, password)
         } catch (exception: Exception) {
-            val error: Exception = if (exception is AuthFailureError && userModelDao.findByEmail(email) == null) {
-                UserNotFoundException()
-            } else {
-                exception
-            }
+            val error: Exception =
+                if (exception is AuthFailureError && userModelDao.findByEmail(email) == null) {
+                    UserNotFoundException()
+                } else {
+                    exception
+                }
             throw error
         }
     }

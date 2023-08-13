@@ -17,9 +17,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.gridlayout.widget.GridLayout
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.Picasso
 import org.falaeapp.falae.R
@@ -27,9 +27,7 @@ import org.falaeapp.falae.model.Category
 import org.falaeapp.falae.model.Item
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 import org.falaeapp.falae.viewmodel.SettingsViewModel
-import java.util.ArrayList
-import java.util.Timer
-import java.util.TimerTask
+import java.util.*
 import kotlin.math.roundToInt
 
 class ViewPagerItemFragment : Fragment() {
@@ -58,8 +56,8 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
-        settingsViewModel = ViewModelProvider(activity!!).get(SettingsViewModel::class.java)
+        displayViewModel = ViewModelProvider(requireActivity())[DisplayViewModel::class.java]
+        settingsViewModel = ViewModelProvider(requireActivity())[SettingsViewModel::class.java]
         arguments?.let { arguments ->
             mItems = arguments.getParcelableArrayList(ITEMS_PARAM) ?: emptyList()
             mColumns = arguments.getInt(COLUMNS_PARAM)
@@ -69,8 +67,9 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_view_pager_item, container, false)
         mGridLayout = view.findViewById(R.id.grid_layout) as GridLayout
@@ -91,25 +90,27 @@ class ViewPagerItemFragment : Fragment() {
     }
 
     private fun observeAutomaticNextPage() {
-        settingsViewModel.shouldEnableAutomaticNextPage().observe(viewLifecycleOwner, Observer { result ->
-            shouldCallNextPage = result
-        })
+        settingsViewModel.shouldEnableAutomaticNextPage()
+            .observe(viewLifecycleOwner) { result ->
+                shouldCallNextPage = result
+            }
     }
 
     private fun observeFeedbackSound() {
-        settingsViewModel.shouldEnableFeedbackSound().observe(viewLifecycleOwner, Observer { result ->
-            shouldPlayFeedbackSound = result
-        })
+        settingsViewModel.shouldEnableFeedbackSound()
+            .observe(viewLifecycleOwner) { result ->
+                shouldPlayFeedbackSound = result
+            }
     }
 
     private fun observeScanMode() {
-        settingsViewModel.shouldEnableScanMode().observe(viewLifecycleOwner, Observer { pair ->
+        settingsViewModel.shouldEnableScanMode().observe(viewLifecycleOwner) { pair ->
             isScanModeEnabled = pair.first
             if (isScanModeEnabled) {
                 delay = pair.second
                 doPageScan()
             }
-        })
+        }
     }
 
     override fun onResume() {
@@ -122,7 +123,11 @@ class ViewPagerItemFragment : Fragment() {
         stopPageScan()
     }
 
-    private fun generateLayout(inflater: LayoutInflater, item: Item, layoutDimensions: Point): FrameLayout {
+    private fun generateLayout(
+        inflater: LayoutInflater,
+        item: Item,
+        layoutDimensions: Point,
+    ): FrameLayout {
         val frameLayout = inflater.inflate(R.layout.item, null, false) as FrameLayout
         val name = frameLayout.findViewById(R.id.item_name) as TextView
         val imageView = frameLayout.findViewById(R.id.item_image_view) as ImageView
@@ -144,14 +149,17 @@ class ViewPagerItemFragment : Fragment() {
         }
         name.text = item.name
         name.post {
-            val imageSize = calculateImageSize(layoutDimensions.x, layoutDimensions.y, name, imageView)
+            val imageSize =
+                calculateImageSize(layoutDimensions.x, layoutDimensions.y, name, imageView)
             if (item.category == Category.SUBJECT || item.category == Category.OTHER) {
                 name.setTextColor(Color.BLACK)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    linkPage.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_launch_black_48dp))
-                } else {
-                    linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
-                }
+                linkPage.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_launch_black_48dp,
+                        null,
+                    ),
+                )
             }
             if (item.imgSrc.isNotEmpty()) {
                 if (imageSize > 0 && context != null) {
@@ -164,9 +172,10 @@ class ViewPagerItemFragment : Fragment() {
                         .into(imageView)
                 }
             } else {
-                Toast.makeText(context, getString(R.string.picasso_load_error), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.picasso_load_error), Toast.LENGTH_SHORT)
+                    .show()
             }
-            if (item.linkTo != null && item.linkTo.isNotEmpty()) {
+            if (!item.linkTo.isNullOrEmpty()) {
                 linkPage.visibility = View.VISIBLE
             }
         }
@@ -175,7 +184,7 @@ class ViewPagerItemFragment : Fragment() {
 
     private fun onItemClicked(item: Item) {
         mListener.speak(item.speech)
-        if (item.linkTo != null && item.linkTo.isNotEmpty()) {
+        if (!item.linkTo.isNullOrEmpty()) {
             displayViewModel.openPage(item.linkTo)
         }
     }
@@ -188,7 +197,12 @@ class ViewPagerItemFragment : Fragment() {
         return Point(widthDimension, heightDimension)
     }
 
-    private fun calculateImageSize(layoutWidth: Int, layoutHeight: Int, name: TextView, imageView: ImageView): Int {
+    private fun calculateImageSize(
+        layoutWidth: Int,
+        layoutHeight: Int,
+        name: TextView,
+        imageView: ImageView,
+    ): Int {
         val nameTopMargin = (name.layoutParams as ConstraintLayout.LayoutParams).topMargin
         val nameBoxHeight = nameTopMargin + name.lineHeight * name.lineCount
         val availableHeight = layoutHeight - nameBoxHeight
@@ -256,7 +270,7 @@ class ViewPagerItemFragment : Fragment() {
     private fun highlightCurrentItem() {
         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
             mItemsLayout[currentItemSelectedFromScan].foreground =
-                context?.resources?.getDrawable(R.drawable.highlight_scan_mode)
+                ResourcesCompat.getDrawable(resources, R.drawable.highlight_scan_mode, null)
         }
     }
 
@@ -266,7 +280,8 @@ class ViewPagerItemFragment : Fragment() {
             previousItem = mItemsLayout.size - 1
         }
         if (context != null && previousItem < mItemsLayout.size) {
-            mItemsLayout[previousItem].foreground = context?.resources?.getDrawable(R.drawable.normal_color)
+            mItemsLayout[previousItem].foreground =
+                ResourcesCompat.getDrawable(resources, R.drawable.normal_color, null)
         }
     }
 
@@ -303,7 +318,12 @@ class ViewPagerItemFragment : Fragment() {
         private const val ROWS_PARAM = "rows"
         private const val MARGIN_WIDTH = "marginWidth"
 
-        fun newInstance(items: ArrayList<Item>, columns: Int, rows: Int, width: Int): ViewPagerItemFragment {
+        fun newInstance(
+            items: ArrayList<Item>,
+            columns: Int,
+            rows: Int,
+            width: Int,
+        ): ViewPagerItemFragment {
             val fragment = ViewPagerItemFragment()
             val args = Bundle()
             args.putParcelableArrayList(ITEMS_PARAM, items)

@@ -28,7 +28,12 @@ class ItemPagerAdapter(fm: FragmentManager, private val page: Page, private val 
             val fromIndex = position * itemsPerPage
             val subList = items.subList(fromIndex, min(fromIndex + itemsPerPage, items.size))
             val newInstance: Fragment =
-                ViewPagerItemFragment.newInstance(ArrayList(subList), page.columns, page.rows, marginWidth)
+                ViewPagerItemFragment.newInstance(
+                    ArrayList(subList),
+                    page.columns,
+                    page.rows,
+                    marginWidth,
+                )
             fragmentReferences.put(position, WeakReference(newInstance))
             newInstance
         }
@@ -45,6 +50,8 @@ class ItemPagerAdapter(fm: FragmentManager, private val page: Page, private val 
         val numberOfPages = page.items.size.toDouble() / (page.columns * page.rows)
         return if (numberOfPages == numberOfPages.roundToInt().toDouble()) {
             numberOfPages.toInt()
-        } else (numberOfPages + 0.5).roundToInt()
+        } else {
+            (numberOfPages + 0.5).roundToInt()
+        }
     }
 }

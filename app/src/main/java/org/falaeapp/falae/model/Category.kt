@@ -12,7 +12,8 @@ enum class Category(private val color: Int) {
     VERB(Color.parseColor("#009900")),
     NOUN(Color.parseColor("#FFA500")),
     ADJECTIVE(Color.BLUE),
-    OTHER(Color.WHITE);
+    OTHER(Color.WHITE),
+    ;
 
     fun color(): Int = color
 }

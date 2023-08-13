@@ -2,7 +2,7 @@
 # By default, the flags in this file are appended to flags specified
 # in /home/marcelo/Android/Sdk/tools/proguard/proguard-android.txt
 # You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
+# directive in build.gradle.kts.
 #
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
@@ -24,6 +24,13 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -dontwarn com.squareup.okhttp.**
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.OpenSSLProvider
+-keepattributes Signature
+-keep class com.squareup.picasso.** { *; }
+-keep class com.squareup.picasso.PicassoProvider { *; <init>(...); }
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
 -keep public class org.falaeapp.falae.**{
     *;
 }

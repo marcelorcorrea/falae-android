@@ -12,7 +12,7 @@ object SpreadSheetConverter {
     @TypeConverter
     @JvmStatic
     fun toSpreadSheetList(json: String): List<SpreadSheet> {
-        return gson.fromJson<List<SpreadSheet>>(json, listType)
+        return gson.fromJson(json, listType)
     }
 
     @TypeConverter
