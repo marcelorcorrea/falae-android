@@ -53,14 +53,7 @@ class FalaeWebPlatform(val context: Context) {
                 errorListener = Response.ErrorListener {
                     continuation.resumeWithException(it)
                 })
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Volley.newRequestQueue(
-                    context,
-                    HurlStack(null, TLSSocketFactory())
-                ).add(request)
-            } else {
-                Volley.newRequestQueue(context).add(request)
-            }
+            Volley.newRequestQueue(context).add(request)
         } catch (e: JSONException) {
             Log.e(javaClass.name, "Error while parsing response: ${e.message}")
             continuation.resumeWithException(e)
@@ -182,13 +175,21 @@ class FalaeWebPlatform(val context: Context) {
 
     private fun hasNetworkConnection(): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cm.allNetworks.any { isConnected(cm.getNetworkInfo(it)) }
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = cm.getNetworkCapabilities(cm.activeNetwork)
+            networkCapabilities != null
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cm.allNetworks.any { network ->
+                val networkInfo = cm.getNetworkInfo(network)
+                networkInfo != null && isConnected(networkInfo)
+            }
         } else {
+            @Suppress("DEPRECATION")
             cm.allNetworkInfo.any { isConnected(it) }
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun isConnected(networkInfo: NetworkInfo): Boolean =
         (networkInfo.type == ConnectivityManager.TYPE_WIFI ||
             networkInfo.type == ConnectivityManager.TYPE_MOBILE) && networkInfo.isConnected

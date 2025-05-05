@@ -130,11 +130,7 @@ class ViewPagerItemFragment : Fragment() {
 
         frameLayout.layoutParams = FrameLayout.LayoutParams(layoutDimensions.x, layoutDimensions.y)
         val drawable = createBackgroundDrawable(item)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            frameLayout.setBackgroundDrawable(drawable)
-        } else {
-            frameLayout.background = drawable
-        }
+        frameLayout.background = drawable
         frameLayout.setOnClickListener {
             var itemSelected = item
             if (isScanModeEnabled) {
@@ -147,11 +143,7 @@ class ViewPagerItemFragment : Fragment() {
             val imageSize = calculateImageSize(layoutDimensions.x, layoutDimensions.y, name, imageView)
             if (item.category == Category.SUBJECT || item.category == Category.OTHER) {
                 name.setTextColor(Color.BLACK)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    linkPage.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_launch_black_48dp))
-                } else {
-                    linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
-                }
+                linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
             }
             if (item.imgSrc.isNotEmpty()) {
                 if (imageSize > 0 && context != null) {
@@ -256,7 +248,7 @@ class ViewPagerItemFragment : Fragment() {
     private fun highlightCurrentItem() {
         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
             mItemsLayout[currentItemSelectedFromScan].foreground =
-                context?.resources?.getDrawable(R.drawable.highlight_scan_mode)
+                context?.getDrawable(R.drawable.highlight_scan_mode)
         }
     }
 
@@ -266,7 +258,7 @@ class ViewPagerItemFragment : Fragment() {
             previousItem = mItemsLayout.size - 1
         }
         if (context != null && previousItem < mItemsLayout.size) {
-            mItemsLayout[previousItem].foreground = context?.resources?.getDrawable(R.drawable.normal_color)
+            mItemsLayout[previousItem].foreground = context?.getDrawable(R.drawable.normal_color)
         }
     }
 

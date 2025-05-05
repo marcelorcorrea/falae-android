@@ -37,16 +37,8 @@ class UserInfoFragment : Fragment() {
         val userName = view.findViewById(R.id.user_name) as TextView
         val userInfo = view.findViewById(R.id.user_information) as TextView
 
-        val brokenImage: Drawable?
-        val placeHolderImage: Drawable?
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            brokenImage = context?.resources?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.resources?.getDrawable(R.drawable.ic_person_black_24dp)
-        } else {
-            brokenImage = context?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
-        }
+        val brokenImage: Drawable? = context?.getDrawable(R.drawable.ic_broken_image_black_48dp)
+        val placeHolderImage: Drawable? = context?.getDrawable(R.drawable.ic_person_black_24dp)
 
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.apply {

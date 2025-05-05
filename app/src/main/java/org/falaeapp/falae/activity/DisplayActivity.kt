@@ -4,6 +4,7 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
@@ -14,7 +15,6 @@ import org.falaeapp.falae.fragment.PageFragment
 import org.falaeapp.falae.fragment.ViewPagerItemFragment
 import org.falaeapp.falae.model.Page
 import org.falaeapp.falae.model.SpreadSheet
-import org.falaeapp.falae.service.TextToSpeechService
 import org.falaeapp.falae.viewmodel.DisplayViewModel
 
 class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
@@ -22,9 +22,18 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
     private lateinit var displayViewModel: DisplayViewModel
     private lateinit var mediaPlayer: MediaPlayer
 
+    private var textToSpeech: TextToSpeech? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display)
+
+        // Inicializar o TextToSpeech
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status != TextToSpeech.SUCCESS) {
+                Toast.makeText(this, "Erro ao inicializar o TTS", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         val spreadSheet: SpreadSheet? = intent.getParcelableExtra(SPREADSHEET)
         displayViewModel = ViewModelProvider(this).get(DisplayViewModel::class.java)
@@ -62,13 +71,18 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
         displayViewModel.setCurrentPage(page)
     }
 
+    override fun onDestroy() {
+        // Liberar recursos do TextToSpeech
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+        super.onDestroy()
+    }
+
     override fun speak(msg: String) {
-        val intent = Intent(this, TextToSpeechService::class.java)
-        intent.putExtra(TextToSpeechService.TEXT_TO_SPEECH_MESSAGE, msg)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
+        try {
+            textToSpeech?.speak(msg, TextToSpeech.QUEUE_FLUSH, null, null)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Erro ao falar o texto: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 

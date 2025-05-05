@@ -59,11 +59,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
     }
 
     private fun speak(msg: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, null)
-        } else {
-            mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null)
-        }
+        mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
     override fun onDestroy() {

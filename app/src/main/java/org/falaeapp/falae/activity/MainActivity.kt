@@ -66,10 +66,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
         observeUsers()
         observeLastConnectedUser()
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            ProviderInstaller.installIfNeededAsync(this, this)
-        }
     }
 
     private fun observeLastConnectedUser() {
