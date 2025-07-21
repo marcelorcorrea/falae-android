@@ -30,7 +30,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(requireActivity())[DisplayViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -38,20 +38,16 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_page, container, false)
-        leftNav = view.findViewById(R.id.left_nav) as ImageView
-        rightNav = view.findViewById(R.id.right_nav) as ImageView
-        leftNavHolder = view.findViewById(R.id.left_nav_holder) as FrameLayout
-        rightNavHolder = view.findViewById(R.id.right_nav_holder) as FrameLayout
+        leftNav = view.findViewById(R.id.left_nav)
+        rightNav = view.findViewById(R.id.right_nav)
+        leftNavHolder = view.findViewById(R.id.left_nav_holder)
+        rightNavHolder = view.findViewById(R.id.right_nav_holder)
 
         val vto = view.viewTreeObserver
         vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    view.viewTreeObserver.removeGlobalOnLayoutListener(this)
-                } else {
-                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-                mPager = view.findViewById(R.id.pager) as ViewPager
+                view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                mPager = view.findViewById(R.id.pager)!!
                 val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065).toInt()
                 leftNav.layoutParams.width = navHoldersSize
                 leftNav.layoutParams.height = navHoldersSize
@@ -60,8 +56,9 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
                 if (isPagerAdapterInitialized().not()) {
-                    displayViewModel.currentPage.observe(this@PageFragment, Observer { page ->
-                        mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
+                    displayViewModel.currentPage.observe(viewLifecycleOwner, Observer { page ->
+                        mPagerAdapter =
+                            ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
                     })
                 }
                 if (::mPager.isInitialized && isPagerAdapterInitialized()) {
@@ -85,7 +82,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                         speak(getString(R.string.previous))
                         mPager.currentItem = tab
                     } else if (tab == 0) {
-                        mPager.currentItem = tab
+                        mPager.currentItem = 0
                     }
                 }
                 rightNavHolder.setOnClickListener {

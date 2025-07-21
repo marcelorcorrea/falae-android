@@ -28,7 +28,7 @@ class SpreadSheetAdapter(private val context: Context?, private val spreadSheets
     override fun getItemCount(): Int = spreadSheets.size
 
     inner class SpreadSheetViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view) {
-        internal val name: TextView = view.findViewById(R.id.spreadsheet_name) as TextView
+        internal val name: TextView = view.findViewById(R.id.spreadsheet_name)
 
         internal fun bind(spreadSheet: SpreadSheet, onItemClickListener: (spreadSheet: SpreadSheet) -> Unit) {
             name.text = spreadSheet.name

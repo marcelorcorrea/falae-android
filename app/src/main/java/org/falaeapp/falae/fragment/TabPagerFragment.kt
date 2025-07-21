@@ -23,12 +23,12 @@ class TabPagerFragment : Fragment(), SpreadSheetFragment.SpreadSheetFragmentList
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_tab_pager, container, false)
-        viewPager = view.findViewById(R.id.viewpager) as ViewPager
+        viewPager = view.findViewById(R.id.viewpager)!!
         viewPager.adapter = CustomFragmentPagerAdapter(childFragmentManager, context)
         viewPager.offscreenPageLimit = OFFSCREEN_PAGE_LIMIT
 
         // Give the TabLayout the ViewPager
-        val tabLayout = view.findViewById(R.id.layout_tabs) as TabLayout
+        val tabLayout: TabLayout = view.findViewById(R.id.layout_tabs)
         tabLayout.setupWithViewPager(viewPager)
         return view
     }

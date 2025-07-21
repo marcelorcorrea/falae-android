@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -23,8 +24,8 @@ class UserInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
-        onAttachFragment(parentFragment!!)
+        userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+        onAttachFragment(requireParentFragment())
     }
 
     override fun onCreateView(
@@ -33,20 +34,12 @@ class UserInfoFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_user_info, container, false)
-        val imageView = view.findViewById(R.id.user_photo) as ImageView
-        val userName = view.findViewById(R.id.user_name) as TextView
-        val userInfo = view.findViewById(R.id.user_information) as TextView
+        val imageView: ImageView = view.findViewById(R.id.user_photo)
+        val userName: TextView = view.findViewById(R.id.user_name)
+        val userInfo: TextView = view.findViewById(R.id.user_information)
 
-        val brokenImage: Drawable?
-        val placeHolderImage: Drawable?
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            brokenImage = context?.resources?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.resources?.getDrawable(R.drawable.ic_person_black_24dp)
-        } else {
-            brokenImage = context?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
-        }
+        val brokenImage: Drawable? = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_broken_image_black_48dp)
+        val placeHolderImage: Drawable? = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_person_black_24dp)
 
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.apply {

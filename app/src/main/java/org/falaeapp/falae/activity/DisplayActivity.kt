@@ -5,7 +5,11 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,8 +30,12 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
+        windowInsetsController.hide( WindowInsetsCompat.Type.statusBars())
+
         val spreadSheet: SpreadSheet? = intent.getParcelableExtra(SPREADSHEET)
-        displayViewModel = ViewModelProvider(this).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(this)[DisplayViewModel::class.java]
         spreadSheet?.let {
             displayViewModel.init(it)
         }
@@ -40,6 +48,14 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
             }
         })
         mediaPlayer = MediaPlayer.create(this, R.raw.click_sound)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
+            }
+        })
     }
 
     private fun changeFragment(page: Page, addToBackStack: Boolean = false) {
@@ -74,11 +90,6 @@ class DisplayActivity : AppCompatActivity(), PageFragment.PageFragmentListener,
 
     override fun playFeedbackSound() {
         mediaPlayer.start()
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
     }
 
     companion object {

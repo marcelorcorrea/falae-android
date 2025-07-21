@@ -14,7 +14,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.falaeapp.falae.BuildConfig
-import org.falaeapp.falae.TLSSocketFactory
+import org.falaeapp.falae.TrustFactory
 import org.falaeapp.falae.exception.NoNetworkConnectionException
 import org.falaeapp.falae.model.DownloadCache
 import org.falaeapp.falae.model.Item
@@ -28,9 +28,13 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.net.URL
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+
 
 class FalaeWebPlatform(val context: Context) {
 
@@ -44,7 +48,8 @@ class FalaeWebPlatform(val context: Context) {
             jsonRequest.put("user", credentials)
 
             val url = BuildConfig.BASE_URL + "/login.json"
-            val request = GsonRequest(url = url,
+            val request = GsonRequest(
+                url = url,
                 clazz = User::class.java,
                 jsonRequest = jsonRequest,
                 listener = Response.Listener { response ->
@@ -53,10 +58,11 @@ class FalaeWebPlatform(val context: Context) {
                 errorListener = Response.ErrorListener {
                     continuation.resumeWithException(it)
                 })
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+                val sslContext = TrustFactory.getSslContextFromTrustManager(context)
                 Volley.newRequestQueue(
                     context,
-                    HurlStack(null, TLSSocketFactory())
+                    HurlStack(null, sslContext.socketFactory)
                 ).add(request)
             } else {
                 Volley.newRequestQueue(context).add(request)
@@ -83,7 +89,14 @@ class FalaeWebPlatform(val context: Context) {
         user.photo?.let { imgSrc ->
             launch {
                 if (imgSrc.isNotEmpty()) {
-                    user.photo = fetchImage(imgSrc, user.name, fileHandler, userFolder, userDownloadCache, user)
+                    user.photo = fetchImage(
+                        imgSrc,
+                        user.name,
+                        fileHandler,
+                        userFolder,
+                        userDownloadCache,
+                        user
+                    )
                 }
             }
         }
@@ -102,7 +115,8 @@ class FalaeWebPlatform(val context: Context) {
                             folder = publicFolder
                             cache = publicDownloadCache
                         }
-                        val localUri = fetchImage(item.imgSrc, item.name, fileHandler, folder, cache, user)
+                        val localUri =
+                            fetchImage(item.imgSrc, item.name, fileHandler, folder, cache, user)
                         // Update imgSrc from duplicated items first
                         repeatedItems[item.imgSrc]?.forEach { it.imgSrc = localUri }
                         // Update imgSrc of iterated item
@@ -139,6 +153,10 @@ class FalaeWebPlatform(val context: Context) {
         val url = URL(imgSrc)
         println("Downloading item: $name - $imgSrc")
         Log.d(this.javaClass.name, "Downloading item: $name - $imgSrc")
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+            val sslContext = TrustFactory.getSslContextFromTrustManager(context)
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.socketFactory)
+        }
         try {
             with(url.openConnection()) {
                 connectTimeout = TIME_OUT
@@ -170,7 +188,10 @@ class FalaeWebPlatform(val context: Context) {
     private fun loadCache(downloadCacheDao: DownloadCacheDao, key: String) =
         downloadCacheDao.findByName(key) ?: DownloadCache(name = key, sources = mutableMapOf())
 
-    private suspend fun saveOrUpdateCache(downloadCacheDao: DownloadCacheDao, cache: DownloadCache) =
+    private suspend fun saveOrUpdateCache(
+        downloadCacheDao: DownloadCacheDao,
+        cache: DownloadCache
+    ) =
         withContext(Dispatchers.IO) {
             Log.d(javaClass.name, "Saving ${cache.sources.size} images in ${cache.name} folder.")
             if (!downloadCacheDao.cacheExists(cache.name)) {
@@ -182,9 +203,16 @@ class FalaeWebPlatform(val context: Context) {
 
     private fun hasNetworkConnection(): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cm.allNetworks.any { isConnected(cm.getNetworkInfo(it)) }
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = cm.getNetworkCapabilities(cm.activeNetwork)
+            networkCapabilities != null
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cm.allNetworks.any { network ->
+                val networkInfo = cm.getNetworkInfo(network)
+                networkInfo != null && isConnected(networkInfo)
+            }
         } else {
+            @Suppress("DEPRECATION")
             cm.allNetworkInfo.any { isConnected(it) }
         }
     }

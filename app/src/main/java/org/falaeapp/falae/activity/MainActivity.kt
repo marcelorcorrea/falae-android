@@ -1,20 +1,19 @@
 package org.falaeapp.falae.activity
 
-import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.MenuItem
-import android.view.Window
-import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -40,14 +39,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mDrawer: DrawerLayout
     private lateinit var mNavigationView: NavigationView
     private var doubleBackToExitPressedOnce: Boolean = false
-
     private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        val splashScreen = installSplashScreen()
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -61,15 +60,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mNavigationView = findViewById(R.id.nav_view)
         mNavigationView.setNavigationItemSelectedListener(this)
 
-        userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
         observeUsers()
         observeLastConnectedUser()
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            ProviderInstaller.installIfNeededAsync(this, this)
-        }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (mDrawer.isDrawerOpen(GravityCompat.START)) {
+                    mDrawer.closeDrawer(GravityCompat.START)
+                } else {
+                    if (doubleBackToExitPressedOnce) {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    } else {
+                        doubleBackToExitPressedOnce = true
+                        Toast.makeText(this@MainActivity, R.string.exit_app_msg, Toast.LENGTH_SHORT).show()
+                        Handler(Looper.getMainLooper()).postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
+                    }
+                }
+            }
+        })
     }
 
     private fun observeLastConnectedUser() {
@@ -83,7 +95,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun observeUsers() {
         userViewModel.users.observe(this, Observer<List<User>> { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
-            users?.reversed()?.forEach {
+            users.reversed().forEach {
                 addUserToMenu(it)
             }
             userViewModel.loadLastConnectedUser()
@@ -101,20 +113,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         userItem.setOnMenuItemClickListener { item ->
             onNavigationItemSelected(item)
             true
-        }
-    }
-
-    override fun onBackPressed() {
-        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
-            mDrawer.closeDrawer(GravityCompat.START)
-        } else {
-            if (doubleBackToExitPressedOnce) {
-                super.onBackPressed()
-            } else {
-                this.doubleBackToExitPressedOnce = true
-                Toast.makeText(this, R.string.exit_app_msg, Toast.LENGTH_SHORT).show()
-                Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-            }
         }
     }
 
@@ -163,7 +161,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val installTts = Intent()
             installTts.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
             startActivity(installTts)
-        } catch (ex: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             Toast.makeText(this, getString(R.string.language_settings_not_available), Toast.LENGTH_LONG).show()
         }
     }
@@ -199,7 +197,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     ) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ERROR_DIALOG_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_CANCELED)
+            if (resultCode == RESULT_CANCELED)
                 onProviderInstallerNotAvailable()
         }
     }
@@ -210,6 +208,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     companion object {
         private const val ERROR_DIALOG_REQUEST_CODE = 1
-        private const val PROVIDER_INSTALLED = "provider_installed"
     }
 }

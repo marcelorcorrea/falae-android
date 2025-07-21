@@ -33,7 +33,7 @@ class SyncUserFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         userViewModel.syncAccountResponse.observe(this, Observer { event ->
             event?.getContentIfNotHandled()?.let { result ->
                 result.second?.let { error ->
@@ -44,15 +44,18 @@ class SyncUserFragment : Fragment() {
         })
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_sync_user, container, false)
-        mEmailView = view.findViewById(R.id.email) as EditText
-        mPasswordView = view.findViewById(R.id.password) as EditText
+        mEmailView = view.findViewById(R.id.email)!!
+        mPasswordView = view.findViewById(R.id.password)!!
         mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
-                val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm =
+                    context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(mPasswordView.windowToken, 0)
                 attemptLogin()
                 return@OnEditorActionListener true
@@ -65,7 +68,7 @@ class SyncUserFragment : Fragment() {
             isIndeterminate = false
             setCancelable(false)
         }
-        val mEmailSignInButton = view.findViewById(R.id.email_sign_in_button) as Button
+        val mEmailSignInButton: Button = view.findViewById(R.id.email_sign_in_button)
         mEmailSignInButton.setOnClickListener { attemptLogin() }
         setHasOptionsMenu(true)
         return view
@@ -91,9 +94,12 @@ class SyncUserFragment : Fragment() {
     }
 
     private fun showSoftwareKeyboard(showKeyboard: Boolean) {
-        val inputManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.hideSoftInputFromWindow(activity?.currentFocus?.windowToken,
-                if (showKeyboard) InputMethodManager.SHOW_FORCED else InputMethodManager.HIDE_NOT_ALWAYS)
+        val inputManager =
+            context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(
+            activity?.currentFocus?.windowToken,
+            if (showKeyboard) InputMethodManager.HIDE_IMPLICIT_ONLY else InputMethodManager.HIDE_NOT_ALWAYS
+        )
     }
 
     private fun attemptLogin() {
@@ -137,7 +143,8 @@ class SyncUserFragment : Fragment() {
         if (error is AuthFailureError) {
             handleError(error)
         } else {
-            Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, getString(R.string.error_internet_access), Toast.LENGTH_LONG)
+                .show()
             error.printStackTrace()
         }
     }
@@ -146,10 +153,11 @@ class SyncUserFragment : Fragment() {
         context?.let { context ->
             if (error is UserNotFoundException) {
                 Util.createDialog(
-                        context = context,
-                        positiveText = getString(R.string.ok),
-                        message = getString(R.string.create_accout_msg))
-                        .show()
+                    context = context,
+                    positiveText = getString(R.string.ok),
+                    message = getString(R.string.create_accout_msg)
+                )
+                    .show()
             } else {
                 mPasswordView.error = getString(R.string.error_incorrect_password)
                 mPasswordView.requestFocus()
@@ -166,7 +174,8 @@ class SyncUserFragment : Fragment() {
         private const val EMAIL_CREDENTIAL_FIELD = "email"
         private const val PASSWORD_CREDENTIAL_FIELD = "password"
         private const val USER_CREDENTIAL_FIELD = "user"
-        private val VALID_EMAIL_REGEX = Pattern.compile("\\A[\\w+\\-.]+@[a-z\\d\\-.]+\\.[a-z]+\\z", Pattern.CASE_INSENSITIVE)
+        private val VALID_EMAIL_REGEX =
+            Pattern.compile("\\A[\\w+\\-.]+@[a-z\\d\\-.]+\\.[a-z]+\\z", Pattern.CASE_INSENSITIVE)
 
         fun newInstance(): SyncUserFragment = SyncUserFragment()
     }

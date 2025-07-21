@@ -52,4 +52,5 @@
     <string name="clear_public_cache">Limpar cache público</string>
     <string name="cache">Cache</string>
     <string name="clear_cache">Limpar Cache</string>
+    <string name="tts_init_error">Erro ao inicializar o TTS</string>
 </resources>

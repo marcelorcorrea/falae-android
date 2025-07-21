@@ -16,6 +16,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.gridlayout.widget.GridLayout
@@ -58,8 +59,8 @@ class ViewPagerItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
-        settingsViewModel = ViewModelProvider(activity!!).get(SettingsViewModel::class.java)
+        displayViewModel = ViewModelProvider(requireActivity())[DisplayViewModel::class.java]
+        settingsViewModel = ViewModelProvider(requireActivity())[SettingsViewModel::class.java]
         arguments?.let { arguments ->
             mItems = arguments.getParcelableArrayList(ITEMS_PARAM) ?: emptyList()
             mColumns = arguments.getInt(COLUMNS_PARAM)
@@ -73,7 +74,7 @@ class ViewPagerItemFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_view_pager_item, container, false)
-        mGridLayout = view.findViewById(R.id.grid_layout) as GridLayout
+        mGridLayout = view.findViewById(R.id.grid_layout)!!
         mGridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
         mGridLayout.columnCount = mColumns
         mGridLayout.rowCount = mRows
@@ -124,17 +125,12 @@ class ViewPagerItemFragment : Fragment() {
 
     private fun generateLayout(inflater: LayoutInflater, item: Item, layoutDimensions: Point): FrameLayout {
         val frameLayout = inflater.inflate(R.layout.item, null, false) as FrameLayout
-        val name = frameLayout.findViewById(R.id.item_name) as TextView
-        val imageView = frameLayout.findViewById(R.id.item_image_view) as ImageView
-        val linkPage = frameLayout.findViewById(R.id.link_page) as ImageView
+        val name: TextView = frameLayout.findViewById(R.id.item_name)
+        val imageView: ImageView = frameLayout.findViewById(R.id.item_image_view)
+        val linkPage: ImageView = frameLayout.findViewById(R.id.link_page)
 
         frameLayout.layoutParams = FrameLayout.LayoutParams(layoutDimensions.x, layoutDimensions.y)
-        val drawable = createBackgroundDrawable(item)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            frameLayout.setBackgroundDrawable(drawable)
-        } else {
-            frameLayout.background = drawable
-        }
+        frameLayout.background = createBackgroundDrawable(item)
         frameLayout.setOnClickListener {
             var itemSelected = item
             if (isScanModeEnabled) {
@@ -147,11 +143,7 @@ class ViewPagerItemFragment : Fragment() {
             val imageSize = calculateImageSize(layoutDimensions.x, layoutDimensions.y, name, imageView)
             if (item.category == Category.SUBJECT || item.category == Category.OTHER) {
                 name.setTextColor(Color.BLACK)
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    linkPage.setImageDrawable(context?.resources?.getDrawable(R.drawable.ic_launch_black_48dp))
-                } else {
-                    linkPage.setImageDrawable(context?.getDrawable(R.drawable.ic_launch_black_48dp))
-                }
+                linkPage.setImageDrawable(AppCompatResources.getDrawable(requireContext() ,R.drawable.ic_launch_black_48dp))
             }
             if (item.imgSrc.isNotEmpty()) {
                 if (imageSize > 0 && context != null) {
@@ -255,8 +247,9 @@ class ViewPagerItemFragment : Fragment() {
 
     private fun highlightCurrentItem() {
         if (context != null && currentItemSelectedFromScan < mItemsLayout.size) {
-            mItemsLayout[currentItemSelectedFromScan].foreground =
-                context?.resources?.getDrawable(R.drawable.highlight_scan_mode)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mItemsLayout[currentItemSelectedFromScan].foreground = AppCompatResources.getDrawable(requireContext(), R.drawable.highlight_scan_mode)
+            }
         }
     }
 
@@ -266,7 +259,9 @@ class ViewPagerItemFragment : Fragment() {
             previousItem = mItemsLayout.size - 1
         }
         if (context != null && previousItem < mItemsLayout.size) {
-            mItemsLayout[previousItem].foreground = context?.resources?.getDrawable(R.drawable.normal_color)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mItemsLayout[previousItem].foreground = AppCompatResources.getDrawable(requireContext(), R.drawable.normal_color)
+            }
         }
     }
 

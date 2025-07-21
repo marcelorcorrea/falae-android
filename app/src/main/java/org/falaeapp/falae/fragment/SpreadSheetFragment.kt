@@ -27,14 +27,14 @@ class SpreadSheetFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        onAttachFragment(parentFragment!!)
+        onAttachFragment(requireParentFragment())
         setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
-        val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        val recyclerView: RecyclerView = view.findViewById(R.id.spreadsheet_recycler)
+        userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.let {
                 spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->

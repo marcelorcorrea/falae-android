@@ -38,3 +38,9 @@
     public static *** v(...);
     public static *** i(...);
 }
+
+# OkHttp and Conscrypt rules
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+-dontwarn okhttp3.internal.platform.**

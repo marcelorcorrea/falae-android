@@ -4,7 +4,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -12,7 +11,7 @@ import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import java.util.*
+import java.util.Locale
 
 
 class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
@@ -35,7 +34,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
         val chan = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Foreground Service", NotificationManager.IMPORTANCE_NONE)
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(chan)
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
@@ -59,11 +58,7 @@ class TextToSpeechService : Service(), TextToSpeech.OnInitListener {
     }
 
     private fun speak(msg: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, null)
-        } else {
-            mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null)
-        }
+        mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
     override fun onDestroy() {
