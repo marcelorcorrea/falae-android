@@ -6,16 +6,22 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.view.Window
-import android.view.WindowManager
+import android.view.WindowInsetsController
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.ViewCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -44,31 +50,116 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Importante: requestWindowFeature deve ser chamado antes de super.onCreate()
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         super.onCreate(savedInstanceState)
+
+        try {
+            // Configuração moderna para Android 15 Edge-to-Edge
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            
+            // Aplicar modo imersivo
+            applyImmersiveMode()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Erro ao configurar fullscreen: ${e.message}")
+        }
+
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        // Configurar Window Insets para evitar sobreposição com system bars
+        setupWindowInsets()
+
         mDrawer = findViewById(R.id.drawer_layout)
-        val toggle = ActionBarDrawerToggle(
+        val toggle = object : ActionBarDrawerToggle(
             this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
+        ) {
+            override fun onOptionsItemSelected(item: MenuItem): Boolean {
+                // Quando o ícone da casinha (hamburger) é clicado
+                if (item.itemId == android.R.id.home) {
+                    // Se o drawer está aberto, fechamos normalmente
+                    if (mDrawer.isDrawerOpen(GravityCompat.START)) {
+                        mDrawer.closeDrawer(GravityCompat.START)
+                        return true
+                    }
+
+                    // Se o drawer está fechado, carregamos o último usuário conectado
+                    try {
+                        Log.d("MainActivity", "Home icon clicked, loading last connected user")
+                        userViewModel.loadLastConnectedUser()
+                        return true
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Error loading last connected user: ${e.message}", e)
+                        // Em caso de erro, abrimos o drawer normalmente
+                        mDrawer.openDrawer(GravityCompat.START)
+                        return true
+                    }
+                }
+                return super.onOptionsItemSelected(item)
+            }
+        }
         mDrawer.addDrawerListener(toggle)
         toggle.syncState()
         mDrawer.openDrawer(GravityCompat.START)
         mNavigationView = findViewById(R.id.nav_view)
         mNavigationView.setNavigationItemSelectedListener(this)
 
+        // Registrando o callback para o botão voltar (substituindo onBackPressed depreciado)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (mDrawer.isDrawerOpen(GravityCompat.START)) {
+                    mDrawer.closeDrawer(GravityCompat.START)
+                } else {
+                    if (doubleBackToExitPressedOnce) {
+                        // Desabilitar o callback antes de chamar onBackPressed para evitar loops
+                        isEnabled = false
+                        // Finalizar a atividade diretamente em vez de chamar onBackPressed
+                        finish()
+                    } else {
+                        doubleBackToExitPressedOnce = true
+                        Toast.makeText(this@MainActivity, R.string.exit_app_msg, Toast.LENGTH_SHORT).show()
+                        Handler(Looper.getMainLooper()).postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
+                    }
+                }
+            }
+        })
+
         userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
 
         userViewModel.handleNewVersion(BuildConfig.VERSION_CODE)
         observeUsers()
         observeLastConnectedUser()
+    }
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            ProviderInstaller.installIfNeededAsync(this, this)
+    override fun onResume() {
+        super.onResume()
+        // Reaplicar modo imersivo quando a atividade volta ao foco
+        applyImmersiveMode()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            // Reaplicar modo imersivo quando a janela ganha foco
+            applyImmersiveMode()
+        }
+    }
+
+    private fun applyImmersiveMode() {
+        try {
+            // Para Android 15 e versões mais recentes, usar flags legados para esconder completamente a barra de navegação
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            )
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Erro ao aplicar modo imersivo: ${e.message}")
         }
     }
 
@@ -83,7 +174,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun observeUsers() {
         userViewModel.users.observe(this, Observer<List<User>> { users ->
             mNavigationView.menu.removeGroup(R.id.users_group)
-            users?.reversed()?.forEach {
+            users.reversed().forEach {
                 addUserToMenu(it)
             }
             userViewModel.loadLastConnectedUser()
@@ -104,19 +195,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onBackPressed() {
-        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
-            mDrawer.closeDrawer(GravityCompat.START)
-        } else {
-            if (doubleBackToExitPressedOnce) {
-                super.onBackPressed()
-            } else {
-                this.doubleBackToExitPressedOnce = true
-                Toast.makeText(this, R.string.exit_app_msg, Toast.LENGTH_SHORT).show()
-                Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-            }
-        }
-    }
+
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val fragment: Fragment
@@ -156,6 +235,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
             .replace(R.id.container, fragment, tag)
             .commit()
+        
+        // Reaplicar modo imersivo após trocar o fragment
+        applyImmersiveMode()
     }
 
     private fun openTTSLanguageSettings() {
@@ -171,7 +253,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun displayActivity(spreadSheet: SpreadSheet) {
         val intent = Intent(this, DisplayActivity::class.java)
         intent.putExtra(DisplayActivity.SPREADSHEET, spreadSheet)
+
+        // Usando o método tradicional já que estamos com compileSdk 34
         startActivity(intent)
+        @Suppress("DEPRECATION")
         overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left)
     }
 
@@ -206,6 +291,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun onProviderInstallerNotAvailable() {
         Toast.makeText(this, getString(R.string.provider_not_available), Toast.LENGTH_LONG).show()
+    }
+
+    /**
+     * Configura Window Insets para evitar sobreposição com system bars
+     */
+    private fun setupWindowInsets() {
+        val rootView = findViewById<DrawerLayout>(R.id.drawer_layout)
+        
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val navigationBarsInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            
+            // Aplicar padding apenas na parte inferior para evitar sobreposição com navigation bar
+            view.setPadding(
+                view.paddingLeft,
+                view.paddingTop,
+                view.paddingRight,
+                navigationBarsInsets.bottom
+            )
+            
+            Log.d("MainActivity", "Window Insets aplicados - Bottom: ${navigationBarsInsets.bottom}")
+            
+            insets
+        }
     }
 
     companion object {

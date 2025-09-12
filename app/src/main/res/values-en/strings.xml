@@ -53,4 +53,12 @@
     <string name="clear_public_cache">Clear public cache</string>
     <string name="cache">Cache</string>
     <string name="clear_cache">Clear Cache</string>
+    <string name="tts_portuguese_not_available">Portuguese voice is not available. Please install the Portuguese language package.</string>
+    <string name="error_initializing_tts">Error initializing TTS</string>
+    <string name="error_speaking_text">Error speaking text: %1$s</string>
+    <string name="invalid_email_password">Invalid email or password</string>
+    <string name="user_returned_null">User returned is null</string>
+    <string name="error_generic">Error: %1$s</string>
+    <string name="error_processing_response">Error processing response: %1$s</string>
+    <string name="error_critical">Critical error: %1$s</string>
 </resources>

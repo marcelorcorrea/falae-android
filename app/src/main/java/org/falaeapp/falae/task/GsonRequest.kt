@@ -42,7 +42,7 @@ class GsonRequest<T>(url: String,
     override fun parseNetworkResponse(response: NetworkResponse): Response<T> {
         return try {
             val charSet = HttpHeaderParser.parseCharset(response.headers)
-            val json = response.data.toString(charset(charSet))
+            val json = String(response.data, charset(charSet))
             Response.success(
                     gson.fromJson(json, clazz),
                     HttpHeaderParser.parseCacheHeaders(response))

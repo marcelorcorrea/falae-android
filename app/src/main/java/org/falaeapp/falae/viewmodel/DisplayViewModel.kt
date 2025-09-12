@@ -47,4 +47,8 @@ class DisplayViewModel(application: Application) : AndroidViewModel(application)
     fun setCurrentPage(page: Page) {
         newPage.value = page
     }
+
+    fun getCurrentSpreadSheet(): SpreadSheet {
+        return currentSpreadSheet
+    }
 }

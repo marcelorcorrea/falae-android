@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import org.falaeapp.falae.model.User
@@ -21,10 +21,10 @@ interface UserModelDao {
     @Query("select * from User")
     fun getAllUsers(): LiveData<List<User>>
 
-    @Insert(onConflict = REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(user: User): Long
 
-    @Update(onConflict = REPLACE)
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(user: User)
 
     @Delete

@@ -7,4 +7,6 @@
 /captures
 .externalNativeBuild
 keys/release_keystore.properties
+keys/*.jks
+*.jks
 app/release

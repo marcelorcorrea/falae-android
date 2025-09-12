@@ -28,6 +28,40 @@
     *;
 }
 -keep public class com.google.android.gms.* { public *; }
+
+# Android 15 specific ProGuard rules
+-keep class androidx.window.** { *; }
+-keep class androidx.core.splashscreen.** { *; }
+-keep class androidx.datastore.** { *; }
+-keep class androidx.work.** { *; }
+
+# Kotlin Coroutines
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
+
+# Material Design Components
+-keep class com.google.android.material.** { *; }
+-dontwarn com.google.android.material.**
+
+# AndroidX libraries
+-keep class androidx.lifecycle.** { *; }
+-keep class androidx.room.** { *; }
+-dontwarn androidx.room.**
+
+# Retrofit and OkHttp
+-keepattributes Signature, InnerClasses, EnclosingMethod
+-keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
+-keep,allowshrinking,allowoptimization class * extends retrofit2.DefaultCallAdapterFactory
+
+# Gson
+-keepattributes Signature
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+
+# Android 15 compatibility
+-keep class android.window.** { *; }
+-keep class android.app.UiModeManager { *; }
 -dontwarn com.google.android.gms.**
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
@@ -38,3 +72,9 @@
     public static *** v(...);
     public static *** i(...);
 }
+
+# OkHttp and Conscrypt rules
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+-dontwarn okhttp3.internal.platform.**

@@ -12,7 +12,7 @@ import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import org.falaeapp.falae.R
 import org.falaeapp.falae.adapter.ItemPagerAdapter
 import org.falaeapp.falae.viewmodel.DisplayViewModel
@@ -20,7 +20,7 @@ import org.falaeapp.falae.viewmodel.DisplayViewModel
 class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
     private lateinit var mPageFragmentListener: PageFragmentListener
-    private lateinit var mPager: ViewPager
+    private lateinit var mPager: ViewPager2
     private lateinit var mPagerAdapter: ItemPagerAdapter
     private lateinit var leftNav: ImageView
     private lateinit var rightNav: ImageView
@@ -30,7 +30,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        displayViewModel = ViewModelProvider(activity!!).get(DisplayViewModel::class.java)
+        displayViewModel = ViewModelProvider(requireActivity()).get(DisplayViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -46,12 +46,10 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
         val vto = view.viewTreeObserver
         vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    view.viewTreeObserver.removeGlobalOnLayoutListener(this)
-                } else {
-                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-                mPager = view.findViewById(R.id.pager) as ViewPager
+                // Removendo o listener usando apenas o método não depreciado
+                view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                mPager = view.findViewById(R.id.pager)
                 val navHoldersSize = java.lang.Double.valueOf(mPager.measuredWidth * 0.065).toInt()
                 leftNav.layoutParams.width = navHoldersSize
                 leftNav.layoutParams.height = navHoldersSize
@@ -60,17 +58,23 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 leftNavHolder.layoutParams.width = navHoldersSize
                 rightNavHolder.layoutParams.width = navHoldersSize
                 if (isPagerAdapterInitialized().not()) {
-                    displayViewModel.currentPage.observe(this@PageFragment, Observer { page ->
-                        mPagerAdapter = ItemPagerAdapter(childFragmentManager, page, navHoldersSize * 2)
+                    displayViewModel.currentPage.observe(viewLifecycleOwner, Observer { page ->
+                        // Adiciona checagem para garantir que há itens suficientes para criar páginas
+                        if (page.items.isNotEmpty() && page.columns > 0 && page.rows > 0) {
+                            mPagerAdapter = ItemPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle, page, navHoldersSize * 2)
+                            mPager.adapter = mPagerAdapter
+                        } else {
+                            // Opcional: mostrar mensagem ou voltar para tela anterior
+                            // Toast.makeText(context, "Nenhuma página disponível", Toast.LENGTH_SHORT).show()
+                            requireActivity().onBackPressed()
+                        }
                     })
                 }
-                if (::mPager.isInitialized && isPagerAdapterInitialized()) {
-                    mPager.adapter = mPagerAdapter
-                }
+                // Remove o setAdapter fora do observer, pois agora está dentro da checagem
                 val pagerLayoutParams = mPager.layoutParams as ViewGroup.MarginLayoutParams
                 pagerLayoutParams.leftMargin += navHoldersSize
                 pagerLayoutParams.rightMargin += navHoldersSize
-                mPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+                mPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
                         handleNavButtons()
                     }
@@ -91,7 +95,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
                 rightNavHolder.setOnClickListener {
                     var tab = mPager.currentItem
                     if (isPagerAdapterInitialized() &&
-                        mPagerAdapter.count > 1 && tab != mPagerAdapter.count - 1
+                        mPagerAdapter.itemCount > 1 && tab != mPagerAdapter.itemCount - 1
                     ) {
                         speak(getString(R.string.next))
                     }
@@ -107,7 +111,7 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     override fun nextPage() {
         if (shouldEnableNavButtons()) {
             var currentItem = mPager.currentItem
-            if (currentItem == mPagerAdapter.count - 1) {
+            if (currentItem == mPagerAdapter.itemCount - 1) {
                 mPager.currentItem = 0
             } else {
                 mPager.currentItem = ++currentItem
@@ -133,13 +137,13 @@ class PageFragment : Fragment(), ViewPagerItemFragment.PageInteractionListener {
     private fun isPagerAdapterInitialized(): Boolean = this::mPagerAdapter.isInitialized
 
     private fun shouldEnableNavButtons(): Boolean = isPagerAdapterInitialized() &&
-        mPagerAdapter.count > 1
+        mPagerAdapter.itemCount > 1
 
     private fun shouldDisableLeftNavButton(): Boolean = isPagerAdapterInitialized() &&
         mPager.currentItem == 0
 
     private fun shouldDisableRightButton(): Boolean = isPagerAdapterInitialized() &&
-        mPager.currentItem >= mPagerAdapter.count - 1
+        mPager.currentItem >= mPagerAdapter.itemCount - 1
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

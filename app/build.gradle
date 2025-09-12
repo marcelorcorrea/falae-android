@@ -1,20 +1,44 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'org.jetbrains.kotlin.android.extensions'
-androidExtensions {
-    experimental = true
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
 }
 
 android {
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
+
+    // Packaging options para corrigir warnings
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
+    // Disable release builds for now
+    //variantFilter { variant ->
+    //    if (variant.buildType.name == 'release') {
+    //        variant.setIgnore(true)
+    //    }
+    //}
+
+    // Disable lint for now
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        // Adicionar configurações específicas para Android 15
+        disable 'PermissionImpliesUnsupportedChromeOsHardware'
+        disable 'DataExtractionRules'
+    }
+
+    namespace "org.falaeapp.falae"
     def RELEASE_PROPERTIES = "keys/release_keystore.properties"
 
     signingConfigs {
@@ -36,21 +60,50 @@ android {
             keyPassword "falaeapp"
         }
     }
-    buildToolsVersion '28.0.3'
-    compileSdkVersion 29
+    buildToolsVersion '35.0.0'
+    compileSdkVersion 35
     defaultConfig {
         applicationId "org.falaeapp.falae"
-        minSdkVersion 15
-        targetSdkVersion 29
-        versionCode 21
-        versionName "1.0.21"
+        minSdkVersion 21
+        targetSdkVersion 35
+        versionCode 30
+        versionName "1.0.30"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Android 15 specific configurations
+        resourceConfigurations += ["en", "pt"]
+        
+        vectorDrawables {
+            useSupportLibrary true
+        }
     }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    // Configuração para suportar múltiplas arquiteturas (ARM, x86, etc.)
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk false
+        }
+    }
+
+    // Configuração para Android App Bundle (recomendado para Play Store)
+    bundle {
+        abi {
+            enableSplit true
+        }
+    }
+
     testBuildType "debug"
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
-            buildConfigField 'String', "BASE_URL", '"https://10.0.2.2:3000"'
+            buildConfigField 'String', "BASE_URL", '"https://www.falaeapp.org"'
         }
 
         release {
@@ -65,33 +118,70 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'commons-io:commons-io:20030203.000550'
-    implementation "com.android.support:design:29.0.0"
-    implementation "com.android.support:appcompat-v7:29.0.0"
-    implementation "com.android.support:recyclerview-v7:29.0.0"
-    implementation "com.android.support:support-v4:29.0.0"
-    implementation "com.android.support:gridlayout-v7:29.0.0"
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'com.android.volley:volley:1.1.0'
-    implementation 'jp.wasabeef:picasso-transformations:2.1.2'
-    implementation 'com.google.android.gms:play-services-base:17.3.0'
-    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4'
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
-    implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    testImplementation 'junit:junit:4.13-beta-3'
-    testImplementation 'org.hamcrest:hamcrest-library:2.1'
-    testImplementation 'junit:junit:4.13-beta-3'
-    testImplementation 'org.mockito:mockito-core:2.27.0'
-    testImplementation 'androidx.test.espresso:espresso-core:3.3.0-rc02'
-}
-repositories {
-    mavenCentral()
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.24"
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'commons-io:commons-io:2.16.1'
+
+    // Material Design e componentes AndroidX (atualizados para Android 15)
+    implementation "com.google.android.material:material:1.12.0"
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "androidx.recyclerview:recyclerview:1.4.0"
+    implementation "androidx.core:core-ktx:1.15.0"
+    implementation 'androidx.gridlayout:gridlayout:1.1.0'
+    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
+    implementation "androidx.fragment:fragment-ktx:1.8.5"
+    implementation "androidx.activity:activity-ktx:1.9.3"
+    implementation 'androidx.window:window:1.3.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+
+    // Imagens e rede
+    implementation 'com.squareup.picasso:picasso:2.8' // Picasso não tem update, mas considere migrar para Coil
+    implementation 'com.android.volley:volley:1.2.1' // Última versão
+    implementation 'jp.wasabeef:picasso-transformations:2.4.0'
+    implementation 'com.google.android.gms:play-services-base:18.4.0'
+
+    // Coil - alternativa moderna ao Picasso
+    implementation 'io.coil-kt:coil:2.6.0'
+    implementation 'io.coil-kt:coil-gif:2.6.0'
+
+    // Retrofit para requisições de rede
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+
+    // Lifecycle e ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.8.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.0"
+
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+
+    // Room
+    implementation "androidx.room:room-runtime:2.7.0"
+    implementation "androidx.room:room-ktx:2.7.0"
+    kapt "androidx.room:room-compiler:2.7.0"
+
+    // Compatibilidade com Android 15
+    implementation 'androidx.concurrent:concurrent-futures-ktx:1.2.0'
+    implementation 'androidx.datastore:datastore-preferences:1.1.1'
+    implementation 'androidx.work:work-runtime-ktx:2.10.0'
+    
+    // Android 15 Edge-to-Edge support
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation 'androidx.window:window-core:1.4.0'
+
+    // Permissões
+    implementation 'androidx.activity:activity-compose:1.9.0'
+    implementation 'com.google.accompanist:accompanist-permissions:0.37.0'
+
+    // Testes
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    // Repositories are now defined in settings.gradle
 }

@@ -2,6 +2,7 @@ package org.falaeapp.falae.util
 
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import org.falaeapp.falae.R
 
 object Util {
@@ -43,8 +44,8 @@ object Util {
         alertDialog.setOnShowListener {
             val buttonPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
             val buttonNegative = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-            buttonPositive.setTextColor(context.resources.getColor(R.color.colorAccent))
-            buttonNegative.setTextColor(context.resources.getColor(R.color.colorAccent))
+            buttonPositive.setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+            buttonNegative.setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
         }
         return alertDialog
     }

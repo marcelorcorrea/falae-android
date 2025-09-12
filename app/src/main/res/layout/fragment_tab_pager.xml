@@ -16,10 +16,10 @@
         app:tabTextAppearance="@style/TabTextStyle"
         app:tabTextColor="@color/green" />
 
-    <androidx.viewpager.widget.ViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="0dp"
         android:layout_weight="1" />
 
 </LinearLayout>

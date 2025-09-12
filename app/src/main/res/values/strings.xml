@@ -15,6 +15,7 @@
     <string name="users">Sincronizar usuário</string>
     <string name="sync_user">Sincronizar Usuário</string>
     <string name="voice">Voz</string>
+    <string name="voice_settings">Configurações de Voz</string>
     <string name="previous">Voltar</string>
     <string name="next">Avançar</string>
     <string name="image_view_descriptor">imagem</string>
@@ -30,6 +31,8 @@
     <string name="page_not_found">A prancha não contém a página selecionada.</string>
     <string name="download_failed">Um erro ocorreu ao baixar as imagens. Por favor verifique sua conexão com a internet.</string>
     <string name="error_internet_access">Um erro ocorreu ao tentar conectar-se com o servidor. Por favor verifique sua conexão com a internet.</string>
+    <string name="error_no_network">Não foi possível detectar uma conexão com a internet. Por favor verifique sua conexão e tente novamente.</string>
+    <string name="error_io_exception">Ocorreu um erro ao processar os dados. Por favor tente novamente.</string>
     <string name="remove">Remover</string>
     <string name="removeUser">Remover Usuário</string>
     <string name="questionRemoveUser">Tem certeza que deseja remover este usuário?</string>
@@ -52,4 +55,14 @@
     <string name="clear_public_cache">Limpar cache público</string>
     <string name="cache">Cache</string>
     <string name="clear_cache">Limpar Cache</string>
+    <string name="error_starting_app">Erro ao iniciar o aplicativo: %1$s</string>
+    <string name="synchronizing">Sincronizando</string>
+    <string name="tts_portuguese_not_available">Voz em português não está disponível. Instale o pacote de idioma português.</string>
+    <string name="error_initializing_tts">Erro ao inicializar o TTS</string>
+    <string name="error_speaking_text">Erro ao falar o texto: %1$s</string>
+    <string name="invalid_email_password">Email ou senha inválidos</string>
+    <string name="user_returned_null">Usuário retornado é nulo</string>
+    <string name="error_generic">Erro: %1$s</string>
+    <string name="error_processing_response">Erro ao processar resposta: %1$s</string>
+    <string name="error_critical">Erro crítico: %1$s</string>
 </resources>

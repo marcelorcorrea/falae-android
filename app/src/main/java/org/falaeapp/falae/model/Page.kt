@@ -1,7 +1,7 @@
 package org.falaeapp.falae.model
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by marcelo on 4/11/17.

@@ -8,7 +8,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,14 +29,14 @@ class SpreadSheetFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        onAttachFragment(parentFragment!!)
-        setHasOptionsMenu(true)
+        parentFragment?.let { onAttachFragment(it) }
+        // setHasOptionsMenu(true) está depreciado, agora usamos MenuProvider
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_spread_sheet, container, false)
         val recyclerView = view.findViewById(R.id.spreadsheet_recycler) as RecyclerView
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
+        userViewModel = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.let {
                 spreadSheetAdapter = SpreadSheetAdapter(context, it.spreadsheets) { spreadSheet ->
@@ -47,6 +49,37 @@ class SpreadSheetFragment : Fragment() {
                 recyclerView.adapter = spreadSheetAdapter
             }
         })
+
+        // Configurar o MenuProvider (substitui setHasOptionsMenu e onCreateOptionsMenu/onOptionsItemSelected)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                userViewModel.currentUser.observe(viewLifecycleOwner) { user ->
+                    if (user != null && !user.isSampleUser()) {
+                        menuInflater.inflate(R.menu.board_menu, menu)
+                    }
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.remove_item -> {
+                        context?.let { context ->
+                            Util.createDialog(
+                                context = context,
+                                title = getString(R.string.removeUser),
+                                message = getString(R.string.questionRemoveUser),
+                                positiveText = getString(R.string.yes_option),
+                                positiveClick = { userViewModel.removeUser() },
+                                negativeText = getString(R.string.no_option)
+                            ).show()
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         val layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
         return view
@@ -60,32 +93,9 @@ class SpreadSheetFragment : Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
-            if (user != null && !user.isSampleUser()) {
-                inflater.inflate(R.menu.board_menu, menu)
-            }
-        })
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.remove_item -> {
-                context?.let { context ->
-                    Util.createDialog(
-                        context = context,
-                        title = getString(R.string.removeUser),
-                        message = getString(R.string.questionRemoveUser),
-                        positiveText = getString(R.string.yes_option),
-                        positiveClick = { userViewModel.removeUser() },
-                        negativeText = getString(R.string.no_option)
-                    ).show()
-                }
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
+    // Métodos depreciados substituídos pelo MenuProvider no onCreateView
+    // override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) { ... }
+    // override fun onOptionsItemSelected(item: MenuItem): Boolean { ... }
 
     interface SpreadSheetFragmentListener {
         fun displayActivity(spreadSheet: SpreadSheet)

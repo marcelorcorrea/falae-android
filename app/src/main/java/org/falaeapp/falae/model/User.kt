@@ -5,7 +5,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import org.falaeapp.falae.room.converter.SpreadSheetConverter
 
 /**

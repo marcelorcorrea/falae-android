@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -23,8 +24,9 @@ class UserInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userViewModel = ViewModelProvider(activity!!).get(UserViewModel::class.java)
-        onAttachFragment(parentFragment!!)
+        userViewModel = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
+        // onAttachFragment está depreciado, usar childFragmentManager.fragments ou parentFragmentManager
+        // Não é necessário neste caso, pois não estamos usando nenhuma interface de callback
     }
 
     override fun onCreateView(
@@ -37,16 +39,8 @@ class UserInfoFragment : Fragment() {
         val userName = view.findViewById(R.id.user_name) as TextView
         val userInfo = view.findViewById(R.id.user_information) as TextView
 
-        val brokenImage: Drawable?
-        val placeHolderImage: Drawable?
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            brokenImage = context?.resources?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.resources?.getDrawable(R.drawable.ic_person_black_24dp)
-        } else {
-            brokenImage = context?.getDrawable(R.drawable.ic_broken_image_black_48dp)
-            placeHolderImage = context?.getDrawable(R.drawable.ic_person_black_24dp)
-        }
+        val brokenImage: Drawable? = ContextCompat.getDrawable(requireContext(), R.drawable.ic_broken_image_black_48dp)
+        val placeHolderImage: Drawable? = ContextCompat.getDrawable(requireContext(), R.drawable.ic_person_black_24dp)
 
         userViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
             user?.apply {
